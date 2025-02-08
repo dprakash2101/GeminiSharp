@@ -37,4 +37,4 @@ jobs:
           git pull origin master --rebase=false
           git add last_deploy.txt
           git commit -m "Update last deploy time [skip ci]"
-          git push origin main
+          git push origin master
