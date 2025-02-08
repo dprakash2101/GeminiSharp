@@ -16,14 +16,9 @@ jobs:
           docker build --build-arg NUGET_API_KEY=${{ secrets.NUGET_API_KEY }} -t gemini-nuget-publisher .
           docker run --rm gemini-nuget-publisher
 
-      - name: Update publish log
-        run: |
-          TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
-          echo "Published at $TIMESTAMP" >> publish_log.txt
-
   log_date_and_time:
     runs-on: ubuntu-latest
-    needs: deploy
+    needs: build-and-publish
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
