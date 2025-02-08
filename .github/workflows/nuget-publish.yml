@@ -34,7 +34,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git pull origin main --rebase=false
+          git pull origin master --rebase=false
           git add last_deploy.txt
           git commit -m "Update last deploy time [skip ci]"
           git push origin main
