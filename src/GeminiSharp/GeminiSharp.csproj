@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!-- Support .NET 6, 7, and 8 -->
-		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 
 		<!-- Enable Nullable Reference Types and Implicit Usings -->
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -11,9 +10,8 @@
 		<!-- NuGet Package Metadata -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>GeminiSharp</PackageId>
-		<Version>0.0.1</Version>
+		<Version>0.0.2</Version>
 		<Authors>Devi Prakash</Authors>
-		<Company></Company>
 		<Description>A C# client SDK for Google Gemini API</Description>
 		<Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>
 		<PackageTags>Google Gemini AI SDK MachineLearning</PackageTags>
@@ -24,9 +22,6 @@
 
 		<!-- Licensing -->
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-
-		<!-- Include README -->
-		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Include Source Code in the NuGet Package -->
 		<IncludeSymbols>true</IncludeSymbols>
