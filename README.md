@@ -11,7 +11,6 @@ GeminiSharp is a C# client SDK for interacting with Google's Gemini API, enablin
 *   **Configurable Base URL:** Customize the base URL for future flexibility and alternative endpoint support.
 *   **Error Handling:**  Robustly handles API errors and exceptions, providing informative error messages.
 *   **NuGet Package Support:**  Simple installation via NuGet package manager.
-*   **Docker Support:**  Supports building and deploying GeminiSharp within Docker containers.
 
 ## Current Status
 
