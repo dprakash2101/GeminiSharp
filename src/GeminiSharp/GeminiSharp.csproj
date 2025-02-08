@@ -10,7 +10,7 @@
 		<!-- NuGet Package Metadata -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>GeminiSharp</PackageId>
-		<Version>0.0.3</Version>
+		<Version>0.0.3.21</Version>
 		<Authors>Devi Prakash</Authors>
 		<Description>A C# client SDK for Google Gemini API</Description>
 		<Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>

@@ -1,5 +1,7 @@
-﻿using System.Text;
+﻿using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
+using GeminiSharp.Models.Error;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
 
@@ -22,26 +24,34 @@ namespace GeminiSharp.API
         }
 
         /// <summary>
-        /// Sends a request to the Gemini API.
+        /// Calls the Gemini API to generate content.
+        /// Throws a GeminiApiException if the API returns an error response.
         /// </summary>
-        public async Task<GenerateContentResponse?> GenerateContentAsync(string model, GenerateContentRequest request)
+        public async Task<GenerateContentResponse> GenerateContentAsync(string model, GenerateContentRequest request)
         {
             if (string.IsNullOrWhiteSpace(model)) throw new ArgumentException("Model cannot be empty", nameof(model));
 
             string url = $"{_baseUrl}{model}:generateContent?key={_apiKey}";
 
             var jsonRequest = JsonSerializer.Serialize(request);
-            var httpContent = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-
-            using var response = await _httpClient.PostAsync(url, httpContent);
+            var response = await _httpClient.PostAsJsonAsync(url, request);
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"API call failed: {response.StatusCode}");
+                // Read the error response
+                var errorContent = await response.Content.ReadAsStringAsync();
+                var errorResponse = JsonSerializer.Deserialize<ApiErrorResponse>(errorContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                // Throw API Exception with the error details
+                throw new GeminiApiException(
+                    errorResponse?.Error?.Message ?? "Unknown error occurred",
+                    response.StatusCode,
+                    errorResponse
+                );
             }
 
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<GenerateContentResponse>(jsonResponse);
+            return await response.Content.ReadFromJsonAsync<GenerateContentResponse>()
+                   ?? throw new Exception("Failed to deserialize response from Gemini API.");
         }
     }
 }
