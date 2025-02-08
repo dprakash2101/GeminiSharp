@@ -15,6 +15,8 @@
 		<Description>A C# client SDK for Google Gemini API</Description>
 		<Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>
 		<PackageTags>Google Gemini AI SDK MachineLearning</PackageTags>
+		<PackageReleaseNotes>https://github.com/dprakash2101/GeminiSharp/releases</PackageReleaseNotes>
+		 <PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Repository Information -->
 		<RepositoryUrl>https://github.com/dprakash2101/GeminiSharp</RepositoryUrl>
