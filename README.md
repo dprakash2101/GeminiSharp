@@ -31,6 +31,15 @@ You can install GeminiSharp via NuGet:
 dotnet add package GeminiSharp
 ```
 
+## 📚 Supported .NET Versions
+
+| .NET Version | Supported |
+|-------------|-----------|
+| .NET 6      | ✅ Yes    |
+| .NET 7      | ✅ Yes    |
+| .NET 8      | ✅ Yes    |
+
+
 ## Usage
 ### Basic Example
 
