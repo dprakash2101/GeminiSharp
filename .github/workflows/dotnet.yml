@@ -4,13 +4,13 @@
 name: .NET Build
 
 on:
-  push: 
+  push:
     branches:
-      - '*'  
+      - '*' # Triggers on push to any branch
+  pull_request:
+    branches:
+      - '*' # Triggers on pull requests to any branch
 
-  pull_request: 
-    branches:
-      - master
 jobs:
   build:
 
