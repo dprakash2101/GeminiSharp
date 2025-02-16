@@ -258,4 +258,3 @@ Gemini-Model: gemini-1.5-flash
 
 ---
 
-This documentation provides **end-to-end** guidance on **structured output** in **GeminiSharp** for **C# and ASP.NET Web API**. 🚀 Let me know if you need further refinements!
