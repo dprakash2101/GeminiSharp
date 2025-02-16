@@ -1,10 +1,6 @@
 ﻿using GeminiSharp.API;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
-using GeminiSharp.Models.Error;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace GeminiSharp.Client
 {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GeminiSharp.API;
+﻿using GeminiSharp.API;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
 
@@ -39,6 +34,7 @@ namespace GeminiSharp.Client
         /// <exception cref="Exception">Thrown if an unexpected error occurs.</exception>
         public async Task<GenerateContentResponse?> GenerateStructuredContentAsync(string model, string prompt, object jsonSchema)
         {
+      
             var request = new GeminiStructuredRequest
             {
                 Contents = new List<RequestContent>
@@ -53,8 +49,8 @@ namespace GeminiSharp.Client
                 },
                 GenerationConfig= new GenerationConfig
                 {
-                    ResponseMimeType = "application/json",
-                    ResponseSchema = jsonSchema
+                    response_mime_type = "application/json",
+                    response_schema = jsonSchema
                 }
             };
 

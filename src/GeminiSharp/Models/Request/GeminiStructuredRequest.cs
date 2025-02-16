@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace GeminiSharp.Models.Request
+﻿namespace GeminiSharp.Models.Request
 {
     /// <summary>
     /// Represents a request for generating structured content using the Gemini API.
@@ -27,11 +24,11 @@ namespace GeminiSharp.Models.Request
         /// <summary>
         /// Gets or sets the MIME type of the response. Defaults to "application/json".
         /// </summary>
-        public string ResponseMimeType { get; set; } = "application/json";
+        public string response_mime_type { get; set; } = "application/json";
 
         /// <summary>
         /// Gets or sets the user-defined JSON schema that defines the structured output format.
         /// </summary>
-        public object ResponseSchema { get; set; }  // User-defined class converted to JSON schema
+        public object response_schema { get; set; }  // User-defined class converted to JSON schema
     }
 }
