@@ -45,7 +45,7 @@ namespace GeminiSharp.Client
             {
                 return await _apiClient.GenerateContentAsync(model, request);
             }
-            catch (GeminiApiException ex)
+            catch (GeminiApiException)
             {
                 // The error details from the API are already captured in the exception (ex).
                 // Rethrow it so that the consumer can inspect the ApiErrorResponse.
