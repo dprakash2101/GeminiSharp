@@ -1,10 +1,6 @@
 ﻿using GeminiSharp.API;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
-using GeminiSharp.Models.Error;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace GeminiSharp.Client
 {
@@ -45,7 +41,7 @@ namespace GeminiSharp.Client
             {
                 return await _apiClient.GenerateContentAsync(model, request);
             }
-            catch (GeminiApiException ex)
+            catch (GeminiApiException)
             {
                 // The error details from the API are already captured in the exception (ex).
                 // Rethrow it so that the consumer can inspect the ApiErrorResponse.
