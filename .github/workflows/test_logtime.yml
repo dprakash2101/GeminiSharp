@@ -6,7 +6,6 @@ on:
 jobs:
   log_date_and_time:
     runs-on: ubuntu-latest
-    needs: build-and-publish
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
