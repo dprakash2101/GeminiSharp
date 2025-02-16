@@ -14,7 +14,7 @@ GeminiSharp is a C# client SDK for interacting with Google's Gemini API, enablin
 
 ## Current Status
 
-GeminiSharp initially focused only on text generation. We have now added support for structured output generation using JSON schemas. Future development will include:
+GeminiSharp initially focused only on text generation. I have now added support for structured output generation using JSON schemas. Future development will include:
 
 - **Vision support** 📷  
 - **Audio understanding** 🎧  
@@ -72,7 +72,7 @@ class Program
 
 ### Structured Response Example
 
-Structured output generation is a new feature in GeminiSharp. For detailed documentation, see [Structured Output Documentation](docs/structured-output.md).
+Structured output generation is a new feature in GeminiSharp. For detailed documentation, see [Structured Output Documentation](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/structured-output.md).
 
 ```csharp
 using GeminiSharp.Client;
