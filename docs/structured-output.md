@@ -1,7 +1,3 @@
-Here's the documentation for **Structured Output in GeminiSharp**, including usage in **C#** and **ASP.NET Web API**.
-
----
-
 # **Structured Output in GeminiSharp**
 Structured output in GeminiSharp allows users to define a structured response format by converting their **C# models into JSON schema**. This feature ensures **predictable and well-formed responses** when interacting with the **Gemini API**.
 
