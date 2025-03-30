@@ -1,40 +1,43 @@
 ﻿using System.Net.Http;
 using GeminiSharp.API;
+using GeminiSharp.API.Interface;
 using GeminiSharp.Client.Interface;
 using GeminiSharp.Models.Options;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
+using Serilog;
 
 namespace GeminiSharp.Client
 {
     /// <summary>
     /// Provides an interface for generating structured output using the Gemini API.
     /// </summary>
-    /// <remarks>
-    /// This class is designed to be used with Dependency Injection (DI) in ASP.NET Core, 
-    /// where configuration is provided via <see cref="GeminiClientOptions"/> from appsettings.json.
-    /// </remarks>
-    public class GeminiStructuredClient: IGeminiStructuredClient
+    public class GeminiStructuredClient : IGeminiStructuredClient
     {
-        private readonly GeminiApiClient _apiClient;
+
+        private readonly IGeminiApiClient _apiClient;
         private readonly string _defaultModel;
+        private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GeminiStructuredClient"/> class with configuration options.
+        /// Initializes a new instance of the <see cref="GeminiClient"/> class with configuration options.
         /// </summary>
-        /// <param name="httpClient">The HTTP client used for API requests, typically provided by <see cref="IHttpClientFactory"/>.</param>
-        /// <param name="options">The configuration options including API key, base URL, default model, and retry settings.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="httpClient"/> or <paramref name="options"/> is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown when required properties in <paramref name="options"/> are not set.</exception>
-        public GeminiStructuredClient(HttpClient httpClient, GeminiClientOptions options)
+        /// <param name="apiClient">The Gemini API client instance injected via DI.</param>
+        /// <param name="options">The configuration options including API key, base URL, and default model.</param>
+        /// <param name="logger">The Serilog logger instance.</param>
+        public GeminiStructuredClient(IGeminiApiClient apiClient, GeminiClientOptions options, ILogger logger)
         {
+            _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
             if (options is null)
                 throw new ArgumentNullException(nameof(options));
 
-            _apiClient = new GeminiApiClient(httpClient, options);
             _defaultModel = !string.IsNullOrWhiteSpace(options.DefaultModel)
                 ? options.DefaultModel
                 : throw new InvalidOperationException("DefaultModel must be set in the configuration.");
+
+            _logger.Information("GeminiClient initialized with default model: {DefaultModel}", _defaultModel);
         }
 
         /// <summary>
@@ -74,17 +77,21 @@ namespace GeminiSharp.Client
 
             try
             {
-                return await _apiClient.GenerateStructuredContentAsync(_defaultModel, request).ConfigureAwait(false);
+                _logger.Information("Sending structured content request to Gemini API with model {Model}", _defaultModel);
+                var response = await _apiClient.GenerateStructuredContentAsync(_defaultModel, request).ConfigureAwait(false);
+                _logger.Information("Received structured content response from Gemini API");
+                return response;
             }
-            catch (GeminiApiException)
+            catch (GeminiApiException ex)
             {
-                throw; // Let API errors bubble up for proper handling.
+                _logger.Error(ex, "Gemini API returned an error");
+                throw;
             }
             catch (Exception ex)
             {
+                _logger.Error(ex, "An unexpected error occurred while generating structured content.");
                 throw new InvalidOperationException("An unexpected error occurred while generating structured content.", ex);
             }
         }
     }
 }
-

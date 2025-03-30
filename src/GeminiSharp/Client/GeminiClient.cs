@@ -5,6 +5,7 @@ using GeminiSharp.Client.Interface;
 using GeminiSharp.Models.Options;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
+using Serilog;
 
 namespace GeminiSharp.Client
 {
@@ -19,23 +20,27 @@ namespace GeminiSharp.Client
     {
         private readonly IGeminiApiClient _apiClient;
         private readonly string _defaultModel;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GeminiClient"/> class with configuration options.
         /// </summary>
-        /// <param name="httpClient">The HTTP client used for API requests, typically provided by <see cref="IHttpClientFactory"/>.</param>
-        /// <param name="options">The configuration options including API key, base URL, default model, and retry settings.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="httpClient"/> or <paramref name="options"/> is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown when required properties in <paramref name="options"/> are not set.</exception>
-        public GeminiClient(HttpClient httpClient, GeminiClientOptions options)
+        /// <param name="apiClient">The Gemini API client instance injected via DI.</param>
+        /// <param name="options">The configuration options including API key, base URL, and default model.</param>
+        /// <param name="logger">The Serilog logger instance.</param>
+        public GeminiClient(IGeminiApiClient apiClient, GeminiClientOptions options, ILogger logger)
         {
+            _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
             if (options is null)
                 throw new ArgumentNullException(nameof(options));
 
-            _apiClient = new GeminiApiClient(httpClient, options);
             _defaultModel = !string.IsNullOrWhiteSpace(options.DefaultModel)
                 ? options.DefaultModel
                 : throw new InvalidOperationException("DefaultModel must be set in the configuration.");
+
+            _logger.Information("GeminiClient initialized with default model: {DefaultModel}", _defaultModel);
         }
 
         /// <summary>
@@ -66,14 +71,21 @@ namespace GeminiSharp.Client
 
             try
             {
-                return await _apiClient.GenerateContentAsync(_defaultModel, request).ConfigureAwait(false);
+                _logger.Information("Sending content generation request with model: {Model}", _defaultModel);
+                _logger.Debug("Request Payload: {@Request}", request);
+                var response = await _apiClient.GenerateContentAsync(_defaultModel, request).ConfigureAwait(false);
+                _logger.Information("Received content generation response.");
+                _logger.Debug("Response Payload: {@Response}", response);
+                return response;
             }
-            catch (GeminiApiException)
+            catch (GeminiApiException ex)
             {
-                throw; // Rethrow specific API errors for better debugging.
+                _logger.Error(ex, "Gemini API returned an error");
+                throw;
             }
             catch (Exception ex)
             {
+                _logger.Error(ex, "An unexpected error occurred while generating content.");
                 throw new InvalidOperationException("An unexpected error occurred while generating content.", ex);
             }
         }
