@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
+using GeminiSharp.API.Interface;
 using GeminiSharp.Configuration;
-using GeminiSharp.Models;
 using GeminiSharp.Models.Error;
 using GeminiSharp.Models.Options;
 using GeminiSharp.Models.Request;
@@ -12,7 +12,7 @@ namespace GeminiSharp.API
     /// <summary>
     /// Provides low-level access to the Google Gemini API for generating content and structured responses.
     /// </summary>
-    public class GeminiApiClient
+    public class GeminiApiClient : IGeminiApiClient
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
