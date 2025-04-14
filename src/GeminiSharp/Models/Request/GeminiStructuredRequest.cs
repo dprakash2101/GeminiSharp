@@ -24,11 +24,11 @@
         /// <summary>
         /// Gets or sets the MIME type of the response. Defaults to "application/json".
         /// </summary>
-        public string response_mime_type { get; set; } = "application/json";
+        public string? response_mime_type { get; set; } = "application/json";
 
         /// <summary>
         /// Gets or sets the user-defined JSON schema that defines the structured output format.
         /// </summary>
-        public object response_schema { get; set; }  // User-defined class converted to JSON schema
+        public object? response_schema { get; set; }  // User-defined class converted to JSON schema
     }
 }

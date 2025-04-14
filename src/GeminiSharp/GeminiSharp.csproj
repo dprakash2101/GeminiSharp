@@ -10,7 +10,7 @@
 		<!-- NuGet Package Metadata -->
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>GeminiSharp</PackageId>
-		<Version>0.0.1.4</Version>
+		<Version>1.0.0</Version>
 		<Authors>Devi Prakash</Authors>
 		<Description>A C# client SDK for Google Gemini API</Description>
 		<Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>
@@ -37,6 +37,9 @@
 	<!-- README File for NuGet -->
 	<ItemGroup>
     	<None Include="..\..\README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Serilog" Version="4.2.0" />
 	</ItemGroup>
 
 

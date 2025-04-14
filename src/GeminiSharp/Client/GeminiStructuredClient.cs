@@ -1,6 +1,8 @@
 ﻿using GeminiSharp.API;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
+using GeminiSharp.Models.Utilities;
+using Serilog;
 
 namespace GeminiSharp.Client
 {
@@ -14,24 +16,37 @@ namespace GeminiSharp.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="GeminiStructuredClient"/> class.
         /// </summary>
-        /// <param name="httpClient">The HTTP client used for API requests.</param>
-        /// <param name="apiKey">The API key for authenticating requests.</param>
+        /// <param name="apiKey">The API key for authentication.</param>
         /// <param name="baseUrl">The base URL of the Gemini API (optional).</param>
-        public GeminiStructuredClient(HttpClient httpClient, string apiKey, string? baseUrl = null)
+        /// <param name="retryConfig">Retry configuration (optional).</param>
+        public GeminiStructuredClient(string apiKey, string? baseUrl = null, RetryConfig? retryConfig = null)
         {
-            _apiClient = new GeminiApiClient(httpClient, apiKey, baseUrl);
+            // Pass the retryConfig along with other parameters to GeminiApiClient
+            _apiClient = new GeminiApiClient(apiKey, httpClient: null, baseUrl: baseUrl, retryConfig: retryConfig);
         }
 
         /// <summary>
-        /// Generates structured content based on user input and a predefined JSON schema.
-        /// The user is responsible for defining the schema in their request.
+        /// Initializes a new instance of the <see cref="GeminiStructuredClient"/> class with a custom HttpClient.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client used for API requests.</param>
+        /// <param name="apiKey">The API key for authentication.</param>
+        /// <param name="baseUrl">The base URL of the Gemini API (optional).</param>
+        /// <param name="retryConfig">Retry configuration (optional).</param>
+        public GeminiStructuredClient(HttpClient httpClient, string apiKey, string? baseUrl = null, RetryConfig? retryConfig = null)
+        {
+            // Pass the custom HttpClient, apiKey, baseUrl, and retryConfig to GeminiApiClient
+            _apiClient = new GeminiApiClient(apiKey, httpClient, baseUrl, retryConfig);
+        }
+
+        /// <summary>
+        /// Generates structured content based on a prompt and a JSON schema.
         /// </summary>
         /// <param name="model">The Gemini model to use (e.g., "gemini-1.5-flash").</param>
         /// <param name="prompt">The user prompt that instructs the model.</param>
         /// <param name="jsonSchema">The JSON schema defining the structured output format.</param>
-        /// <returns>The structured output as a <see cref="GenerateContentResponse"/>.</returns>
-        /// <exception cref="GeminiApiException">Thrown if the API returns an error response.</exception>
-        /// <exception cref="Exception">Thrown if an unexpected error occurs.</exception>
+        /// <returns>A <see cref="GenerateContentResponse"/> containing the structured output.</returns>
+        /// <exception cref="GeminiApiException">Thrown if the API returns an error.</exception>
+        /// <exception cref="ArgumentException">Thrown if the prompt or schema is empty or null.</exception>
         public async Task<GenerateContentResponse?> GenerateStructuredContentAsync(string model, string prompt, object jsonSchema)
         {
       
@@ -56,14 +71,19 @@ namespace GeminiSharp.Client
 
             try
             {
-                return await _apiClient.GenerateStructuredContentAsync(model, request);
+                Log.Information("Generating structured content for model {Model} with prompt: {Prompt}", model, prompt);
+                var response = await _apiClient.SendRequestAsync(model, request);
+                Log.Information("Successfully generated structured content for model {Model}.", model);
+                return response;
             }
-            catch (GeminiApiException)
+            catch (GeminiApiException ex)
             {
+                Log.Error(ex, "API error while generating structured content for model {Model}.", model);
                 throw;
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Unexpected error while generating structured content for model {Model}.", model);
                 throw new Exception("An unexpected error occurred while generating structured content.", ex);
             }
         }
