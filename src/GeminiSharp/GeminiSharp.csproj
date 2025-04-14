@@ -1,46 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <PropertyGroup>
+        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>GeminiSharp</PackageId>
+        <Version>0.0.1.5</Version>
+        <Authors>Devi Prakash</Authors>
+        <Description>A C# client SDK for Google Gemini API</Description>
+        <Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>
+        <PackageTags>Google Gemini AI SDK MachineLearning</PackageTags>
+        <PackageReleaseNotes>https://github.com/dprakash2101/GeminiSharp/releases</PackageReleaseNotes>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/dprakash2101/GeminiSharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <!-- Specify the NuGet package icon -->
+        <PackageIcon>icon.jpg</PackageIcon>
+    </PropertyGroup>
 
-		<!-- Enable Nullable Reference Types and Implicit Usings -->
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
+    <!-- Include README and Icon in the NuGet package -->
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="" />
+        <!-- Include the icon file from the root icon folder -->
+        <None Include="..\..\icon\icon.jpg" Pack="true" PackagePath="" />
+    </ItemGroup>
 
-		<!-- NuGet Package Metadata -->
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageId>GeminiSharp</PackageId>
-		<Version>1.0.0</Version>
-		<Authors>Devi Prakash</Authors>
-		<Description>A C# client SDK for Google Gemini API</Description>
-		<Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>
-		<PackageTags>Google Gemini AI SDK MachineLearning</PackageTags>
-		<PackageReleaseNotes>https://github.com/dprakash2101/GeminiSharp/releases</PackageReleaseNotes>
-		 <PackageReadmeFile>README.md</PackageReadmeFile>
-
-		<!-- Repository Information -->
-		<RepositoryUrl>https://github.com/dprakash2101/GeminiSharp</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-
-		<!-- Licensing -->
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-
-		<!-- Include Source Code in the NuGet Package -->
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-
-
-		<!-- .NET Compatibility -->
-		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-	</PropertyGroup>
-	<!-- README File for NuGet -->
-	<ItemGroup>
-    	<None Include="..\..\README.md" Pack="true" PackagePath="" />
-	</ItemGroup>
-	<ItemGroup>
-	  <PackageReference Include="Serilog" Version="4.2.0" />
-	</ItemGroup>
-
+    <ItemGroup>
+        <PackageReference Include="Serilog" Version="4.2.0" />
+    </ItemGroup>
 
 </Project>
