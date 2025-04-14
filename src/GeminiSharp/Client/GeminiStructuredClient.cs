@@ -1,6 +1,7 @@
 ﻿using GeminiSharp.API;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
+using GeminiSharp.Models.Utilities;
 using Serilog;
 
 namespace GeminiSharp.Client
@@ -17,9 +18,11 @@ namespace GeminiSharp.Client
         /// </summary>
         /// <param name="apiKey">The API key for authentication.</param>
         /// <param name="baseUrl">The base URL of the Gemini API (optional).</param>
-        public GeminiStructuredClient(string apiKey, string? baseUrl = null)
+        /// <param name="retryConfig">Retry configuration (optional).</param>
+        public GeminiStructuredClient(string apiKey, string? baseUrl = null, RetryConfig? retryConfig = null)
         {
-            _apiClient = new GeminiApiClient(apiKey, baseUrl);
+            // Pass the retryConfig along with other parameters to GeminiApiClient
+            _apiClient = new GeminiApiClient(apiKey, httpClient: null, baseUrl: baseUrl, retryConfig: retryConfig);
         }
 
         /// <summary>
@@ -28,9 +31,11 @@ namespace GeminiSharp.Client
         /// <param name="httpClient">The HTTP client used for API requests.</param>
         /// <param name="apiKey">The API key for authentication.</param>
         /// <param name="baseUrl">The base URL of the Gemini API (optional).</param>
-        public GeminiStructuredClient(HttpClient httpClient, string apiKey, string? baseUrl = null)
+        /// <param name="retryConfig">Retry configuration (optional).</param>
+        public GeminiStructuredClient(HttpClient httpClient, string apiKey, string? baseUrl = null, RetryConfig? retryConfig = null)
         {
-            _apiClient = new GeminiApiClient(httpClient, apiKey, baseUrl);
+            // Pass the custom HttpClient, apiKey, baseUrl, and retryConfig to GeminiApiClient
+            _apiClient = new GeminiApiClient(apiKey, httpClient, baseUrl, retryConfig);
         }
 
         /// <summary>
@@ -67,7 +72,7 @@ namespace GeminiSharp.Client
             try
             {
                 Log.Information("Generating structured content for model {Model} with prompt: {Prompt}", model, prompt);
-                var response = await _apiClient.SendRequestAsync(model, request, "generateContent");
+                var response = await _apiClient.SendRequestAsync(model, request);
                 Log.Information("Successfully generated structured content for model {Model}.", model);
                 return response;
             }

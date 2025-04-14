@@ -3,7 +3,7 @@
     public class GenerateImageRequest
     {
         public List<RequestContent> Contents { get; set; } = new();
-        public ImageGenerationConfig generationConfig { get; set; } 
+        public ImageGenerationConfig? generationConfig { get; set; } 
 
     }
     public class ImageGenerationConfig
