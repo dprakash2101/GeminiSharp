@@ -5,9 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: ["master"]
-    # Only trigger when changes are made to the docs/ folder
-    paths:
-      - 'docs/**'
+   
 
 # Permissions for deploying to GitHub Pages
 permissions:
