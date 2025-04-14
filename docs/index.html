@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeminiSharp SDK - Power Your .NET Apps with Gemini API</title>
+    <title>GeminiSharp SDK - Empower Your .NET Apps with Google Gemini API</title>
+    <meta name="description" content="GeminiSharp SDK: A robust and user-friendly .NET client library for seamless integration with Google's Gemini API. Build powerful AI applications in C# with ease.">
     <style>
         :root {
             --primary: #1a73e8; /* Google-blue */
-            --secondary: #f1f3f4; /* Light gray */
+            --secondary: #f1f3f4; /* Light gray background */
             --accent: #34a853; /* Google-green */
-            --text: #202124;
+            --text: #202124; /* Dark text */
+            --light-text: #5f6368; /* Lighter text for descriptions */
+            --code-bg: #f0f2f5; /* Light background for code blocks */
         }
         * {
             margin: 0;
@@ -18,15 +21,17 @@
         }
         body {
             font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
+            line-height: 1.7;
             color: var(--text);
             background-color: var(--secondary);
+            -webkit-font-smoothing: antialiased;
         }
+        /* Header Styles */
         header {
             background: linear-gradient(135deg, var(--primary), #174ea6);
             color: white;
             text-align: center;
-            padding: 3rem 1rem;
+            padding: 4rem 2rem;
             position: relative;
             overflow: hidden;
         }
@@ -37,178 +42,284 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"%3E%3C/path%3E%3C/svg%3E');
-            opacity: 0.2;
+            background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%23ffffff" fill-opacity="0.15" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"%3E%3C/path%3E%3C/svg%3E');
+            opacity: 0.2; /* Slightly increased opacity for wave */
         }
         h1 {
-            font-size: 2.8rem;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 3rem;
+            margin-bottom: 0.7rem;
+            text-shadow: 0 3px 5px rgba(0,0,0,0.2);
+            font-weight: 700;
+            letter-spacing: -0.01em;
         }
         header p {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             opacity: 0.9;
-        }
-        .container {
-            max-width: 1000px;
+            color: rgba(255, 255, 255, 0.85); /* Slightly softer white */
+            max-width: 800px;
             margin: 0 auto;
-            padding: 2rem 1rem;
+        }
+
+        /* Container & Sections */
+        .container {
+            max-width: 1100px; /* Slightly wider container */
+            margin: 2rem auto;
+            padding: 0 2rem;
         }
         .section {
             background: white;
-            padding: 2rem;
-            margin-bottom: 2rem;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Slightly stronger shadow */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            transform: translateY(-7px); /* Slightly more pronounced hover */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
         h2 {
             color: var(--primary);
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
+            font-size: 2.2rem;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
         }
         p {
-            margin-bottom: 1rem;
+            color: var(--light-text); /* Use lighter text color for body paragraphs */
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
         }
         ul {
-            padding-left: 1.5rem;
-            margin-bottom: 1rem;
+            padding-left: 1.7rem;
+            margin-bottom: 1.2rem;
+            list-style-type: square; /* Square bullet points for a bit of change */
         }
         li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.7rem;
+            color: var(--light-text);
+            font-size: 1.05rem;
+        }
+        li strong {
+            color: var(--text); /* Highlight strong within list items */
+            font-weight: 600;
         }
         pre {
-            background: #f6f8fa;
-            padding: 1rem;
-            border-radius: 8px;
+            background: var(--code-bg); /* Using the code background variable */
+            padding: 1.2rem;
+            border-radius: 10px;
             overflow-x: auto;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             font-size: 0.95rem;
+            tab-size: 4; /* Standard tab size */
         }
         code {
             font-family: 'Consolas', monospace;
+            color: var(--text); /* Code text color */
         }
+        /* Call to Action Buttons */
         .cta {
             display: inline-block;
             background: var(--primary);
             color: white;
-            padding: 0.8rem 1.8rem;
+            padding: 0.9rem 2rem;
             border-radius: 25px;
             text-decoration: none;
             font-weight: 500;
-            transition: background 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .cta:hover {
-            background: #1557b0;
+            background-color: #1557b0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
         .links {
             display: flex;
-            gap: 1rem;
+            gap: 1.2rem;
             flex-wrap: wrap;
+            margin-top: 1rem;
         }
+        /* Status Grid */
         .status-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Slightly wider status items */
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
         }
         .status-item {
             background: #e8f0fe;
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.5rem;
+            border-radius: 10px;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         }
         .status-item span {
             font-weight: bold;
             color: var(--primary);
+            display: block; /* Make span a block to better separate text & icon */
+            margin-bottom: 0.5rem;
         }
+        .status-icon {
+            font-size: 1.8rem; /* Larger icons */
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent); /* Accent color for live icons */
+        }
+        .status-icon.soon {
+            color: #ffa000; /* Amber/Orange for 'Soon' icons */
+        }
+
+
+        /* Footer Styles */
         footer {
             text-align: center;
-            padding: 2rem 1rem;
+            padding: 2.5rem 2rem;
             background: #fff;
             border-top: 1px solid #ddd;
-            margin-top: 2rem;
+            margin-top: 3rem;
+            color: var(--light-text);
+            font-size: 0.95rem;
+        }
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Media Query for smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            header p {
+                font-size: 1.1rem;
+            }
+            .container {
+                padding: 0 1.5rem;
+            }
+            .section {
+                padding: 2rem;
+                margin-bottom: 2rem;
+            }
+            h2 {
+                font-size: 2rem;
+            }
+            p, li {
+                font-size: 1rem;
+            }
+            .cta {
+                padding: 0.8rem 1.6rem;
+                font-size: 0.95rem;
+            }
+            .status-grid {
+                grid-template-columns: 1fr; /* Stack status items on smaller screens */
+            }
         }
         @media (max-width: 600px) {
             h1 {
                 font-size: 2rem;
             }
-            .section {
-                padding: 1.5rem;
-            }
         }
     </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
 </head>
 <body>
     <header>
         <h1>GeminiSharp SDK</h1>
-        <p>Seamless C# Client for Google Gemini API</p>
+        <p>Empower Your .NET Applications with the Google Gemini API</p>
     </header>
     <div class="container">
         <div class="section">
             <h2>About GeminiSharp</h2>
-            <p>GeminiSharp is a C# SDK designed to simplify integration with Google's Gemini API. Whether you’re generating text, crafting images, or building structured outputs, GeminiSharp offers a clean and robust interface for .NET developers.</p>
+            <p>
+                <strong>GeminiSharp is a user-friendly C# SDK for .NET developers</strong> looking to seamlessly integrate with Google's cutting-edge Gemini API.
+                Whether you aim to generate creative text, produce stunning images, or create structured data outputs, GeminiSharp provides a clean, efficient, and robust interface to unlock the power of Gemini within your .NET projects.
+            </p>
             <div class="links">
-                <a href="https://github.com/dprakash2101/GeminiSharp" class="cta">GitHub Repo</a>
+                <a href="https://github.com/dprakash2101/GeminiSharp" class="cta">GitHub Repository</a>
                 <a href="https://www.nuget.org/packages/GeminiSharp/" class="cta">NuGet Package</a>
-                <a href="https://github.com/dprakash2101/GeminiSharp/releases/tag/0.0.1.5" class="cta">Latest Release (0.0.1.5)</a>
+                <a href="https://github.com/dprakash2101/GeminiSharp/releases/tag/0.0.1.5" class="cta">Latest v0.0.1.5 Release</a>
             </div>
         </div>
         <div class="section">
-            <h2>Features</h2>
+            <h2>Key Features</h2>
             <ul>
-                <li><strong>Text & Structured Output</strong>: Generate free-form text or structured JSON based on custom schemas.</li>
-                <li><strong>Image Generation</strong>: Create visuals from text prompts with ease.</li>
-                <li><strong>Retry Configuration</strong>: Handles transient errors automatically for reliable API calls.</li>
-                <li><strong>Unified API Client</strong>: Single client for text, image, and structured content.</li>
-                <li><strong>Logging Support</strong>: Integrates with Serilog for detailed SDK logs.</li>
-                <li><strong>Flexible Configuration</strong>: Customize models, base URLs, and API keys.</li>
-                <li><strong>Robust Error Handling</strong>: Clear error messages and exceptions for debugging.</li>
+                <li><strong>Text & Structured Output Generation</strong>: <br>Effortlessly generate free-form text responses or structured JSON outputs based on your defined schemas.</li>
+                <li><strong>Image Generation from Text</strong>: <br> Unleash your creativity and generate visuals directly from textual prompts with remarkable ease.</li>
+                <li><strong>Robust Automatic Retry Mechanism</strong>: <br> Automatically handles transient API errors, ensuring your applications remain resilient and API calls are reliably executed.</li>
+                <li><strong>Unified & Intuitive API Client</strong>: <br> A single, streamlined client interface for managing all interactions across text, image, and structured content generation.</li>
+                <li><strong>Integrated Logging with Serilog</strong>: <br> Gain deep insights into SDK operations with seamless integration with Serilog for detailed and configurable logs.</li>
+                <li><strong>Highly Flexible Configuration</strong>: <br> Tailor the SDK to your needs by customizing models, API base URLs, API keys, and more.</li>
+                <li><strong>Comprehensive Error Handling</strong>: <br> Spend less time debugging with clear, informative error messages and exceptions that simplify issue resolution.</li>
             </ul>
         </div>
         <div class="section">
-            <h2>Current Status</h2>
+            <h2>Current Status & Roadmap</h2>
             <div class="status-grid">
-                <div class="status-item">Structured Output: <span>✅ Live</span></div>
-                <div class="status-item">Image Generation: <span>✅ Live</span></div>
-                <div class="status-item">Logging Support: <span>✅ Live</span></div>
-                <div class="status-item">Retry Configuration: <span>✅ Live</span></div>
-                <div class="status-item">Vision Support: <span>📷 Soon</span></div>
-                <div class="status-item">Audio Understanding: <span>🎧 Soon</span></div>
+                <div class="status-item">
+                    <i class="status-icon">✅</i>
+                    <span>Structured Output</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon">✅</i>
+                    <span>Image Generation</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon">✅</i>
+                    <span>Logging Support</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon">✅</i>
+                    <span>Retry Configuration</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon soon">📷</i>
+                    <span>Vision Support</span>
+                    Coming Soon
+                </div>
+                <div class="status-item">
+                    <i class="status-icon soon">🎧</i>
+                    <span>Audio Understanding</span>
+                    Coming Soon
+                </div>
             </div>
         </div>
         <div class="section">
             <h2>Installation</h2>
-            <p>Install GeminiSharp via NuGet:</p>
+            <p>To integrate GeminiSharp into your .NET project, install the NuGet package:</p>
             <pre><code>dotnet add package GeminiSharp</code></pre>
-            <p>Supported .NET versions: 6, 7, and 8.</p>
+            <p>GeminiSharp officially supports .NET versions 6, 7, and 8.</p>
         </div>
         <div class="section">
-            <h2>Quick Start</h2>
-            <p>Generate text with a simple API call:</p>
+            <h2>Quick Start Guide</h2>
+            <p>Get started generating text in just a few lines of code:</p>
             <pre><code>using GeminiSharp.Client;
 
-var apiKey = "your-gemini-api-key";
+var apiKey = "YOUR_GEMINI_API_KEY"; // Replace with your actual API key
 using var httpClient = new HttpClient();
 var geminiClient = new GeminiClient(httpClient, apiKey);
 
 var response = await geminiClient.GenerateContentAsync("gemini-2.0", "Hello, Gemini!");
 Console.WriteLine(response?.Candidates?[0].Content);
 </code></pre>
-            <p>For image generation and structured output, check the <a href="https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md">full docs</a>.</p>
+            <p>For detailed guidance on image generation, structured output, and advanced configurations, please refer to the <a href="https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md">complete documentation</a>.</p>
         </div>
         <div class="section">
-            <h2>Contribute</h2>
-            <p>Want to help? Fork the repo, make your changes, and submit a pull request!</p>
-            <a href="https://github.com/dprakash2101/GeminiSharp#contributing" class="cta">Learn How</a>
+            <h2>Contribute to GeminiSharp</h2>
+            <p>We warmly welcome contributions! Want to help shape the future of GeminiSharp?</p>
+            <p>Fork the repository on GitHub, implement your enhancements or fixes, and submit a pull request. Let's build the best Gemini SDK for .NET together!</p>
+            <a href="https://github.com/dprakash2101/GeminiSharp#contributing" class="cta">Learn How to Contribute</a>
         </div>
     </div>
     <footer>
-        <p>Built by <a href="https://github.com/dprakash2101">Devi Prakash</a> | Licensed under <a href="https://github.com/dprakash2101/GeminiSharp/blob/master/LICENSE">MIT</a></p>
+        <p>Crafted with ❤️ by <a href="https://github.com/dprakash2101">Devi Prakash</a> | Open Source under <a href="https://github.com/dprakash2101/GeminiSharp/blob/master/LICENSE">MIT License</a></p>
     </footer>
 </body>
 </html>
