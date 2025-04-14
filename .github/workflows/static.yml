@@ -2,12 +2,12 @@ name: Deploy GeminiSharp Docs to GitHub Pages
 
 on:
   # Runs on pushes to the master branch
+  workflow_dispatch:
   push:
     branches: ["master"]
     # Only trigger when changes are made to the docs/ folder
     paths:
       - 'docs/**'
-  workflow_dispatch:
 
 # Permissions for deploying to GitHub Pages
 permissions:
