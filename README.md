@@ -6,6 +6,9 @@ GeminiSharp is a C# client SDK for interacting with Google's Gemini API, enablin
 
 *   **Easy-to-use C# Client:** Provides a straightforward API for interacting with Google's Gemini API from your .NET applications.
 *   **Text Generation & Structured Output:** Supports both free-form text generation and structured output using JSON schema.
+*   **Image Generation Support:** Generate images from prompts using the Gemini API.
+*   **Logging Support:** Integrate with Serilog or other logging frameworks to capture internal SDK logs.
+*   **Retry Configuration:** Automatically retry failed requests with customizable retry policies.
 *   **API Key Authentication:** Securely authenticate with the Gemini API using your API key.
 *   **Configurable Model Selection:** Easily specify the Gemini model to use for content generation.
 *   **Configurable Base URL:** Customize the base URL for future flexibility and alternative endpoint support.
@@ -14,12 +17,16 @@ GeminiSharp is a C# client SDK for interacting with Google's Gemini API, enablin
 
 ## Current Status
 
-GeminiSharp initially focused only on text generation. I have now added support for structured output generation using JSON schemas. Future development will include:
+GeminiSharp initially focused only on text generation. Now it supports:
 
-- **Vision support** 📷  
-- **Audio understanding** 🎧  
-- **Code execution** 💻  
-- **Document processing** 📄  
+- **Structured Output** ✅
+- **Image Generation** ✅
+- **Logging Support** ✅
+- **Retry Configuration** ✅
+- **Vision support** 📷 _(coming soon)_
+- **Audio understanding** 🎧 _(coming soon)_
+- **Code execution** 💻 _(coming soon)_
+- **Document processing** 📄 _(coming soon)_
 
 Stay tuned for updates! 🚀 
 
@@ -85,7 +92,20 @@ var response = await geminiClient.GenerateStructuredContentAsync<PlayerStats>(
 Console.WriteLine(JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true }));
 ```
 
-### API Error Handling
+### Image Generation Example
+
+See [Image Generation Documentation](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md).
+
+### Retry Configuration
+
+For detailed information on the retry configuration options and how to customize them in the GeminiSharp SDK, refer to the [Retry Configuration for GeminiSharp SDK](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/retry-configuration.md).
+
+## Logging
+
+The **GeminiSharp SDK** uses **Serilog** for logging. You can configure the logger in your `program.cs` to log messages to the console, debug output, and log files. 
+For detailed instructions on how to configure logging, refer to the [Logging Configuration Guide](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/logging.md).
+
+## API Error Handling
 
 The SDK throws GeminiApiException for API errors. You can catch and inspect the error details:
 
@@ -172,6 +192,16 @@ using var httpClient = new HttpClient();
 var apiKey = "your-gemini-api-key"; // Replace with your actual API key
 var geminiClient = new GeminiClient(httpClient, apiKey, customBaseUrl);
 ```
+---
+
+## 📝 Notes
+
+*   **API Key Security**: Never hardcode API keys directly in your source code, especially in client-side applications or public repositories. Use secure configuration methods like environment variables, Azure Key Vault, AWS Secrets Manager, or .NET's User Secrets.
+*   **Error Handling**: The Gemini API can return errors (e.g., invalid prompt, rate limits, model issues). Inspect the `response` object even if no exception is thrown, as it might contain error details if `base64Image` is null or empty. Implement robust error handling based on potential API responses.
+*   **Model Updates**: Google frequently updates its models. Always check the official Gemini documentation for the latest recommended models for image generation and any changes to the API structure or configuration parameters.
+*   **Resource Management**: Ensure `MemoryStream` objects are properly disposed of, especially in high-throughput scenarios like web APIs, to avoid memory leaks. Using `using` statements or returning `FileStreamResult` (which handles disposal) are good practices.
+
+---
 
 ## Contributing
 
@@ -193,4 +223,3 @@ This project is licensed under the [MIT License](https://github.com/dprakash2101
 ## Author
 
 **[Devi Prakash](https://github.com/dprakash2101)**
-
