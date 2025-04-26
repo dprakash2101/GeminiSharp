@@ -1,5 +1,5 @@
-# Use the latest .NET SDK for building
-FROM mcr.microsoft.com/dotnet/sdk:latest AS build
+# Use the latest .NET SDK for both building and publishing
+FROM mcr.microsoft.com/dotnet/sdk:latest
 
 WORKDIR /app
 
@@ -16,14 +16,6 @@ RUN dotnet clean --configuration Release
 # Build and pack the NuGet package
 RUN dotnet build --configuration Release --no-restore
 RUN dotnet pack --configuration Release --no-build --output /nupkgs
-
-# Use SDK in final stage to ensure NuGet commands work
-FROM mcr.microsoft.com/dotnet/sdk:latest AS publish
-
-WORKDIR /app
-
-# Copy the built NuGet package
-COPY --from=build /nupkgs /nupkgs
 
 # Set environment variable for API key
 ARG NUGET_API_KEY
