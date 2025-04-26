@@ -15,7 +15,7 @@ RUN dotnet clean  --configuration Release
 
 # Build and pack the NuGet package
 RUN dotnet build 
-RUN dotnet pack "GeminiSharp.csproj" --configuration Release --no-build --output /nupkgs
+RUN dotnet pack --configuration Release --no-build --output /nupkgs
 
 # Set environment variable for API key
 ARG NUGET_API_KEY
