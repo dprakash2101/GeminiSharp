@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy only project files first to cache better (optional, but smart)
 COPY *.sln .
-COPY GeminiSharp/*.csproj GeminiSharp/
+COPY src/GeminiSharp/*.csproj src/GeminiSharp/
 
 # Restore as a separate step (better for caching)
 RUN dotnet restore
