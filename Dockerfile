@@ -8,14 +8,14 @@ COPY . ./
 
 # Restore dependencies (specify the .csproj file explicitly if needed)
 # Replace 'YourProject.csproj' with your actual project file name
-RUN dotnet restore "YourProject.csproj"
+RUN dotnet restore 
 
 # Clean the solution to remove any stale artifacts
-RUN dotnet clean "YourProject.csproj" --configuration Release
+RUN dotnet clean  --configuration Release
 
 # Build and pack the NuGet package
-RUN dotnet build "YourProject.csproj" --configuration Release --no-restore
-RUN dotnet pack "YourProject.csproj" --configuration Release --no-build --output /nupkgs
+RUN dotnet build 
+RUN dotnet pack "GeminiSharp.csproj" --configuration Release --no-build --output /nupkgs
 
 # Set environment variable for API key
 ARG NUGET_API_KEY
