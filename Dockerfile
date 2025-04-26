@@ -14,7 +14,7 @@ RUN dotnet restore
 RUN dotnet clean  --configuration Release
 
 # Build and pack the NuGet package
-RUN dotnet build 
+RUN dotnet build --configuration Release --no-restore
 RUN dotnet pack --configuration Release --no-build --output /nupkgs
 
 # Set environment variable for API key
