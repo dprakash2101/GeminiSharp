@@ -4,14 +4,12 @@ FROM mcr.microsoft.com/dotnet/sdk:latest AS build
 WORKDIR /app
 
 # Copy only project files first to cache better (optional, but smart)
-COPY *.sln .
-COPY src/GeminiSharp/*.csproj src/GeminiSharp/
+COPY . ./
+RUN dotnet restore
 
 # Restore as a separate step (better for caching)
 RUN dotnet restore
 
-# Now copy everything else
-COPY . ./
 
 # Clean previous builds
 RUN dotnet clean
