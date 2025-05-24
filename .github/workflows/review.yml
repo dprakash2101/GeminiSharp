@@ -1,0 +1,27 @@
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run CriticWave PR Review
+        uses: dprakash2101/criticwave-action@main
+        with:
+          github-token: ${{ secrets.ACCESS_TOKEN }}
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          pr-style-guide: |
+            Follow SOLID principles strictly. Focus on code readability, maintainability, and clean architecture. 
+            Use meaningful and consistent naming conventions for classes, methods, variables, and parameters. 
+            Favor immutability where possible and avoid side effects. 
+            Ensure methods have single responsibilities and are well encapsulated. 
+            Write expressive, self-documenting code with minimal comments needed. 
+            Avoid code duplication and promote code reuse through abstraction. 
+            Check for appropriate exception handling and avoid swallowing exceptions. 
+            Follow C# coding conventions and idiomatic usage. 
+            Prioritize performance without sacrificing clarity.
