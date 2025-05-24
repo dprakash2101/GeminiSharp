@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run CriticWave PR Review
-        uses: dprakash2101/criticwave-action@main
+        uses: dprakash2101/criticwave-action@v0.0.1
         with:
           github-token: ${{ secrets.ACCESS_TOKEN }}
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
