@@ -13,9 +13,9 @@ jobs:
       - name: Run CriticWave PR Review
         uses: dprakash2101/criticwave-action@main
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          geminiApiKey: ${{ secrets.GEMINI_API_KEY }}
-          styleGuide: |
+          github-token: ${{ secrets.ACCESS_TOKEN }}
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          pr-style-guide: |
             Follow SOLID principles strictly. Focus on code readability, maintainability, and clean architecture. 
             Use meaningful and consistent naming conventions for classes, methods, variables, and parameters. 
             Favor immutability where possible and avoid side effects. 
