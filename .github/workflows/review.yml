@@ -27,5 +27,5 @@ jobs:
             Follow REST client best practices, including proper HTTP status code handling and retry logic where applicable.
             Write unit tests for all public API methods, covering edge cases and error conditions.
             Optimize performance for API calls without compromising code clarity or maintainability.
-            Ensure compatibility with .NET Standard 2.0 or later for broad usability.
+            Ensure compatibility with .NET 6.0 or later for broad usability.
             Validate that all public APIs are intuitive and align with the Gemini API's expected usage patterns.
