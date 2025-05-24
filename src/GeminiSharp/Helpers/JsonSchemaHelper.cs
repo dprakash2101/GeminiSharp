@@ -1,4 +1,8 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
 
 namespace GeminiSharp.Helpers
 {
@@ -38,11 +42,7 @@ namespace GeminiSharp.Helpers
 
             if (type.IsEnum)
             {
-                return new
-                {
-                    type = "string",
-                    @enum = Enum.GetNames(type)
-                };
+                return new JsonSchemaEnum("string", Enum.GetNames(type));
             }
 
             if (type.IsArray || (type.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(type)))
@@ -61,12 +61,37 @@ namespace GeminiSharp.Helpers
 
             foreach (var prop in properties)
             {
-                var propType = prop.PropertyType;
-                var camelName = ConvertToCamelCase(prop.Name);
-                schemaProperties[camelName] = GenerateSchema(propType);
+                try
+                {
+                    var propType = prop.PropertyType;
+                    var camelName = ConvertToCamelCase(prop.Name);
+                    var schemaProperty = GenerateSchema(propType);
 
-                if (!IsNullable(propType, out _))
-                    requiredList.Add(camelName);
+                    // Check for [Required] attribute
+                    if (prop.GetCustomAttribute<RequiredAttribute>() != null)
+                    {
+                        requiredList.Add(camelName);
+                    }
+                    else if (!IsNullable(propType, out _))
+                    {
+                        // If not nullable and no [Required], consider it required as before
+                        requiredList.Add(camelName);
+                    }
+
+                    // Check for [MaxLength] attribute
+                    var maxLengthAttribute = prop.GetCustomAttribute<MaxLengthAttribute>();
+                    if (maxLengthAttribute != null && schemaProperty is Dictionary<string, object> schemaDict && schemaDict.ContainsKey("type") && schemaDict["type"] as string == "string")
+                    {
+                        schemaDict["maxLength"] = maxLengthAttribute.Length;
+                    }
+
+                    schemaProperties[camelName] = schemaProperty;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error generating schema for property {prop.Name}: {ex.Message}");
+                    schemaProperties[ConvertToCamelCase(prop.Name)] = new { type = "object", description = "Error generating schema" };
+                }
             }
 
             return new Dictionary<string, object>
@@ -104,7 +129,8 @@ namespace GeminiSharp.Helpers
         {
             type = Nullable.GetUnderlyingType(type) ?? type;
             return type == typeof(string) || type == typeof(int) || type == typeof(long) ||
-                   type == typeof(double) || type == typeof(float) || type == typeof(bool);
+                   type == typeof(double) || type == typeof(float) || type == typeof(bool) ||
+                   type == typeof(DateTime) || type == typeof(Guid) || type == typeof(decimal);
         }
 
         /// <summary>
@@ -120,8 +146,10 @@ namespace GeminiSharp.Helpers
             {
                 _ when type == typeof(string) => "string",
                 _ when type == typeof(int) || type == typeof(long) => "integer",
-                _ when type == typeof(double) || type == typeof(float) => "number",
+                _ when type == typeof(double) || type == typeof(float) || type == typeof(decimal) => "number",
                 _ when type == typeof(bool) => "boolean",
+                _ when type == typeof(DateTime) => "string", // Can add format: date-time if desired
+                _ when type == typeof(Guid) => "string",
                 _ => "object"
             };
         }
@@ -137,5 +165,12 @@ namespace GeminiSharp.Helpers
                 ? input
                 : char.ToLowerInvariant(input[0]) + input.Substring(1);
         }
+
+        /// <summary>
+        /// Record to represent JSON Schema enum type.
+        /// </summary>
+        /// <param name="type">The JSON type, usually "string".</param>
+        /// <param name="enumValues">Array of enum names.</param>
+        public record JsonSchemaEnum(string type, string[] @enum);
     }
 }
