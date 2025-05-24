@@ -24,12 +24,33 @@ namespace GeminiSharp.Helpers
         /// <returns>An object representing the JSON schema.</returns>
         private static object GenerateSchema(Type type)
         {
-            if (IsPrimitive(type))
-                return new { type = GetJsonType(type) };
+            // Handle nullable types
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            bool isNullable = underlyingType != null;
+            Type effectiveType = isNullable ? underlyingType : type;
 
+            // Check if the type is a primitive or nullable primitive
+            if (IsPrimitive(effectiveType))
+            {
+                var schema = new Dictionary<string, object> { ["type"] = GetJsonType(effectiveType) };
+                if (isNullable)
+                {
+                    schema["type"] = new[] { GetJsonType(effectiveType), "null" }; // Support null for nullable types
+                }
+                return schema;
+            }
+
+            // Handle arrays and collections
             if (type.IsArray || (type.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(type)))
-                return new { type = "array", items = GenerateSchema(type.GetElementType() ?? type.GenericTypeArguments[0]) };
+            {
+                return new
+                {
+                    type = "array",
+                    items = GenerateSchema(type.GetElementType() ?? type.GenericTypeArguments[0])
+                };
+            }
 
+            // Handle objects
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             return new Dictionary<string, object>
             {
@@ -38,19 +59,34 @@ namespace GeminiSharp.Helpers
                     p => ConvertToCamelCase(p.Name),
                     p => GenerateSchema(p.PropertyType)
                 ),
-                ["required"] = properties.Select(p => ConvertToCamelCase(p.Name)).ToArray()
+                ["required"] = properties
+                    .Where(p => !IsNullableType(p.PropertyType)) // Exclude nullable types from required
+                    .Select(p => ConvertToCamelCase(p.Name))
+                    .ToArray()
             };
         }
 
         /// <summary>
-        /// Determines whether the given type is a primitive JSON type.
+        /// Determines whether the given type is a primitive JSON type or a nullable primitive.
         /// </summary>
         /// <param name="type">The type to check.</param>
-        /// <returns>True if the type is a primitive JSON type; otherwise, false.</returns>
+        /// <returns>True if the type is a primitive or nullable primitive JSON type; otherwise, false.</returns>
         private static bool IsPrimitive(Type type)
         {
-            return type == typeof(string) || type == typeof(int) || type == typeof(long) ||
-                   type == typeof(double) || type == typeof(float) || type == typeof(bool);
+            return type == typeof(string) ||
+                   type == typeof(int) || type == typeof(long) ||
+                   type == typeof(double) || type == typeof(float) ||
+                   type == typeof(bool);
+        }
+
+        /// <summary>
+        /// Checks if the type is a nullable type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if the type is nullable; otherwise, false.</returns>
+        private static bool IsNullableType(Type type)
+        {
+            return Nullable.GetUnderlyingType(type) != null;
         }
 
         /// <summary>
