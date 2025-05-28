@@ -3,7 +3,9 @@ using System.Text.Json;
 using GeminiSharp.Models.Error;
 using GeminiSharp.Models.Response;
 using GeminiSharp.Models.Utilities; // For RetryConfig
-using Serilog; // Only Serilog for logging
+using Polly;
+using Polly.Retry;
+using Serilog;
 
 namespace GeminiSharp.API
 {
@@ -30,16 +32,15 @@ namespace GeminiSharp.API
             _apiKey = string.IsNullOrWhiteSpace(apiKey) ? throw new ArgumentNullException(nameof(apiKey)) : apiKey;
             _httpClient = httpClient ?? new HttpClient();
             _baseUrl = baseUrl ?? "https://generativelanguage.googleapis.com/v1beta/models/";
-            _retryConfig = retryConfig ?? new RetryConfig();
+            _retryConfig = retryConfig;
         }
 
         /// <summary>
-        /// Sends a request to the Gemini API for content generation (text, images, or structured).
+        /// Sends a request to the Gemini API for content generation (text, images, or structured output).
         /// </summary>
         /// <typeparam name="TRequest">The type of the request payload.</typeparam>
         /// <param name="model">The Gemini model to use (e.g., "gemini-1.5-flash").</param>
         /// <param name="request">The request payload.</param>
-        /// <param name="endpoint">The API endpoint (ignored, always uses "generateContent").</param>
         /// <returns>A task representing the asynchronous operation, returning a <see cref="GenerateContentResponse"/>.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="model"/> is empty or null.</exception>
         /// <exception cref="GeminiApiException">Thrown when the API returns an error response after retries.</exception>
@@ -54,94 +55,66 @@ namespace GeminiSharp.API
 
             string url = $"{_baseUrl}{model}:generateContent?key={_apiKey}";
             string requestContent = JsonSerializer.Serialize(request);
-            int attempt = 0;
-            Exception? lastException = null;
 
-            while (attempt <= _retryConfig.MaxRetries)
-            {
-                try
-                {
-                    // Log request details
-                    
-                    Log.Information("Attempt {Attempt} of {MaxRetries} sending request to {Url} with body: {RequestContent}",
-                        attempt + 1, _retryConfig.MaxRetries + 1, url, requestContent);
-
-                    var response = await _httpClient.PostAsJsonAsync(url, request);
-
-                    if (!response.IsSuccessStatusCode)
+            var retryPolicy = Policy
+                .Handle<HttpRequestException>()
+                .OrResult<HttpResponseMessage>(r => _retryConfig.RetryStatusCodes.Contains((int)r.StatusCode))
+                .WaitAndRetryAsync(
+                    retryCount: _retryConfig.MaxRetries,
+                    sleepDurationProvider: attempt =>
+                        TimeSpan.FromMilliseconds(
+                            _retryConfig.UseExponentialBackoff
+                                ? _retryConfig.InitialDelayMs * Math.Pow(2, attempt - 1)
+                                : _retryConfig.InitialDelayMs),
+                    onRetry: (outcome, timespan, retryAttempt, context) =>
                     {
-                        var errorContent = await response.Content.ReadAsStringAsync();
-                        var errorResponse = JsonSerializer.Deserialize<ApiErrorResponse>(
-                            errorContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                        // Check if status code is retryable
-                        if (attempt < _retryConfig.MaxRetries && _retryConfig.RetryStatusCodes.Contains((int)response.StatusCode))
+                        if (outcome.Exception != null)
                         {
-                            int delayMs = _retryConfig.UseExponentialBackoff
-                                ? _retryConfig.InitialDelayMs * (int)Math.Pow(2, attempt)
-                                : _retryConfig.InitialDelayMs;
-
-                            Log.Information("Retrying due to transient error (status {StatusCode}) on attempt {Attempt}. Waiting {DelayMs}ms. Error: {ErrorContent}",
-                                response.StatusCode, attempt + 1, delayMs, errorContent);
-
-                            await Task.Delay(delayMs);
-                            attempt++;
-                            continue;
+                            Log.Warning(outcome.Exception,
+                                "Retry {RetryAttempt} due to exception. Waiting {Delay}ms.",
+                                retryAttempt, timespan.TotalMilliseconds);
                         }
+                        else if (outcome.Result != null)
+                        {
+                            Log.Warning("Retry {RetryAttempt} due to status code {StatusCode}. Waiting {Delay}ms.",
+                                retryAttempt, (int)outcome.Result.StatusCode, timespan.TotalMilliseconds);
+                        }
+                    });
 
-                        // Non-retryable error or max retries reached
-                        Log.Error("API request failed with status code {StatusCode}. Error: {ErrorContent}",
-                            response.StatusCode, errorContent);
+            try
+            {
+                Log.Information("Sending request to {Url} with body: {RequestContent}", url, requestContent);
 
-                        throw new GeminiApiException(
-                            errorResponse?.Error?.Message ?? "Unknown error occurred",
-                            response.StatusCode,
-                            errorResponse
-                        );
-                    }
+                var response = await retryPolicy.ExecuteAsync(() =>
+                    _httpClient.PostAsJsonAsync(url, request));
 
-                    var responseContent = await response.Content.ReadFromJsonAsync<GenerateContentResponse>()
-                        ?? throw new InvalidOperationException("Failed to deserialize response from Gemini API.");
-
-                    // Log success
-                    Log.Information("Successfully received response for model {Model} on attempt {Attempt}.",
-                        model, attempt + 1);
-
-                    return responseContent;
-                }
-                catch (HttpRequestException ex) // Catch network-related errors
+                if (!response.IsSuccessStatusCode)
                 {
-                    if (attempt < _retryConfig.MaxRetries)
-                    {
-                        int delayMs = _retryConfig.UseExponentialBackoff
-                            ? _retryConfig.InitialDelayMs * (int)Math.Pow(2, attempt)
-                            : _retryConfig.InitialDelayMs;
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorResponse = JsonSerializer.Deserialize<ApiErrorResponse>(
+                        errorContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                        Log.Information("Retrying due to transient network error on attempt {Attempt}. Waiting {DelayMs}ms. Error: {ErrorMessage}",
-                            attempt + 1, delayMs, ex.Message);
+                    Log.Error("API request failed after retries. Status code {StatusCode}, Error: {ErrorContent}",
+                        response.StatusCode, errorContent);
 
-                        await Task.Delay(delayMs);
-                        attempt++;
-                        lastException = ex;
-                        continue;
-                    }
-
-                    lastException = ex;
-                    break;
+                    throw new GeminiApiException(
+                        errorResponse?.Error?.Message ?? "Unknown error occurred",
+                        response.StatusCode,
+                        errorResponse
+                    );
                 }
-                catch (Exception ex)
-                {
-                    // Log non-retryable exception and rethrow
-                    Log.Error(ex, "Non-retryable error while sending request for model {Model} on attempt {Attempt}.",
-                        model, attempt + 1);
-                    throw;
-                }
+
+                var responseContent = await response.Content.ReadFromJsonAsync<GenerateContentResponse>()
+                    ?? throw new InvalidOperationException("Failed to deserialize response from Gemini API.");
+
+                Log.Information("Successfully received response for model {Model}.", model);
+                return responseContent;
             }
-
-            // If we get here, retries failed
-            Log.Error(lastException, "Failed to send request for model {Model} after {MaxRetries} retries.",
-                model, _retryConfig.MaxRetries + 1);
-            throw new Exception("Failed after maximum retries.", lastException);
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Request to Gemini API failed for model {Model}.", model);
+                throw;
+            }
         }
     }
 }
