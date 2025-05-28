@@ -32,7 +32,7 @@ namespace GeminiSharp.API
             _apiKey = string.IsNullOrWhiteSpace(apiKey) ? throw new ArgumentNullException(nameof(apiKey)) : apiKey;
             _httpClient = httpClient ?? new HttpClient();
             _baseUrl = baseUrl ?? "https://generativelanguage.googleapis.com/v1beta/models/";
-            _retryConfig = retryConfig ?? new RetryConfig();
+            _retryConfig = retryConfig;
         }
 
         /// <summary>
