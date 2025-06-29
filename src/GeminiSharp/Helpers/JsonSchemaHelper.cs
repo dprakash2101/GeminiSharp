@@ -25,7 +25,7 @@ namespace GeminiSharp.Helpers
         /// <returns>An object representing the JSON schema.</returns>
         private static object GenerateSchema(Type type)
         {
-            if (IsNullable(type, out var underlyingNullable))
+            if (IsNullableValueType(type, out var underlyingNullable))
             {
                 return new Dictionary<string, object>
                 {
@@ -38,26 +38,31 @@ namespace GeminiSharp.Helpers
             }
 
             if (IsPrimitive(type))
-                return new { type = GetJsonType(type) };
+                return new Dictionary<string, object> { ["type"] = GetJsonType(type) };
 
             if (type.IsEnum)
             {
-                return new JsonSchemaEnum("string", Enum.GetNames(type));
+                return new Dictionary<string, object>
+                {
+                    ["type"] = "string",
+                    ["enum"] = Enum.GetNames(type)
+                };
             }
 
             if (type.IsArray || (type.IsGenericType && typeof(System.Collections.IEnumerable).IsAssignableFrom(type)))
             {
                 var elementType = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault() ?? typeof(object);
-                return new
+                return new Dictionary<string, object>
                 {
-                    type = "array",
-                    items = GenerateSchema(elementType)
+                    ["type"] = "array",
+                    ["items"] = GenerateSchema(elementType)
                 };
             }
 
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var schemaProperties = new Dictionary<string, object>();
             var requiredList = new List<string>();
+            var nullabilityContext = new NullabilityInfoContext();
 
             foreach (var prop in properties)
             {
@@ -66,23 +71,48 @@ namespace GeminiSharp.Helpers
                     var propType = prop.PropertyType;
                     var camelName = ConvertToCamelCase(prop.Name);
                     var schemaProperty = GenerateSchema(propType);
+                    var nullabilityInfo = nullabilityContext.Create(prop);
 
-                    // Check for [Required] attribute
+                    // Wrap nullable reference types in anyOf to allow null
+                    if (nullabilityInfo.WriteState == NullabilityState.Nullable && !IsNullableValueType(propType, out _))
+                    {
+                        schemaProperty = new Dictionary<string, object>
+                        {
+                            ["anyOf"] = new object[]
+                            {
+                                schemaProperty,
+                                new Dictionary<string, object> { ["type"] = "null" }
+                            }
+                        };
+                    }
+
+                    // Handle required properties
                     if (prop.GetCustomAttribute<RequiredAttribute>() != null)
                     {
                         requiredList.Add(camelName);
                     }
-                    else if (!IsNullable(propType, out _))
+                    else if (nullabilityInfo.WriteState == NullabilityState.NotNull)
                     {
-                        // If not nullable and no [Required], consider it required as before
                         requiredList.Add(camelName);
                     }
 
-                    // Check for [MaxLength] attribute
+                    // Handle MaxLength attribute
                     var maxLengthAttribute = prop.GetCustomAttribute<MaxLengthAttribute>();
-                    if (maxLengthAttribute != null && schemaProperty is Dictionary<string, object> schemaDict && schemaDict.ContainsKey("type") && schemaDict["type"] as string == "string")
+                    if (maxLengthAttribute != null && schemaProperty is Dictionary<string, object> schemaDict)
                     {
-                        schemaDict["maxLength"] = maxLengthAttribute.Length;
+                        var targetSchema = schemaDict;
+                        // If it's a nullable reference, the actual schema is inside anyOf
+                        if (schemaDict.TryGetValue("anyOf", out var anyOfValue) &&
+                            anyOfValue is object[] { Length: > 0 } anyOfArray &&
+                            anyOfArray[0] is Dictionary<string, object> innerDict)
+                        {
+                            targetSchema = innerDict;
+                        }
+
+                        if (targetSchema.TryGetValue("type", out var typeValue) && typeValue as string == "string")
+                        {
+                            targetSchema["maxLength"] = maxLengthAttribute.Length;
+                        }
                     }
 
                     schemaProperties[camelName] = schemaProperty;
@@ -103,12 +133,12 @@ namespace GeminiSharp.Helpers
         }
 
         /// <summary>
-        /// Determines whether the specified type is nullable (i.e., Nullable&lt;T&gt;).
+        /// Determines whether the specified type is a nullable value type (i.e., Nullable&lt;T&gt;).
         /// </summary>
         /// <param name="type">The type to inspect.</param>
         /// <param name="underlying">The underlying non-nullable type if applicable.</param>
-        /// <returns>True if the type is nullable; otherwise, false.</returns>
-        private static bool IsNullable(Type type, out Type underlying)
+        /// <returns>True if the type is a nullable value type; otherwise, false.</returns>
+        private static bool IsNullableValueType(Type type, out Type underlying)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
@@ -165,12 +195,5 @@ namespace GeminiSharp.Helpers
                 ? input
                 : char.ToLowerInvariant(input[0]) + input.Substring(1);
         }
-
-        /// <summary>
-        /// Record to represent JSON Schema enum type.
-        /// </summary>
-        /// <param name="type">The JSON type, usually "string".</param>
-        /// <param name="enumValues">Array of enum names.</param>
-        public record JsonSchemaEnum(string type, string[] @enum);
     }
 }

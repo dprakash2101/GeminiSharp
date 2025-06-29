@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace GeminiSharp.Models.Request
 {
@@ -7,7 +8,16 @@ namespace GeminiSharp.Models.Request
     /// </summary>
     public class GenerateContentRequest
     {
-        [JsonPropertyName("contents")]
-        public List<RequestContent>? Contents { get; set; }
+        /// <summary>
+        /// The contents of the request.
+        /// </summary>
+        [JsonProperty("contents")]
+        public List<RequestContent> Contents { get; set; }
+
+        /// <summary>
+        /// The generation configuration for the request.
+        /// </summary>
+        [JsonProperty("generationConfig", NullValueHandling = NullValueHandling.Ignore)]
+        public GenerationConfigs GenerationConfig { get; set; }
     }
 }

@@ -1,72 +1,114 @@
-# Logging with Serilog in GeminiSharp SDK
+# 📝 Logging with Serilog in GeminiSharp
 
-The **GeminiSharp SDK** uses **Serilog** for logging to provide detailed information about API requests, errors, and retries. To ensure logging works effectively, make sure you configure the logger at the application startup.
+The **GeminiSharp SDK** uses **Serilog** for internal logging, providing detailed insights into API requests, responses, retries, and errors. Proper logging is crucial for debugging and monitoring your application. This guide explains how to configure and use Serilog with GeminiSharp.
 
 ---
 
-## Logging Configuration
+## 🚀 Getting Started
 
-In your `program.cs`, you can configure the Serilog logger with multiple sinks to capture logs at various levels. Below is an example of how you can configure Serilog to log messages to the **Debug Output**, **Console**, and **File**:
+### 1. Installation
 
-### Example Logger Configuration:
+First, make sure you have the necessary Serilog packages installed in your project. At a minimum, you'll need:
+
+```bash
+dotnet add package Serilog
+dotnet add package Serilog.Sinks.Console
+dotnet add package Serilog.Sinks.File
+```
+
+### 2. Basic Configuration
+
+To enable logging, you need to configure the Serilog logger at the startup of your application. Here's a typical configuration in `Program.cs`:
 
 ```csharp
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug() // Capture Debug, Information, Warning, and Error level logs
-    .WriteTo.Debug() // Send logs to Visual Studio Output Window
-    .WriteTo.Console() // Optional: Output logs to the console
-    .WriteTo.File("logs/app.log", rollingInterval: RollingInterval.Day) // Optional: Save logs to a file with daily rotation
-    .CreateLogger();
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug() // Capture all log levels from Debug to Fatal
+            .Enrich.FromLogContext()
+            .WriteTo.Console() // Output logs to the console
+            .WriteTo.File("logs/geminisharp.log", rollingInterval: RollingInterval.Day) // Save logs to a file with daily rotation
+            .CreateLogger();
+
+        try
+        {
+            Log.Information("Starting up the application");
+            // ... your application code
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Application start-up failed");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
+}
 ```
 
-### Explanation:
+### 3. Integrating with Dependency Injection
 
-- **MinimumLevel.Debug()**: This sets the minimum log level to **Debug**, meaning that logs of levels **Debug**, **Information**, **Warning**, **Error**, and **Fatal** will be captured. You can adjust this depending on your needs.
-  
-- **WriteTo.Debug()**: This sends the log output to the **Visual Studio Output Window**, which is useful for debugging during development.
-  
-- **WriteTo.Console()**: This sends the log output to the **Console**, making it easier to see logs when running the application in a terminal or command prompt.
-  
-- **WriteTo.File("logs/app.log", rollingInterval: RollingInterval.Day)**: This writes logs to a file located in the **logs** folder. The logs will roll over daily, creating a new log file every day to keep the log data manageable.
+If you're using dependency injection, you can register the logger with the service collection and inject it into your services.
+
+In your `Program.cs`:
+
+```csharp
+using Serilog;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
+
+// ... your other services
+```
+
+Then, in your `appsettings.json`:
+
+```json
+{
+  "Serilog": {
+    "MinimumLevel": "Debug",
+    "WriteTo": [
+      { "Name": "Console" },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "logs/geminisharp.log",
+          "rollingInterval": "Day"
+        }
+      }
+    ]
+  }
+}
+```
 
 ---
 
-## Example Log Output
+## 📖 Understanding the Log Output
 
-With this configuration, you’ll see logs in the following places:
-
-1. **Visual Studio Output Window** (via `WriteTo.Debug()`)
-2. **Console Output** (via `WriteTo.Console()`)
-3. **Log File** (`logs/app.log` with daily rotation)
-
-### Sample Logs:
-
-```text
-[10:00:00 INF] Starting application...
-[10:00:01 DBG] Sending request to Gemini API for model "gemini-2.0-flash".
-[10:00:05 ERR] API request failed with status code 503. Retrying...
-[10:00:06 INF] Successfully generated content for model "gemini-2.0-flash".
-```
-
----
-
-## Using Logs to Track API Errors and Retries
-
-Serilog captures detailed information about each retry attempt and the reason for retrying. For example:
+GeminiSharp logs detailed information about its operations. Here's an example of what you might see in your logs:
 
 ```
-Retrying due to transient error (status 503) on attempt 2. Waiting 2000ms. Error: {"error":"Service Unavailable"}
-Retrying due to transient error (status 500) on attempt 3. Waiting 4000ms. Error: {"error":"Internal Server Error"}
+[14:30:15 INF] Sending request to https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
+[14:30:15 DBG] Request body: {"contents":[{"parts":[{"text":"Hello, Gemini!"}]}]}
+[14:30:16 WRN] Request failed with status code TooManyRequests. Retrying in 1000ms. Attempt 1 of 3.
+[14:30:17 INF] Sending request to https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
+[14:30:17 DBG] Request body: {"contents":[{"parts":[{"text":"Hello, Gemini!"}]}]}
+[14:30:18 INF] Successfully received response for model gemini-1.5-flash.
 ```
 
-This information is invaluable for debugging API issues and understanding the retry process.
+This log output shows:
+*   An informational message indicating that a request is being sent.
+*   A debug message with the request body.
+*   A warning message indicating that the request failed and is being retried.
+*   An informational message indicating that the request was successful after a retry.
 
----
-
-## Conclusion
-
-By configuring Serilog in your `program.cs`, you enable comprehensive logging for your GeminiSharp-based application. The logs will help you track API requests, errors, retries, and other important events, making it easier to monitor and troubleshoot your application.
-
-For more information on how to configure Serilog in your application, refer to the [Serilog documentation](https://serilog.net/).
+By analyzing these logs, you can gain a clear understanding of how the SDK is interacting with the Gemini API and quickly identify and troubleshoot any issues that may arise.
