@@ -30,7 +30,14 @@ builder.Services.AddGeminiClient(options =>
 
 ### 3. Usage
 
-You can then inject the clients into your controllers or services:
+Inject the desired client into your services or controllers. GeminiSharp provides the following clients:
+
+*   `GeminiClient`: For general text-based content generation.
+*   `GeminiImageGenerationClient`: For generating images from text prompts.
+*   `GeminiStructuredClient`: For generating structured data (e.g., JSON) from prompts.
+*   `GeminiDocumentUnderstandingClient`: For processing and understanding uploaded documents.
+
+#### Example: Using `GeminiClient`
 
 ```csharp
 using GeminiSharp.Client;
@@ -47,8 +54,40 @@ public class MyController : ControllerBase
         _geminiClient = geminiClient;
     }
 
-    // ... your actions
+    [HttpGet("generate")]
+    public async Task<IActionResult> GenerateText(string prompt)
+    {
+        var response = await _geminiClient.GenerateContentAsync(prompt);
+        return Ok(response);
+    }
 }
+```
+
+### Using without Dependency Injection
+
+If you prefer not to use dependency injection, you can instantiate the clients directly. You'll need to create an `HttpClient` and a `GeminiApiClient` instance first.
+
+```csharp
+using GeminiSharp.API;
+using GeminiSharp.Client;
+using GeminiSharp.Models.Configuration;
+using System.Net.Http;
+
+// 1. Configure and create an HttpClient
+var httpClient = new HttpClient
+{
+    BaseAddress = new Uri("https://generativelanguage.googleapis.com/v1beta/"),
+};
+httpClient.DefaultRequestHeaders.Add("x-goog-api-key", "YOUR_API_KEY");
+
+// 2. Create the GeminiApiClient
+var apiClient = new GeminiApiClient(httpClient, "gemini-1.5-flash");
+
+// 3. Instantiate the desired client
+var geminiClient = new GeminiClient(apiClient);
+
+// 4. Use the client to generate content
+var response = await geminiClient.GenerateContentAsync("your prompt");
 ```
 
 ---
@@ -57,11 +96,12 @@ public class MyController : ControllerBase
 
 For more detailed information on how to use GeminiSharp, please refer to the following documentation:
 
-*   [Image Generation](./docs/image-generation.md)
-*   [Logging](./docs/logging.md)
-*   [Retry Configuration](./docs/retry-configuration.md)
-*   [Structured Output](./docs/structured-output.md)
-*   [Document Understanding](./docs/document-understanding.md)
+*   [Text Generation](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/text-generation.md)
+*   [Image Generation](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md)
+*   [Logging](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/logging.md)
+*   [Retry Configuration](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/retry-configuration.md)
+*   [Structured Output](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/structured-output.md)
+*   [Document Understanding](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/document-understanding.md)
 
 ---
 
