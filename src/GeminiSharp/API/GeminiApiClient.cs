@@ -1,4 +1,4 @@
-﻿using Polly;
+using Polly;
 using Polly.Retry;
 using System.Net;
 using System.Net.Http.Json;
@@ -6,32 +6,48 @@ using System.Text.Json;
 using GeminiSharp.Models.Configuration;
 using GeminiSharp.Models.Error;
 using Serilog;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
+using System.Net.Http;
 
 namespace GeminiSharp.API
 {
     /// <summary>
+    /// Defines the contract for a client that interacts with the Google Gemini API.
+    /// </summary>
+    public interface IGeminiApiClient
+    {
+        /// <summary>
+        /// Sends a request to the Gemini API to generate content.
+        /// </summary>
+        /// <typeparam name="TRequest">The type of the request payload.</typeparam>
+        /// <typeparam name="TResponse">The type of the expected response.</typeparam>
+        /// <param name="request">The request payload.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the request.</param>
+        /// <returns>The response from the API.</returns>
+        Task<TResponse> GenerateContentAsync<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default) where TRequest : class;
+    }
+
+    /// <summary>
     /// A reusable client for interacting with the Google Gemini API.
     /// </summary>
-    public class GeminiApiClient
+    public class GeminiApiClient : IGeminiApiClient
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiKey;
-        private readonly string _baseUrl;
+        private readonly string _model;
         private readonly ResiliencePipeline<HttpResponseMessage> _resiliencePipeline;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GeminiApiClient"/> class.
         /// </summary>
-        /// <param name="apiKey">The API key for authentication.</param>
         /// <param name="httpClient">The HTTP client instance.</param>
-        /// <param name="baseUrl">The base URL of the Gemini API (optional, defaults to Google's endpoint).</param>
+        /// <param name="model">The Gemini model to use (e.g., "gemini-1.5-flash").</param>
         /// <param name="retryConfiguration">The configuration for retries (optional, defaults to 3 retries with exponential backoff).</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="apiKey"/> is null or empty.</exception>
-        public GeminiApiClient(string apiKey, HttpClient httpClient, string? baseUrl = null, RetryConfiguration? retryConfiguration = null)
+        public GeminiApiClient(HttpClient httpClient, string model, RetryConfiguration? retryConfiguration = null)
         {
-            _apiKey = string.IsNullOrWhiteSpace(apiKey) ? throw new ArgumentNullException(nameof(apiKey)) : apiKey;
             _httpClient = httpClient;
-            _baseUrl = baseUrl ?? "https://generativelanguage.googleapis.com/v1beta/models/";
+            _model = model;
             retryConfiguration ??= new RetryConfiguration();
 
             _resiliencePipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
@@ -61,23 +77,15 @@ namespace GeminiSharp.API
         /// </summary>
         /// <typeparam name="TRequest">The type of the request payload.</typeparam>
         /// <typeparam name="TResponse">The type of the response payload.</typeparam>
-        /// <param name="model">The Gemini model to use (e.g., "gemini-1.5-flash").</param>
         /// <param name="request">The request payload.</param>
-        /// <param name="endpoint">The API endpoint to target.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the request.</param>
         /// <returns>A task representing the asynchronous operation, returning a <see cref="TResponse"/>.</returns>
-        /// <exception cref="ArgumentException">Thrown when the model is empty or null.</exception>
         /// <exception cref="GeminiApiException">Thrown when the API returns an error after retries.</exception>
         /// <exception cref="InvalidOperationException">Thrown when deserialization fails.</exception>
-        public async Task<TResponse> SendRequestAsync<TRequest, TResponse>(string model, TRequest request, string endpoint, CancellationToken cancellationToken = default)
+        public async Task<TResponse> GenerateContentAsync<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default)
+             where TRequest : class
         {
-            if (string.IsNullOrWhiteSpace(model))
-            {
-                Log.Error("Model name is empty or null.");
-                throw new ArgumentException("Model cannot be empty", nameof(model));
-            }
-
-            var url = $"{_baseUrl}{model}:{endpoint}?key={_apiKey}";
+            var url = $"{_model}:generateContent";
             var requestContent = JsonSerializer.Serialize(request);
 
             Log.Information("Sending request to {Url} with body: {RequestContent}", url, requestContent);
@@ -90,8 +98,8 @@ namespace GeminiSharp.API
             {
                 var responseContent = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken: cancellationToken)
                     ?? throw new InvalidOperationException("Failed to deserialize response from Gemini API.");
-                
-                Log.Information("Successfully received response for model {Model}.", model);
+
+                Log.Information("Successfully received response for model {Model}.", _model);
                 return responseContent;
             }
 
