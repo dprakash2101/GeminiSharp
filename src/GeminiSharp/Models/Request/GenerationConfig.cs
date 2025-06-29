@@ -6,7 +6,7 @@ namespace GeminiSharp.Models.Request
     /// <summary>
     /// Generation configuration for the model
     /// </summary>
-    public class GenerationConfig
+    public class GenerationConfigs
     {
         /// <summary>
         /// Optional. Controls the randomness of the output.

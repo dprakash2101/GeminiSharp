@@ -18,6 +18,6 @@ namespace GeminiSharp.Models.Request
         /// The generation configuration for the request.
         /// </summary>
         [JsonProperty("generationConfig", NullValueHandling = NullValueHandling.Ignore)]
-        public GenerationConfig GenerationConfig { get; set; }
+        public GenerationConfigs GenerationConfig { get; set; }
     }
 }
