@@ -32,7 +32,7 @@ namespace GeminiSharp.Extensions
             // Configure the underlying HttpClient
             services.AddHttpClient(nameof(GeminiApiClient), httpClient =>
             {
-                httpClient.BaseAddress = new Uri(options.BaseUrl ?? "https://generativelanguage.googleapis.com/v1beta/");
+                httpClient.BaseAddress = new Uri(options.BaseUrl);
                 httpClient.DefaultRequestHeaders.Add("x-goog-api-key", options.ApiKey);
             });
 
@@ -67,12 +67,12 @@ namespace GeminiSharp.Extensions
         /// <summary>
         /// The specific model to be used by the client (e.g., "gemini-pro").
         /// </summary>
-        public string Model { get; set; }
+        public string Model { get; set; } = "gemini-2.0-flash";
 
         /// <summary>
         /// The base URL for the Gemini API. If not set, a default will be used.
         /// </summary>
-        public string BaseUrl { get; set; }
+        public string BaseUrl { get; set; } = "https://generativelanguage.googleapis.com/v1beta/";
 
         /// <summary>
         /// The configuration for retry logic in case of transient failures.
