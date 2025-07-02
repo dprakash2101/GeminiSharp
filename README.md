@@ -4,67 +4,6 @@ GeminiSharp is a C# client SDK for seamlessly interacting with Google's Gemini A
 
 ---
 
-## 🚀 Getting Started
-
-### 1. Installation
-
-To install GeminiSharp via NuGet, run the following command in your project directory:
-
-```bash
-dotnet add package GeminiSharp
-```
-
-### 2. Configuration
-
-The recommended way to use GeminiSharp is with dependency injection. In your `Program.cs` or `Startup.cs`, configure the Gemini clients as follows:
-
-```csharp
-using GeminiSharp.Extensions;
-
-builder.Services.AddGeminiClient(options =>
-{
-    options.ApiKey = builder.Configuration["GeminiApiKey"];
-    options.Model = "gemini-1.5-flash"; // Or any other suitable model
-});
-```
-
-### 3. Usage
-
-You can then inject the clients into your controllers or services:
-
-```csharp
-using GeminiSharp.Client;
-using Microsoft.AspNetCore.Mvc;
-
-[ApiController]
-[Route("[controller]")]
-public class MyController : ControllerBase
-{
-    private readonly GeminiClient _geminiClient;
-
-    public MyController(GeminiClient geminiClient)
-    {
-        _geminiClient = geminiClient;
-    }
-
-    // ... your actions
-}
-```
-
----
-
-## 📚 Documentation
-
-For more detailed information on how to use GeminiSharp, please refer to the following documentation:
-
-*   [Image Generation](./docs/image-generation.md)
-*   [Logging](./docs/logging.md)
-*   [Retry Configuration](./docs/retry-configuration.md)
-*   [Structured Output](./docs/structured-output.md)
-*   [Document Understanding](./docs/document-understanding.md)
-
----
-
 ## Features
 
 - **Easy-to-use C# Client:** A straightforward API for interacting with the Gemini API in your .NET applications.
@@ -77,7 +16,6 @@ For more detailed information on how to use GeminiSharp, please refer to the fol
 - **Customizable Base URL:** Allows you to change the base URL, ideal for future flexibility and alternative endpoint support.
 - **Error Handling:** Robust error handling with detailed messages and exceptions.
 - **NuGet Package Support:** Install via NuGet for simple integration into your project.
-- **Cancellation Support:** Supports `CancellationToken` for asynchronous operations.
 
 ---
 
@@ -89,12 +27,22 @@ GeminiSharp initially focused on text generation. Now, it supports:
 - **Image Generation** ✅
 - **Logging Support** ✅
 - **Retry Configuration** ✅
-- **Document Understanding** ✅
 - **Vision Support** 📷 _(coming soon)_
 - **Audio Understanding** 🎧 _(coming soon)_
 - **Code Execution** 💻 _(coming soon)_
+- **Document Processing** 📄 _(coming soon)_
 
 Stay tuned for more features! 🚀
+
+---
+
+## Installation
+
+To install GeminiSharp via NuGet, run the following command in your project directory:
+
+```bash
+dotnet add package GeminiSharp
+```
 
 ---
 
@@ -105,6 +53,181 @@ Stay tuned for more features! 🚀
 | .NET 6       | ✅ Yes    |
 | .NET 7       | ✅ Yes    |
 | .NET 8       | ✅ Yes    |
+
+---
+
+## Usage
+
+### Basic Example
+
+```csharp
+using System;
+using GeminiSharp.Client;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main()
+    {
+        var httpClient = new HttpClient();
+        var apiKey = "your-gemini-api-key"; // Replace with your actual API key
+        var geminiClient = new GeminiClient(httpClient, apiKey);
+
+        try
+        {
+            var response = await geminiClient.GenerateContentAsync("gemini-2.0", "Hello, Gemini! What's Falcon 9?");
+            Console.WriteLine(response?.Candidates?[0].Content);
+        }
+        catch (GeminiApiException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}
+```
+
+### Structured Output Example
+
+Generate structured responses using a custom schema:
+
+```csharp
+using GeminiSharp.Client;
+using GeminiSharp.Helpers;
+using System.Text.Json;
+
+var schema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
+var response = await geminiClient.GenerateStructuredContentAsync<PlayerStats>(
+    "gemini-2.0", "Provide cricket player stats for Virat Kohli", schema);
+Console.WriteLine(JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true }));
+```
+
+### Image Generation Example
+
+To generate images from prompts, see [Image Generation Documentation](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md).
+
+---
+
+## Logging
+
+GeminiSharp uses **Serilog** for logging. To configure logging, add this to your `Program.cs`:
+
+```csharp
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+Log.Information("Starting application");
+```
+
+For full logging setup details, refer to the [Logging Configuration Guide](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/logging.md).
+
+---
+
+## Retry Configuration
+
+GeminiSharp includes a flexible retry configuration for handling transient errors. For detailed information on how to configure retries, check the [Retry Configuration Guide](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/retry-configuration.md).
+
+---
+
+## API Error Handling
+
+GeminiSharp throws `GeminiApiException` for API errors. Here's an example of how to catch and inspect errors:
+
+```csharp
+try
+{
+    using var httpClient = new HttpClient();
+    var geminiClient = new GeminiClient(httpClient, "your-gemini-api-key");
+
+    var response = await geminiClient.GenerateContentAsync("invalid-model", "Test");
+}
+catch (GeminiApiException ex)
+{
+    Console.WriteLine($"API Error: {ex.Message}");
+    Console.WriteLine($"Status Code: {ex.StatusCode}");
+}
+```
+
+---
+
+## ASP.NET Core Example
+
+```csharp
+using GeminiSharp.Client;
+using GeminiSharp.API;
+using Microsoft.AspNetCore.Mvc;
+
+namespace GeminiSDKExample.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class GeminiController : ControllerBase
+    {
+        public class GenerateTextRequest
+        {
+            public string Prompt { get; set; } = string.Empty;
+        }
+
+        [HttpPost("generate")]
+        public async Task<IActionResult> GenerateText(
+            [FromBody] GenerateTextRequest request,
+            [FromHeader(Name = "GeminiApiKey")] string apiKey,
+            [FromHeader(Name = "Gemini-Model")] string? model)
+        {
+            if (string.IsNullOrWhiteSpace(request.Prompt))
+                return BadRequest(new { error = "Prompt cannot be empty." });
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+                return BadRequest(new { error = "API key is required." });
+
+            model ??= "gemini-1.5-flash"; // Default model
+
+            using var httpClient = new HttpClient();
+            var geminiClient = new GeminiClient(httpClient, apiKey);
+
+            try
+            {
+                var result = await geminiClient.GenerateContentAsync(model, request.Prompt);
+                return Ok(new { Response = result });
+            }
+            catch (GeminiApiException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex.ErrorResponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal Server Error", details = ex.Message });
+            }
+        }
+    }
+}
+```
+
+---
+
+## Configuring the Base URL
+
+You can easily configure the base URL for the Gemini API in your `GeminiClient`:
+
+```csharp
+using GeminiSharp.Client;
+
+var customBaseUrl = "https://your-custom-gemini-api.com";
+using var httpClient = new HttpClient();
+var geminiClient = new GeminiClient(httpClient, "your-gemini-api-key", customBaseUrl);
+```
+
+---
+
+## 📝 Notes
+
+- **API Key Security**: Use secure methods for storing API keys such as environment variables, Azure Key Vault, AWS Secrets Manager, or .NET's User Secrets. Avoid hardcoding them.
+- **Error Handling**: Inspect the response object for errors even if no exception is thrown, as the API might still return error details.
+- **Model Updates**: Check the official Gemini documentation for updates on models and new features.
+- **Resource Management**: Ensure you properly dispose of `MemoryStream` objects and other resources to avoid memory leaks, especially in high-traffic environments like web APIs.
 
 ---
 
@@ -131,3 +254,5 @@ This project is licensed under the [MIT License](https://github.com/dprakash2101
 ## Author
 
 **[Devi Prakash](https://github.com/dprakash2101)**
+
+---

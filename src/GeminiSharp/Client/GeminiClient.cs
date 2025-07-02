@@ -1,11 +1,8 @@
 ﻿using GeminiSharp.API;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
+using GeminiSharp.Models.Utilities; // For RetryConfig
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace GeminiSharp.Client
 {
@@ -14,26 +11,42 @@ namespace GeminiSharp.Client
     /// </summary>
     public class GeminiClient
     {
-        private readonly IGeminiApiClient _apiClient;
+        private readonly GeminiApiClient _apiClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GeminiClient"/> class.
         /// </summary>
-        /// <param name="apiClient">The Gemini API client.</param>
-        public GeminiClient(IGeminiApiClient apiClient)
+        /// <param name="apiKey">The API key for authentication.</param>
+        /// <param name="baseUrl">The base URL of the Gemini API (optional).</param>
+        /// <param name="retryConfig">Retry configuration (optional).</param>
+        public GeminiClient(string apiKey, string? baseUrl = null, RetryConfig? retryConfig = null)
         {
-            _apiClient = apiClient;
+            // Pass the retryConfig along with other parameters to GeminiApiClient
+            _apiClient = new GeminiApiClient(apiKey, httpClient: null, baseUrl: baseUrl, retryConfig: retryConfig);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeminiClient"/> class with a custom HttpClient.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client used for API requests.</param>
+        /// <param name="apiKey">The API key for authentication.</param>
+        /// <param name="baseUrl">The base URL of the Gemini API (optional).</param>
+        /// <param name="retryConfig">Retry configuration (optional).</param>
+        public GeminiClient(HttpClient httpClient, string apiKey, string? baseUrl = null, RetryConfig? retryConfig = null)
+        {
+            // Pass the custom HttpClient, apiKey, baseUrl, and retryConfig to GeminiApiClient
+            _apiClient = new GeminiApiClient(apiKey, httpClient, baseUrl, retryConfig);
         }
 
         /// <summary>
         /// Generates text content based on a user prompt.
         /// </summary>
+        /// <param name="model">The Gemini model to use (e.g., "gemini-1.5-flash").</param>
         /// <param name="prompt">The input prompt for content generation.</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the request.</param>
         /// <returns>A <see cref="GenerateContentResponse"/> containing the generated content.</returns>
         /// <exception cref="GeminiApiException">Thrown if the API returns an error.</exception>
         /// <exception cref="ArgumentException">Thrown if the prompt is empty or null.</exception>
-        public async Task<GenerateContentResponse> GenerateContentAsync(string prompt, CancellationToken cancellationToken = default)
+        public async Task<GenerateContentResponse> GenerateContentAsync(string model, string prompt)
         {
             if (string.IsNullOrWhiteSpace(prompt))
             {
@@ -57,19 +70,19 @@ namespace GeminiSharp.Client
 
             try
             {
-                Log.Information("Generating content with prompt: {Prompt}", prompt);
-                var response = await _apiClient.GenerateContentAsync<GenerateContentRequest, GenerateContentResponse>(request, cancellationToken);
-                Log.Information("Successfully generated content.");
+                Log.Information("Generating content for model {Model} with prompt: {Prompt}", model, prompt);
+                var response = await _apiClient.SendRequestAsync(model, request);
+                Log.Information("Successfully generated content for model {Model}.", model);
                 return response;
             }
             catch (GeminiApiException ex)
             {
-                Log.Error(ex, "API error while generating content.");
+                Log.Error(ex, "API error while generating content for model {Model}.", model);
                 throw;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Unexpected error while generating content.");
+                Log.Error(ex, "Unexpected error while generating content for model {Model}.", model);
                 throw new Exception("An unexpected error occurred while generating content.", ex);
             }
         }

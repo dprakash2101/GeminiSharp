@@ -1,12 +1,8 @@
 ﻿using GeminiSharp.API;
 using GeminiSharp.Models.Request;
 using GeminiSharp.Models.Response;
+using GeminiSharp.Models.Utilities;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace GeminiSharp.Client
 {
@@ -15,15 +11,31 @@ namespace GeminiSharp.Client
     /// </summary>
     public class GeminiImageGenerationClient
     {
-        private readonly IGeminiApiClient _apiClient;
+        private readonly GeminiApiClient _apiClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GeminiImageGenerationClient"/> class.
         /// </summary>
-        /// <param name="apiClient">The Gemini API client.</param>
-        public GeminiImageGenerationClient(IGeminiApiClient apiClient)
+        /// <param name="apiKey">The API key for authentication.</param>
+        /// <param name="baseUrl">The base URL of the Gemini API (optional).</param>
+        /// <param name="retryConfig">Retry configuration (optional).</param>
+        public GeminiImageGenerationClient(string apiKey, string? baseUrl = null, RetryConfig? retryConfig = null)
         {
-            _apiClient = apiClient;
+            // Pass the retryConfig along with other parameters to GeminiApiClient
+            _apiClient = new GeminiApiClient(apiKey, httpClient: null, baseUrl: baseUrl, retryConfig: retryConfig);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeminiImageGenerationClient"/> class with a custom HttpClient.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client used for API requests.</param>
+        /// <param name="apiKey">The API key for authentication.</param>
+        /// <param name="baseUrl">The base URL of the Gemini API (optional).</param>
+        /// <param name="retryConfig">Retry configuration (optional).</param>
+        public GeminiImageGenerationClient(HttpClient httpClient, string apiKey, string? baseUrl = null, RetryConfig? retryConfig = null)
+        {
+            // Pass the custom HttpClient, apiKey, baseUrl, and retryConfig to GeminiApiClient
+            _apiClient = new GeminiApiClient(apiKey, httpClient, baseUrl, retryConfig);
         }
 
         /// <summary>
@@ -31,13 +43,13 @@ namespace GeminiSharp.Client
         /// </summary>
         /// <param name="prompt">The image generation prompt.</param>
         /// <param name="config">The configuration for image generation.</param>
+        /// <param name="model">The Gemini model to use (default is "gemini-2.0-flash-exp-image-generation").</param>
         /// <param name="includeText">Whether to include a text response along with the image (default is false).</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the request.</param>
         /// <returns>A <see cref="GenerateContentResponse"/> containing the image (and optional text).</returns>
         /// <exception cref="GeminiApiException">Thrown if the API returns an error.</exception>
         /// <exception cref="ArgumentException">Thrown if the prompt is empty or null.</exception>
         /// <exception cref="ArgumentNullException">Thrown if the config is null.</exception>
-        public async Task<GenerateContentResponse> GenerateImageAsync(string prompt, ImageGenerationConfig config, bool includeText = false, CancellationToken cancellationToken = default)
+        public async Task<GenerateContentResponse> GenerateImageAsync(string prompt, ImageGenerationConfig config, string model = "gemini-2.0-flash-exp-image-generation", bool includeText = false)
         {
             if (string.IsNullOrWhiteSpace(prompt))
             {
@@ -75,20 +87,20 @@ namespace GeminiSharp.Client
 
             try
             {
-                Log.Information("Generating image with prompt: {Prompt}, includeText: {IncludeText}, modalities: {Modalities}",
-                    prompt, includeText, string.Join(", ", request.generationConfig.ResponseModalities));
-                var response = await _apiClient.GenerateContentAsync<GenerateImageRequest, GenerateContentResponse>(request, cancellationToken);
-                Log.Information("Successfully generated image.");
+                Log.Information("Generating image for model {Model} with prompt: {Prompt}, includeText: {IncludeText}, modalities: {Modalities}",
+                    model, prompt, includeText, string.Join(", ", request.generationConfig.ResponseModalities));
+                var response = await _apiClient.SendRequestAsync(model, request);
+                Log.Information("Successfully generated image for model {Model}.", model);
                 return response;
             }
             catch (GeminiApiException ex)
             {
-                Log.Error(ex, "API error while generating image.");
+                Log.Error(ex, "API error while generating image for model {Model}.", model);
                 throw;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Unexpected error while generating image.");
+                Log.Error(ex, "Unexpected error while generating image for model {Model}.", model);
                 throw new Exception("An unexpected error occurred while generating image content.", ex);
             }
         }
