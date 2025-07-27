@@ -37,6 +37,7 @@ jobs:
             Optimize performance for API calls without compromising code clarity or maintainability.
             Ensure compatibility with .NET 6.0 or later for broad usability.
             Validate that all public APIs are intuitive and align with the Gemini API's expected usage patterns.
+            Ignore YML files for the review
         run: |
           npx falcon-linter \
             --provider github \
