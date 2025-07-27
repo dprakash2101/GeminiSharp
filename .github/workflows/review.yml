@@ -8,13 +8,21 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Run CriticWave PR Review
-        uses: dprakash2101/criticwave-action@v0.0.1
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          github-token: ${{ secrets.ACCESS_TOKEN }}
-          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
-          pr-style-guide: |
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run Falcon Linter PR Review
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PR_STYLE_GUIDE: |
             Follow C# SDK best practices for the GeminiSharp library, ensuring compatibility with the Gemini API.
             Adhere to SOLID principles strictly, emphasizing single responsibility and interface segregation for API client classes.
             Use clear, descriptive naming conventions following C# standards (e.g., PascalCase for public members, camelCase for parameters).
@@ -27,5 +35,13 @@ jobs:
             Follow REST client best practices, including proper HTTP status code handling and retry logic where applicable.
             Write unit tests for all public API methods, covering edge cases and error conditions.
             Optimize performance for API calls without compromising code clarity or maintainability.
-            Ensure compatibility with .NET Standard 2.0 or later for broad usability.
+            Ensure compatibility with .NET 6.0 or later for broad usability.
             Validate that all public APIs are intuitive and align with the Gemini API's expected usage patterns.
+        run: |
+          npx falcon-linter \
+            --provider github \
+            --pr-id ${{ github.event.pull_request.number }} \
+            --owner ${{ github.repository_owner }} \
+            --repo ${{ github.event.repository.name }} \
+            --base-branch ${{ github.event.pull_request.base.ref }} \
+            --style-guide "$PR_STYLE_GUIDE"
