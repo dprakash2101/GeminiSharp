@@ -27,5 +27,4 @@ jobs:
             --provider github \
             --pr-id ${{ github.event.pull_request.number }} \
             --owner ${{ github.repository_owner }} \
-            --repo ${{ github.event.repository.name }} \
-            --base-branch ${{ github.event.pull_request.base.ref }}
+            --repo ${{ github.event.repository.name }}
