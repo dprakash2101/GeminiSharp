@@ -45,4 +45,4 @@ jobs:
             --owner ${{ github.repository_owner }} \
             --repo ${{ github.event.repository.name }} \
             --base-branch ${{ github.event.pull_request.base.ref }} \
-            --style-guide "$PR_STYLE_GUIDE"
+            "
