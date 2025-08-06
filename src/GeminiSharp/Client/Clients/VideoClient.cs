@@ -38,8 +38,7 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateContentFromVideoAsync(string? model, string prompt, string videoData, string mimeType)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
+                if (string.IsNullOrWhiteSpace(prompt))
             {
                 Log.Error("Prompt is empty or null in GenerateContentFromVideoAsync.");
                 throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
@@ -110,8 +109,7 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateContentFromVideoUriAsync(string? model, string prompt, string videoUri, string mimeType)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
+                if (string.IsNullOrWhiteSpace(prompt))
             {
                 Log.Error("Prompt is empty or null in GenerateContentFromVideoUriAsync.");
                 throw new ArgumentException("Prompt cannot be empty", nameof(prompt));

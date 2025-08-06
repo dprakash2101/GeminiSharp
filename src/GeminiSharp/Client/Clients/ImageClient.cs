@@ -37,16 +37,15 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateImageAsync(string? model, string prompt, GenerationConfig? generationConfig = null)
         {
             model = model ?? "gemini-2.0-flash-preview-image-generation"; // Set default model
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
-            {
-                Log.Error("Prompt is empty or null in GenerateImageAsync.");
-                throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
-            }
+                if (string.IsNullOrWhiteSpace(prompt))
+                {
+                    Log.Error("Prompt is empty or null in GenerateImageAsync.");
+                    throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
+                }
 
-            var request = new GenerateContentRequest
-            {
-                Contents = new List<RequestContent>
+                var request = new GenerateContentRequest
+                {
+                    Contents = new List<RequestContent>
                 {
                     new RequestContent
                     {
@@ -56,26 +55,27 @@ namespace GeminiSharp.Client.Clients
                         }
                     }
                 },
-                GenerationConfig = generationConfig ?? new GenerationConfig { ResponseModalities = new List<string> { "IMAGE" } }
-            };
+                    GenerationConfig = generationConfig ?? new GenerationConfig { ResponseModalities = new List<string> { "IMAGE" } }
+                };
 
-            try
-            {
-                Log.Information("Generating image for model {Model} with prompt: {Prompt}, modalities: {Modalities}",
-                    model, prompt, string.Join(", ", request.GenerationConfig?.ResponseModalities ?? new List<string>()));
-                var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
-                Log.Information("Successfully generated image for model {Model}.", model);
-                return response;
-            }
-            catch (GeminiApiException ex)
-            {
-                Log.Error(ex, "API error while generating image for model {Model}.", model);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Unexpected error while generating image for model {Model}.", model);
-                throw new Exception("An unexpected error occurred while generating image content.", ex);
+                try
+                {
+                    Log.Information("Generating image for model {Model} with prompt: {Prompt}, modalities: {Modalities}",
+                        model, prompt, string.Join(", ", request.GenerationConfig?.ResponseModalities ?? new List<string>()));
+                    var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
+                    Log.Information("Successfully generated image for model {Model}.", model);
+                    return response;
+                }
+                catch (GeminiApiException ex)
+                {
+                    Log.Error(ex, "API error while generating image for model {Model}.", model);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unexpected error while generating image for model {Model}.", model);
+                    throw new Exception("An unexpected error occurred while generating image content.", ex);
+                }
             }
         }
 

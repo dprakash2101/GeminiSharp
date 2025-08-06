@@ -39,25 +39,24 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateStructuredContentAsync(string? model, string prompt, object jsonSchema, GenerationConfig? generationConfig = null)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
-            {
-                Log.Error("Prompt is empty or null in GenerateStructuredContentAsync.");
-                throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
-            }
-            if (jsonSchema == null)
-            {
-                Log.Error("JSON schema is null in GenerateStructuredContentAsync.");
-                throw new ArgumentNullException(nameof(jsonSchema));
-            }
+                if (string.IsNullOrWhiteSpace(prompt))
+                {
+                    Log.Error("Prompt is empty or null in GenerateStructuredContentAsync.");
+                    throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
+                }
+                if (jsonSchema == null)
+                {
+                    Log.Error("JSON schema is null in GenerateStructuredContentAsync.");
+                    throw new ArgumentNullException(nameof(jsonSchema));
+                }
 
-            var effectiveGenerationConfig = generationConfig ?? new GenerationConfig();
-            effectiveGenerationConfig.response_mime_type = effectiveGenerationConfig.response_mime_type ?? "application/json";
-            effectiveGenerationConfig.response_schema = effectiveGenerationConfig.response_schema ?? jsonSchema;
+                var effectiveGenerationConfig = generationConfig ?? new GenerationConfig();
+                effectiveGenerationConfig.response_mime_type = effectiveGenerationConfig.response_mime_type ?? "application/json";
+                effectiveGenerationConfig.response_schema = effectiveGenerationConfig.response_schema ?? jsonSchema;
 
-            var request = new GenerateContentRequest
-            {
-                Contents = new List<RequestContent>
+                var request = new GenerateContentRequest
+                {
+                    Contents = new List<RequestContent>
                 {
                     new RequestContent
                     {
@@ -67,25 +66,26 @@ namespace GeminiSharp.Client.Clients
                         }
                     }
                 },
-                GenerationConfig = effectiveGenerationConfig
-            };
+                    GenerationConfig = effectiveGenerationConfig
+                };
 
-            try
-            {
-                Log.Information("Generating structured content for model {Model} with prompt: {Prompt}", model, prompt);
-                var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
-                Log.Information("Successfully generated structured content for model {Model}.", model);
-                return response;
-            }
-            catch (GeminiApiException ex)
-            {
-                Log.Error(ex, "API error while generating structured content for model {Model}.", model);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Unexpected error while generating structured content for model {Model}.", model);
-                throw new Exception("An unexpected error occurred while generating structured content.", ex);
+                try
+                {
+                    Log.Information("Generating structured content for model {Model} with prompt: {Prompt}", model, prompt);
+                    var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
+                    Log.Information("Successfully generated structured content for model {Model}.", model);
+                    return response;
+                }
+                catch (GeminiApiException ex)
+                {
+                    Log.Error(ex, "API error while generating structured content for model {Model}.", model);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unexpected error while generating structured content for model {Model}.", model);
+                    throw new Exception("An unexpected error occurred while generating structured content.", ex);
+                }
             }
         }
     }

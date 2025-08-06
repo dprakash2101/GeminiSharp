@@ -58,3 +58,4 @@ namespace GeminiSharp.Client
             return response;
         }
     }
+}

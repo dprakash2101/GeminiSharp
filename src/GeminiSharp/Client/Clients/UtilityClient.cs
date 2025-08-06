@@ -38,8 +38,7 @@ namespace GeminiSharp.Client.Clients
         public async Task<EmbeddingResponse> EmbedContentAsync(string? model, string text)
         {
             model = model ?? "embedding-001"; // Set default model for embeddings
-        {
-            if (string.IsNullOrWhiteSpace(text))
+                if (string.IsNullOrWhiteSpace(text))
             {
                 Log.Error("Text for embedding is empty or null in EmbedContentAsync.");
                 throw new ArgumentException("Text cannot be empty", nameof(text));
@@ -84,8 +83,7 @@ namespace GeminiSharp.Client.Clients
         public async Task<CountTokensResponse> CountTokensAsync(string? model, string text)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-        {
-            if (string.IsNullOrWhiteSpace(text))
+                if (string.IsNullOrWhiteSpace(text))
             {
                 Log.Error("Text for token counting is empty or null in CountTokensAsync.");
                 throw new ArgumentException("Text cannot be empty", nameof(text));
@@ -170,8 +168,7 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateContentWithFunctionCallingAsync(string? model, string prompt, List<Tool> tools)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
+                if (string.IsNullOrWhiteSpace(prompt))
             {
                 Log.Error("Prompt is empty or null in GenerateContentWithFunctionCallingAsync.");
                 throw new ArgumentException("Prompt cannot be empty", nameof(prompt));

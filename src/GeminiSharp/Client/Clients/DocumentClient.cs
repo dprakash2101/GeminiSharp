@@ -38,26 +38,25 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateContentFromDocumentAsync(string? model, string prompt, string documentData, string mimeType)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
-            {
-                Log.Error("Prompt is empty or null in GenerateContentFromDocumentAsync.");
-                throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
-            }
-            if (string.IsNullOrWhiteSpace(documentData))
-            {
-                Log.Error("Document data is empty or null in GenerateContentFromDocumentAsync.");
-                throw new ArgumentException("Document data cannot be empty", nameof(documentData));
-            }
-            if (string.IsNullOrWhiteSpace(mimeType))
-            {
-                Log.Error("MIME type is empty or null in GenerateContentFromDocumentAsync.");
-                throw new ArgumentException("MIME type cannot be empty", nameof(mimeType));
-            }
+                if (string.IsNullOrWhiteSpace(prompt))
+                {
+                    Log.Error("Prompt is empty or null in GenerateContentFromDocumentAsync.");
+                    throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
+                }
+                if (string.IsNullOrWhiteSpace(documentData))
+                {
+                    Log.Error("Document data is empty or null in GenerateContentFromDocumentAsync.");
+                    throw new ArgumentException("Document data cannot be empty", nameof(documentData));
+                }
+                if (string.IsNullOrWhiteSpace(mimeType))
+                {
+                    Log.Error("MIME type is empty or null in GenerateContentFromDocumentAsync.");
+                    throw new ArgumentException("MIME type cannot be empty", nameof(mimeType));
+                }
 
-            var request = new GenerateContentRequest
-            {
-                Contents = new List<RequestContent>
+                var request = new GenerateContentRequest
+                {
+                    Contents = new List<RequestContent>
                 {
                     new RequestContent
                     {
@@ -75,24 +74,25 @@ namespace GeminiSharp.Client.Clients
                         }
                     }
                 }
-            };
+                };
 
-            try
-            {
-                Log.Information("Generating content from document for model {Model} with prompt: {Prompt}", model, prompt);
-                var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
-                Log.Information("Successfully generated content from document for model {Model}.", model);
-                return response;
-            }
-            catch (GeminiApiException ex)
-            {
-                Log.Error(ex, "API error while generating content from document for model {Model}.", model);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Unexpected error while generating content from document for model {Model}.", model);
-                throw new Exception("An unexpected error occurred while generating content from document.", ex);
+                try
+                {
+                    Log.Information("Generating content from document for model {Model} with prompt: {Prompt}", model, prompt);
+                    var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
+                    Log.Information("Successfully generated content from document for model {Model}.", model);
+                    return response;
+                }
+                catch (GeminiApiException ex)
+                {
+                    Log.Error(ex, "API error while generating content from document for model {Model}.", model);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unexpected error while generating content from document for model {Model}.", model);
+                    throw new Exception("An unexpected error occurred while generating content from document.", ex);
+                }
             }
         }
 
@@ -110,26 +110,25 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateContentFromDocumentUriAsync(string? model, string prompt, string documentUri, string mimeType)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-        {
-            if (string.IsNullOrWhiteSpace(prompt))
-            {
-                Log.Error("Prompt is empty or null in GenerateContentFromDocumentUriAsync.");
-                throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
-            }
-            if (string.IsNullOrWhiteSpace(documentUri))
-            {
-                Log.Error("Document URI is empty or null in GenerateContentFromDocumentUriAsync.");
-                throw new ArgumentException("Document URI cannot be empty", nameof(documentUri));
-            }
-            if (string.IsNullOrWhiteSpace(mimeType))
-            {
-                Log.Error("MIME type is empty or null in GenerateContentFromDocumentUriAsync.");
-                throw new ArgumentException("MIME type cannot be empty", nameof(mimeType));
-            }
+                if (string.IsNullOrWhiteSpace(prompt))
+                {
+                    Log.Error("Prompt is empty or null in GenerateContentFromDocumentUriAsync.");
+                    throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
+                }
+                if (string.IsNullOrWhiteSpace(documentUri))
+                {
+                    Log.Error("Document URI is empty or null in GenerateContentFromDocumentUriAsync.");
+                    throw new ArgumentException("Document URI cannot be empty", nameof(documentUri));
+                }
+                if (string.IsNullOrWhiteSpace(mimeType))
+                {
+                    Log.Error("MIME type is empty or null in GenerateContentFromDocumentUriAsync.");
+                    throw new ArgumentException("MIME type cannot be empty", nameof(mimeType));
+                }
 
-            var request = new GenerateContentRequest
-            {
-                Contents = new List<RequestContent>
+                var request = new GenerateContentRequest
+                {
+                    Contents = new List<RequestContent>
                 {
                     new RequestContent
                     {
@@ -147,24 +146,25 @@ namespace GeminiSharp.Client.Clients
                         }
                     }
                 }
-            };
+                };
 
-            try
-            {
-                Log.Information("Generating content from document URI for model {Model} with prompt: {Prompt}", model, prompt);
-                var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
-                Log.Information("Successfully generated content from document URI for model {Model}.", model);
-                return response;
-            }
-            catch (GeminiApiException ex)
-            {
-                Log.Error(ex, "API error while generating content from document URI for model {Model}.", model);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Unexpected error while generating content from document URI for model {Model}.", model);
-                throw new Exception("An unexpected error occurred while generating content from document URI.", ex);
+                try
+                {
+                    Log.Information("Generating content from document URI for model {Model} with prompt: {Prompt}", model, prompt);
+                    var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
+                    Log.Information("Successfully generated content from document URI for model {Model}.", model);
+                    return response;
+                }
+                catch (GeminiApiException ex)
+                {
+                    Log.Error(ex, "API error while generating content from document URI for model {Model}.", model);
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unexpected error while generating content from document URI for model {Model}.", model);
+                    throw new Exception("An unexpected error occurred while generating content from document URI.", ex);
+                }
             }
         }
     }
