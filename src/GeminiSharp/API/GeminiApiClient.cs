@@ -55,7 +55,7 @@ namespace GeminiSharp.API
                 throw new ArgumentException("Model cannot be empty", nameof(model));
             }
 
-            string url = $"{_baseUrl}{model}:{endpoint}?key={_apiKey}";
+            string url = $"{_baseUrl}{model}:{endpoint}";
             string requestContent = JsonSerializer.Serialize(request);
 
             var httpClient = _httpClientFactory.CreateClient();
@@ -113,7 +113,7 @@ namespace GeminiSharp.API
                 throw new ArgumentException("Model cannot be empty", nameof(model));
             }
 
-            string url = $"{_baseUrl}{model}?key={_apiKey}";
+            string url = $"{_baseUrl}{model}";
             var httpClient = _httpClientFactory.CreateClient();
 
             try

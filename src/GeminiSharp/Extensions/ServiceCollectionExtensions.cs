@@ -22,30 +22,46 @@ namespace GeminiSharp.Extensions
         /// <param name="apiKey">The API key for authentication with the Gemini API.</param>
         /// <param name="configureRetry">Optional. An action to configure the retry policy settings.</param>
         /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
-        public static IServiceCollection AddGeminiClient(this IServiceCollection services, string apiKey, Action<RetryConfig>? configureRetry = null)
+        /// <summary>
+        /// Adds the GeminiSharp client and its dependencies to the specified <see cref="IServiceCollection"/>.
+        /// Configures HttpClient with Polly for transient fault handling (retries).
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+        /// <param name="apiKey">The API key for authentication with the Gemini API.</param>
+        /// <param name="configureOptions">Optional. An action to configure the <see cref="GeminiSharpOptions"/>.</param>
+        /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+        public static IServiceCollection AddGeminiSharp(this IServiceCollection services, Action<GeminiSharpOptions> configureOptions)
         {
-            var retryConfig = new RetryConfig();
-            configureRetry?.Invoke(retryConfig);
+            var options = new GeminiSharpOptions();
+            configureOptions.Invoke(options);
+
+            if (string.IsNullOrWhiteSpace(options.ApiKey))
+            {
+                throw new ArgumentException("API Key must be provided in GeminiSharpOptions.", nameof(configureOptions));
+            }
 
             var retryPolicy = HttpPolicyExtensions
                 .HandleTransientHttpError()
-                .OrResult(msg => retryConfig.RetryStatusCodes.Contains((int)msg.StatusCode))
-                .WaitAndRetryAsync(retryConfig.MaxRetries, retryAttempt =>
-                    TimeSpan.FromMilliseconds(retryConfig.UseExponentialBackoff
-                        ? retryConfig.InitialDelayMs * Math.Pow(2, retryAttempt - 1)
-                        : retryConfig.InitialDelayMs)
+                .OrResult(msg => options.RetryConfig?.RetryStatusCodes.Contains((int)msg.StatusCode) ?? false)
+                .WaitAndRetryAsync(options.RetryConfig?.MaxRetries ?? 3, retryAttempt =>
+                    TimeSpan.FromMilliseconds(options.RetryConfig?.UseExponentialBackoff ?? true
+                        ? (options.RetryConfig?.InitialDelayMs ?? 1000) * Math.Pow(2, retryAttempt - 1)
+                        : (options.RetryConfig?.InitialDelayMs ?? 1000))
                 );
 
-            services.AddHttpClient<GeminiApiClient>()
+            services.AddHttpClient<GeminiApiClient>(client =>
+            {
+                client.DefaultRequestHeaders.Add("x-goog-api-key", options.ApiKey);
+            })
                     .AddPolicyHandler(retryPolicy);
 
-            services.AddSingleton<GeminiApiClient>(provider =>
+            services.AddScoped<GeminiApiClient>(provider =>
             {
                 var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-                return new GeminiApiClient(apiKey, httpClientFactory, retryConfig: retryConfig);
+                return new GeminiApiClient(options.ApiKey, httpClientFactory, options.BaseUrl, options.RetryConfig);
             });
 
-            services.AddSingleton<IGeminiClient, GeminiClient>();
+            services.AddScoped<IGeminiClient, GeminiClient>();
 
             return services;
         }

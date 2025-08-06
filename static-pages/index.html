@@ -343,14 +343,33 @@
             <h2>Quick Start Guide</h2>
             <p>Get started generating text in just a few lines of code:</p>
             <pre><code>using GeminiSharp.Client;
+using GeminiSharp.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 
-var apiKey = "YOUR_GEMINI_API_KEY"; // Replace with your actual API key
-using var httpClient = new HttpClient();
-var geminiClient = new GeminiClient(apiKey, httpClient);
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        // 1. Setup DI container
+        var serviceProvider = new ServiceCollection()
+            .AddGeminiSharp(options =>
+            {
+                options.ApiKey = "YOUR_GEMINI_API_KEY"; // REQUIRED: Replace with your actual API key
+                // Optional: Configure BaseUrl or RetryConfig here if needed
+                // options.BaseUrl = "https://your-custom-gemini-api.com/v1beta/models/";
+            })
+            .BuildServiceProvider();
 
-// Using the TextClient via GeminiClient facade
-var response = await geminiClient.GenerateTextAsync(null, "Hello, Gemini! What's Falcon 9?");
-Console.WriteLine(response?.Candidates?[0].Content?.Parts?[0].Text);
+        // 2. Resolve IGeminiClient from the container
+        var geminiClient = serviceProvider.GetRequiredService&lt;IGeminiClient&gt;();
+
+        // 3. Use the client
+        var response = await geminiClient.GenerateTextAsync(null, "Hello, Gemini! What's Falcon 9?");
+        Console.WriteLine(response?.Candidates?[0].Content?.Parts?[0].Text);
+    }
+}
 </code></pre>
             <p>For detailed guidance on image generation, structured output, and advanced configurations, please refer to the <a href="https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md">complete documentation</a>.</p>
         </div>

@@ -35,18 +35,21 @@ GeminiSharp is a C# client SDK for seamlessly interacting with Google's Gemini A
 
 ## Current Status
 
-GeminiSharp initially focused on text generation. Now, it supports:
+GeminiSharp now provides a comprehensive set of specialized clients for various Gemini API functionalities:
 
-- **Structured Output** ✅
+- **Text Generation** ✅
 - **Image Generation** ✅
-- **Logging Support** ✅
-- **Retry Configuration** ✅
-- **Vision Support** 📷 _(coming soon)_
-- **Audio Understanding** 🎧 _(coming soon)_
-- **Code Execution** 💻 _(coming soon)_
-- **Document Processing** 📄 _(coming soon)_
+- **Structured Output** ✅
+- **Chat Sessions** ✅
+- **Embeddings** ✅
+- **Token Counting** ✅
+- **Model Information Retrieval** ✅
+- **Document Processing** ✅
+- **Audio Processing** ✅
+- **Video Processing** ✅
+- **Function Calling** ✅
 
-Stay tuned for more features! 🚀
+We are continuously working to expand functionality and improve the SDK. Stay tuned for more features! 🚀
 
 ---
 
@@ -70,32 +73,129 @@ dotnet add package GeminiSharp
 
 ---
 
-## Usage
+## Dependency Injection Setup
 
-### Basic Example
+GeminiSharp is designed for seamless integration with .NET's built-in Dependency Injection (DI) system. This allows for easy management of `IGeminiClient` instances and their dependencies, suchs as `HttpClient` and retry policies.
+
+### Basic DI Setup
+
+To register GeminiSharp services with your `IServiceCollection`, use the `AddGeminiSharp` extension method. This is typically done in your `Startup.cs` (for ASP.NET Core) or `Program.cs` (for .NET 6+ minimal APIs/Console apps).
 
 ```csharp
+using GeminiSharp.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using GeminiSharp.Models.Utilities; // Required for GeminiSharpOptions
 using System;
+using System.Collections.Generic;
+
+// In your Startup.cs ConfigureServices method or Program.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    // ... other service registrations
+
+    services.AddGeminiSharp(options =>
+    {
+        options.ApiKey = "YOUR_GEMINI_API_KEY"; // REQUIRED: Replace with your actual API key
+
+        // Optional: Configure BaseUrl if not using the default Google endpoint
+        // options.BaseUrl = "https://your-custom-gemini-api.com/v1beta/models/";
+
+        // Optional: Configure retry policy
+        options.RetryConfig = new RetryConfig
+        {
+            MaxRetries = 5, // Example: Retry up to 5 times
+            InitialDelayMs = 2000, // Example: 2-second initial delay
+            UseExponentialBackoff = true, // Example: Use exponential backoff
+            RetryStatusCodes = new HashSet<int> { 429, 500, 503, 504 } // Example: Add 504 Gateway Timeout
+        };
+    });
+
+    // ... other service registrations
+}
+
+// Or for .NET 6+ minimal APIs/Console apps:
+var builder = WebApplication.CreateBuilder(args);
+// ...
+builder.Services.AddGeminiSharp(options =>
+{
+    options.ApiKey = "YOUR_GEMINI_API_KEY"; // REQUIRED: Replace with your actual API key
+
+    // Optional: Configure BaseUrl if not using the default Google endpoint
+    // options.BaseUrl = "https://your-custom-gemini-api.com/v1beta/models/";
+
+    // Optional: Configure retry policy
+    options.RetryConfig = new RetryConfig
+    {
+        MaxRetries = 5,
+        InitialDelayMs = 2000,
+        UseExponentialBackoff = true,
+        RetryStatusCodes = new HashSet<int> { 429, 500, 503, 504 }
+    };
+});
+// ...
+```
+
+---
+
+## Usage
+
+Once registered, you can inject `IGeminiClient` into your classes (e.g., controllers, services, or console application entry points) and use it to interact with the Gemini API.
+
+### Console Application Example (with DI)
+
+```csharp
 using GeminiSharp.Client;
-using System.Net.Http;
+using GeminiSharp.API;
+using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection; // Required for DI
+using Serilog; // For logging example
+using Microsoft.Extensions.Logging; // For ILogger
 
 class Program
 {
-    static async Task Main()
+    static async Task Main(string[] args)
     {
-        var httpClient = new HttpClient();
-        var apiKey = "your-gemini-api-key"; // Replace with your actual API key
-        var geminiClient = new GeminiClient(httpClient, apiKey);
+        // Configure Serilog (optional, but recommended for visibility)
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .CreateLogger();
+
+        // 1. Setup DI container
+        var serviceProvider = new ServiceCollection()
+            .AddSingleton<ILogger>(Log.Logger) // Register Serilog logger
+            .AddGeminiSharp(options =>
+            {
+                options.ApiKey = "YOUR_GEMINI_API_KEY"; // REQUIRED: Replace with your actual API key
+                // Optional: Configure BaseUrl or RetryConfig here if needed
+                // options.BaseUrl = "https://your-custom-gemini-api.com/v1beta/models/";
+            })
+            .BuildServiceProvider();
+
+        // 2. Resolve IGeminiClient from the container
+        var geminiClient = serviceProvider.GetRequiredService<IGeminiClient>();
 
         try
         {
-            var response = await geminiClient.GenerateContentAsync("gemini-2.0", "Hello, Gemini! What's Falcon 9?");
-            Console.WriteLine(response?.Candidates?[0].Content);
+            // Using the TextClient via GeminiClient facade
+            Console.WriteLine("Sending request to Gemini...");
+            var response = await geminiClient.GenerateTextAsync(null, "Hello, Gemini! What's Falcon 9?");
+            Console.WriteLine("Response from Gemini:");
+            Console.WriteLine(response?.Candidates?[0].Content?.Parts?[0].Text);
         }
         catch (GeminiApiException ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            Console.WriteLine($"API Error: {ex.Message}");
+            Console.WriteLine($"Status Code: {ex.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+        }
+        finally
+        {
+            Log.CloseAndFlush(); // Ensure all logs are written
         }
     }
 }
@@ -108,17 +208,102 @@ Generate structured responses using a custom schema:
 ```csharp
 using GeminiSharp.Client;
 using GeminiSharp.Helpers;
+using GeminiSharp.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 
-var schema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
-var response = await geminiClient.GenerateStructuredContentAsync<PlayerStats>(
-    "gemini-2.0", "Provide cricket player stats for Virat Kohli", schema);
-Console.WriteLine(JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true }));
-```
+// Define a simple class to represent the structured output
+public class PlayerStats
+{
+    public string? Name { get; set; }
+    public string? Team { get; set; }
+    public int Runs { get; set; }
+    public double BattingAverage { get; set; }
+}
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        // 1. Setup DI container
+        var serviceProvider = new ServiceCollection()
+            .AddGeminiSharp(options => options.ApiKey = "YOUR_GEMINI_API_KEY") // Replace with your actual API key
+            .BuildServiceProvider();
+
+        // 2. Resolve IGeminiClient from the container
+        var geminiClient = serviceProvider.GetRequiredService<IGeminiClient>();
+
+        // 3. Generate the JSON schema from your C# model
+        var schema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
+
+        try
+        {
+            // 4. Call GenerateStructuredContentAsync using the GeminiClient facade
+            var response = await geminiClient.GenerateStructuredContentAsync(
+                null, // Use default model (gemini-2.5-flash)
+                "Provide cricket player stats for Virat Kohli",
+                schema,
+                new GeminiSharp.Models.Request.GenerationConfig { response_mime_type = "application/json" } // Ensure JSON output
+            );
+
+            // 5. Extract and deserialize the JSON string from the response
+            var jsonText = response?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+
+            if (!string.IsNullOrWhiteSpace(jsonText))
+            {
+                PlayerStats? structuredData = JsonSerializer.Deserialize<PlayerStats>(jsonText, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                });
+                Console.WriteLine(JsonSerializer.Serialize(structuredData, new JsonSerializerOptions { WriteIndented = true }));
+            }
+            else
+            {
+                Console.WriteLine("Error: No structured content received from the API.");
+            }
+        }
+        catch (GeminiSharp.API.GeminiApiException ex)
+        {
+            Console.WriteLine($"API Error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+        }
+    }
+}
+
 
 ### Image Generation Example
 
-To generate images from prompts, see [Image Generation Documentation](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md).
+To generate images from prompts, see [Image Generation Documentation](docs/image-generation.md).
+
+### Chat Sessions Example
+
+For interactive multi-turn conversations, see [Chat Sessions Documentation](docs/chat-sessions.md).
+
+### Document Processing Example
+
+To process documents (PDFs, etc.), see [Document Processing Documentation](docs/document-processing.md).
+
+### Video Processing Example
+
+To process video content, see [Video Processing Documentation](docs/video-processing.md).
+
+### Audio Processing Example
+
+To process audio content, see [Audio Processing Documentation](docs/audio-processing.md).
+
+### Utility Client Example
+
+For embeddings, token counting, and model information, see [Utility Client Documentation](docs/utility-client.md).
+
+### Function Calling Example
+
+To enable the model to call external tools/functions, see [Function Calling Documentation](docs/function-calling.md).
 
 ---
 
@@ -136,13 +321,13 @@ Log.Logger = new LoggerConfiguration()
 Log.Information("Starting application");
 ```
 
-For full logging setup details, refer to the [Logging Configuration Guide](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/logging.md).
+For full logging setup details, refer to the [Logging Configuration Guide](docs/logging-configuration.md).
 
 ---
 
 ## Retry Configuration
 
-GeminiSharp includes a flexible retry configuration for handling transient errors. For detailed information on how to configure retries, check the [Retry Configuration Guide](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/retry-configuration.md).
+GeminiSharp includes a flexible retry configuration for handling transient errors. For detailed information on how to configure retries, check the [Retry Configuration Guide](docs/retry-configuration.md).
 
 ---
 
@@ -151,17 +336,37 @@ GeminiSharp includes a flexible retry configuration for handling transient error
 GeminiSharp throws `GeminiApiException` for API errors. Here's an example of how to catch and inspect errors:
 
 ```csharp
-try
-{
-    using var httpClient = new HttpClient();
-    var geminiClient = new GeminiClient(httpClient, "your-gemini-api-key");
+using GeminiSharp.Client;
+using GeminiSharp.API;
+using GeminiSharp.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 
-    var response = await geminiClient.GenerateContentAsync("invalid-model", "Test");
-}
-catch (GeminiApiException ex)
+class Program
 {
-    Console.WriteLine($"API Error: {ex.Message}");
-    Console.WriteLine($"Status Code: {ex.StatusCode}");
+    static async Task Main(string[] args)
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddGeminiSharp(options => options.ApiKey = "YOUR_GEMINI_API_KEY")
+            .BuildServiceProvider();
+
+        var geminiClient = serviceProvider.GetRequiredService<IGeminiClient>();
+
+        try
+        {
+            var response = await geminiClient.GenerateTextAsync("invalid-model", "Test");
+        }
+        catch (GeminiApiException ex)
+        {
+            Console.WriteLine($"API Error: {ex.Message}");
+            Console.WriteLine($"Status Code: {ex.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+        }
+    }
 }
 ```
 
@@ -172,7 +377,10 @@ catch (GeminiApiException ex)
 ```csharp
 using GeminiSharp.Client;
 using GeminiSharp.API;
+using GeminiSharp.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection; // Required for DI
+using System.Threading.Tasks;
 
 namespace GeminiSDKExample.Controllers
 {
@@ -180,6 +388,14 @@ namespace GeminiSDKExample.Controllers
     [ApiController]
     public class GeminiController : ControllerBase
     {
+        private readonly IGeminiClient _geminiClient;
+
+        // Inject IGeminiClient via constructor
+        public GeminiController(IGeminiClient geminiClient)
+        {
+            _geminiClient = geminiClient;
+        }
+
         public class GenerateTextRequest
         {
             public string Prompt { get; set; } = string.Empty;
@@ -188,23 +404,17 @@ namespace GeminiSDKExample.Controllers
         [HttpPost("generate")]
         public async Task<IActionResult> GenerateText(
             [FromBody] GenerateTextRequest request,
-            [FromHeader(Name = "GeminiApiKey")] string apiKey,
             [FromHeader(Name = "Gemini-Model")] string? model)
         {
             if (string.IsNullOrWhiteSpace(request.Prompt))
                 return BadRequest(new { error = "Prompt cannot be empty." });
 
-            if (string.IsNullOrWhiteSpace(apiKey))
-                return BadRequest(new { error = "API key is required." });
-
-            model ??= "gemini-1.5-flash"; // Default model
-
-            using var httpClient = new HttpClient();
-            var geminiClient = new GeminiClient(httpClient, apiKey);
+            // API Key is configured via DI, no longer needed in header for this example
+            // If you need per-request API keys, you'd handle it differently (e.g., custom HttpClientFactory)
 
             try
             {
-                var result = await geminiClient.GenerateContentAsync(model, request.Prompt);
+                var result = await _geminiClient.GenerateTextAsync(model, request.Prompt);
                 return Ok(new { Response = result });
             }
             catch (GeminiApiException ex)
@@ -224,14 +434,21 @@ namespace GeminiSDKExample.Controllers
 
 ## Configuring the Base URL
 
-You can easily configure the base URL for the Gemini API in your `GeminiClient`:
+You can configure the base URL for the Gemini API during DI setup:
 
 ```csharp
-using GeminiSharp.Client;
+using GeminiSharp.Extensions;
+using GeminiSharp.Models.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
-var customBaseUrl = "https://your-custom-gemini-api.com";
-using var httpClient = new HttpClient();
-var geminiClient = new GeminiClient(httpClient, "your-gemini-api-key", customBaseUrl);
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddGeminiSharp(options =>
+    {
+        options.ApiKey = "YOUR_GEMINI_API_KEY";
+        options.BaseUrl = "https://your-custom-gemini-api.com/v1beta/models/";
+    });
+}
 ```
 
 ---

@@ -32,13 +32,10 @@ namespace GeminiSharp.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="GeminiClient"/> class.
         /// </summary>
-        /// <param name="apiKey">The API key for authentication.</param>
-        /// <param name="httpClientFactory">The HTTP client factory used to create <see cref="HttpClient"/> instances.</param>
-        /// <param name="baseUrl">The base URL of the Gemini API (optional, defaults to Google's endpoint).</param>
-        /// <param name="retryConfig">Retry configuration (optional).</param>
-        public GeminiClient(string apiKey, IHttpClientFactory httpClientFactory, string? baseUrl = null, RetryConfig? retryConfig = null)
+        /// <param name="apiClient">The Gemini API client instance.</param>
+        public GeminiClient(GeminiApiClient apiClient)
         {
-            _apiClient = new GeminiApiClient(apiKey, httpClientFactory, baseUrl: baseUrl, retryConfig: retryConfig);
+            _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
             _textClient = new TextClient(_apiClient);
             _imageClient = new ImageClient(_apiClient);
             _structuredContentClient = new StructuredContentClient(_apiClient);
