@@ -1,0 +1,35 @@
+# GeminiSharp Refactoring Status
+
+## Phase 1: Initial Setup and Planning (Done)
+
+- [x] Reviewed existing code.
+- [x] Defined refactoring plan.
+- [x] Created status.txt file.
+- [x] Removed all previous C# source files to start fresh.
+
+## Phase 2: Core SDK Structure (Done)
+
+- [x] Define core API client (`GeminiApiClient`) for HTTP communication, authentication, and retries.
+- [x] Define base request/response models (e.g., `RequestContent`, `ResponseContent`, `ApiErrorResponse`).
+- [x] Implement `IGeminiClient` interface for unified API access.
+- [x] Implement `GeminiClient` class, using `IHttpClientFactory` and DI.
+- [x] Add `ServiceCollectionExtensions` for easy DI setup.
+- [x] Add `JsonSchemaHelper` for converting C# classes to JSON schema.
+- [x] Add `JsonSchemaHelper` for converting C# classes to JSON schema.
+
+## Phase 3: Feature Implementation (Iterative) (Done)
+
+- [x] Implement Text Generation (`GenerateContentAsync`).
+- [x] Implement Image Generation (`GenerateContentAsync` with image-specific config).
+- [x] Implement Structured Output (`GenerateContentAsync` with schema).
+- [x] Implement Chat (`StartChat`, `SendMessageAsync`).
+- [x] Implement Embeddings (`EmbedContentAsync`).
+- [x] Implement Token Counting (`CountTokensAsync`).
+
+## Phase 4: Finalization
+
+- [x] Add comprehensive documentation (XML comments).
+- [ ] Implement additional Gemini API functionalities and helper classes.
+- [ ] Write unit/integration tests.
+- [ ] Ensure adherence to .NET best practices and coding standards.
+- [ ] Prepare for NuGet package release.

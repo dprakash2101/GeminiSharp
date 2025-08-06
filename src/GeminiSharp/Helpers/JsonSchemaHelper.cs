@@ -1,13 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace GeminiSharp.Helpers
 {
     /// <summary>
     /// Provides methods to generate a JSON schema from a C# class type.
+    /// This helper is useful for defining the expected structure of structured outputs from the Gemini API.
     /// </summary>
     public static class JsonSchemaHelper
     {
@@ -64,18 +66,14 @@ namespace GeminiSharp.Helpers
                 try
                 {
                     var propType = prop.PropertyType;
-                    var camelName = ConvertToCamelCase(prop.Name);
+                    // Use JsonPropertyName attribute if present, otherwise convert to camelCase
+                    var jsonPropertyName = prop.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? ConvertToCamelCase(prop.Name);
                     var schemaProperty = GenerateSchema(propType);
 
-                    // Check for [Required] attribute
-                    if (prop.GetCustomAttribute<RequiredAttribute>() != null)
+                    // Check for [Required] attribute or if it's a non-nullable value type
+                    if (prop.GetCustomAttribute<RequiredAttribute>() != null || (propType.IsValueType && !IsNullable(propType, out _)))
                     {
-                        requiredList.Add(camelName);
-                    }
-                    else if (!IsNullable(propType, out _))
-                    {
-                        // If not nullable and no [Required], consider it required as before
-                        requiredList.Add(camelName);
+                        requiredList.Add(jsonPropertyName);
                     }
 
                     // Check for [MaxLength] attribute
@@ -85,7 +83,7 @@ namespace GeminiSharp.Helpers
                         schemaDict["maxLength"] = maxLengthAttribute.Length;
                     }
 
-                    schemaProperties[camelName] = schemaProperty;
+                    schemaProperties[jsonPropertyName] = schemaProperty;
                 }
                 catch (Exception ex)
                 {
@@ -98,7 +96,7 @@ namespace GeminiSharp.Helpers
             {
                 ["type"] = "object",
                 ["properties"] = schemaProperties,
-                ["required"] = requiredList
+                ["required"] = requiredList.Any() ? requiredList : new List<string>() // Ensure 'required' is present if there are required properties
             };
         }
 
