@@ -245,15 +245,32 @@
             </div>
         </div>
         <div class="section">
+            <h2>Important Architectural Change: Re-architecting the SDK</h2>
+            <p>
+                We are currently undergoing a significant re-architecture of the GeminiSharp SDK to improve maintainability, modularity, and extensibility. The primary change involves breaking down the monolithic <code>GeminiClient</code> and previously separate clients like <code>GeminiStructuredResponseClient</code> into smaller, specialized client classes, each responsible for a specific area of Gemini API functionality (e.g., <code>TextClient</code>, <code>ImageClient</code>, <code>DocumentClient</code>, <code>AudioClient</code>, <code>VideoClient</code>, <code>StructuredContentClient</code>, <code>UtilityClient</code>).
+            </p>
+            <h3>Key Changes:</h3>
+            <ul>
+                <li><strong>Specialized Clients:</strong> Functionality previously bundled in <code>GeminiClient</code> and other specific clients has been moved to dedicated client classes (e.g., <code>TextClient</code> for text generation, <code>ImageClient</code> for image-related operations).</li>
+                <li><strong>Facade Pattern:</strong> The main <code>GeminiClient</code> now acts as a facade, instantiating and delegating calls to these specialized clients. This maintains a consistent public API while allowing for internal modularity.</li>
+                <li><strong>Default Model Update:</strong> Where applicable, the default Gemini model has been updated to <code>gemini-2.5-flash</code> for improved performance and access to the latest features.</li>
+                <li><strong>Code Execution Feature (Temporarily Removed):</strong> The code execution feature has been temporarily removed during this re-architecture phase to streamline the process. It will be re-introduced in a future update.</li>
+            </ul>
+            <p>
+                This re-architecture aims to make the SDK easier to understand, use, and contribute to, while also paving the way for more robust and feature-rich implementations in the future.
+            </p>
+        </div>
+        <div class="section">
             <h2>Key Features</h2>
             <ul>
-                <li><strong>Text & Structured Output Generation</strong>: <br>Effortlessly generate free-form text responses or structured JSON outputs based on your defined schemas.</li>
-                <li><strong>Image Generation from Text</strong>: <br> Unleash your creativity and generate visuals directly from textual prompts with remarkable ease.</li>
-                <li><strong>Robust Automatic Retry Mechanism</strong>: <br> Automatically handles transient API errors, ensuring your applications remain resilient and API calls are reliably executed.</li>
-                <li><strong>Unified & Intuitive API Client</strong>: <br> A single, streamlined client interface for managing all interactions across text, image, and structured content generation.</li>
-                <li><strong>Integrated Logging with Serilog</strong>: <br> Gain deep insights into SDK operations with seamless integration with Serilog for detailed and configurable logs.</li>
-                <li><strong>Highly Flexible Configuration</strong>: <br> Tailor the SDK to your needs by customizing models, API base URLs, API keys, and more.</li>
-                <li><strong>Comprehensive Error Handling</strong>: <br> Spend less time debugging with clear, informative error messages and exceptions that simplify issue resolution.</li>
+                <li><strong>Specialized Clients</strong>: Access Gemini API functionalities through dedicated clients like <code>TextClient</code>, <code>ImageClient</code>, <code>DocumentClient</code>, <code>AudioClient</code>, <code>VideoClient</code>, <code>StructuredContentClient</code>, and <code>UtilityClient</code>.</li>
+                <li><strong>Facade Pattern</strong>: The main <code>GeminiClient</code> provides a unified entry point, delegating calls to the appropriate specialized client.</li>
+                <li><strong>Text Generation & Structured Output</strong>: Effortlessly generate free-form text responses or structured JSON outputs based on your defined schemas.</li>
+                <li><strong>Image Generation from Text</strong>: Unleash your creativity and generate visuals directly from textual prompts with remarkable ease.</li>
+                <li><strong>Robust Automatic Retry Mechanism</strong>: Automatically handles transient API errors, ensuring your applications remain resilient and API calls are reliably executed.</li>
+                <li><strong>Integrated Logging with Serilog</strong>: Gain deep insights into SDK operations with seamless integration with Serilog for detailed and configurable logs.</li>
+                <li><strong>Highly Flexible Configuration</strong>: Tailor the SDK to your needs by customizing models, API base URLs, API keys, and more.</li>
+                <li><strong>Comprehensive Error Handling</strong>: Spend less time debugging with clear, informative error messages and exceptions that simplify issue resolution.</li>
             </ul>
         </div>
         <div class="section">
@@ -261,7 +278,7 @@
             <div class="status-grid">
                 <div class="status-item">
                     <i class="status-icon">✅</i>
-                    <span>Structured Output</span>
+                    <span>Text Generation</span>
                     Fully Functional
                 </div>
                 <div class="status-item">
@@ -271,22 +288,47 @@
                 </div>
                 <div class="status-item">
                     <i class="status-icon">✅</i>
-                    <span>Logging Support</span>
+                    <span>Structured Output</span>
                     Fully Functional
                 </div>
                 <div class="status-item">
                     <i class="status-icon">✅</i>
-                    <span>Retry Configuration</span>
+                    <span>Chat Sessions</span>
                     Fully Functional
                 </div>
                 <div class="status-item">
-                    <i class="status-icon soon">📷</i>
-                    <span>Vision Support</span>
-                    Coming Soon
+                    <i class="status-icon">✅</i>
+                    <span>Embeddings</span>
+                    Fully Functional
                 </div>
                 <div class="status-item">
-                    <i class="status-icon soon">🎧</i>
-                    <span>Audio Understanding</span>
+                    <i class="status-icon">✅</i>
+                    <span>Token Counting</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon">✅</i>
+                    <span>Model Info</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon">✅</i>
+                    <span>Document Processing</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon">✅</i>
+                    <span>Audio Processing</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon">✅</i>
+                    <span>Video Processing</span>
+                    Fully Functional
+                </div>
+                <div class="status-item">
+                    <i class="status-icon soon">💻</i>
+                    <span>Code Execution</span>
                     Coming Soon
                 </div>
             </div>
@@ -304,10 +346,11 @@
 
 var apiKey = "YOUR_GEMINI_API_KEY"; // Replace with your actual API key
 using var httpClient = new HttpClient();
-var geminiClient = new GeminiClient(httpClient, apiKey);
+var geminiClient = new GeminiClient(apiKey, httpClient);
 
-var response = await geminiClient.GenerateContentAsync("gemini-2.0", "Hello, Gemini!");
-Console.WriteLine(response?.Candidates?[0].Content);
+// Using the TextClient via GeminiClient facade
+var response = await geminiClient.GenerateTextAsync(null, "Hello, Gemini! What's Falcon 9?");
+Console.WriteLine(response?.Candidates?[0].Content?.Parts?[0].Text);
 </code></pre>
             <p>For detailed guidance on image generation, structured output, and advanced configurations, please refer to the <a href="https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md">complete documentation</a>.</p>
         </div>

@@ -1,5 +1,19 @@
 # GeminiSharp
 
+## Important Architectural Change: Re-architecting the SDK
+
+We are currently undergoing a significant re-architecture of the GeminiSharp SDK to improve maintainability, modularity, and extensibility. The primary change involves breaking down the monolithic `GeminiClient` and previously separate clients like `GeminiStructuredResponseClient` into smaller, specialized client classes, each responsible for a specific area of Gemini API functionality (e.g., `TextClient`, `ImageClient`, `DocumentClient`, `AudioClient`, `VideoClient`, `StructuredContentClient`, `UtilityClient`).
+
+**Key Changes:**
+- **Specialized Clients:** Functionality previously bundled in `GeminiClient` and other specific clients has been moved to dedicated client classes (e.g., `TextClient` for text generation, `ImageClient` for image-related operations).
+- **Facade Pattern:** The main `GeminiClient` now acts as a facade, instantiating and delegating calls to these specialized clients. This maintains a consistent public API while allowing for internal modularity.
+- **Default Model Update:** Where applicable, the default Gemini model has been updated to `gemini-2.5-flash` for improved performance and access to the latest features.
+- **Code Execution Feature (Temporarily Removed):** The code execution feature has been temporarily removed during this re-architecture phase to streamline the process. It will be re-introduced in a future update.
+
+This re-architecture aims to make the SDK easier to understand, use, and contribute to, while also paving the way for more robust and feature-rich implementations in the future.
+
+---
+
 GeminiSharp is a C# client SDK for seamlessly interacting with Google's Gemini API, enabling integration of Gemini's powerful text generation, image generation, and future capabilities into your .NET applications. With a simple, flexible, and robust interface, you can effortlessly generate content using the Gemini models.
 
 ---

@@ -1,38 +1,58 @@
 # **Structured Output in GeminiSharp**
-Structured output in GeminiSharp allows users to define a structured response format by converting their **C# models into JSON schema**. This feature ensures **predictable and well-formed responses** when interacting with the **Gemini API**.
+
+Structured output in GeminiSharp allows you to define a precise format for the Gemini API's responses by converting your **C# models into JSON schemas**. This feature ensures you receive predictable and well-formed data, making it easier to integrate AI-generated content directly into your application's logic.
 
 ---
 
 ## **🚀 How It Works**
-1. **Define a C# class** representing the expected structured response.  
-2. **Generate a JSON schema** using `JsonSchemaHelper`.  
-3. **Send the schema along with the prompt** to the Gemini API.  
-4. **Deserialize the response** into a strongly typed C# object.
+
+1.  **Define a C# class** that represents the desired structure of the API's response.
+2.  **Generate a JSON schema** from this C# class using `JsonSchemaHelper.GenerateSchema<T>()`.
+3.  **Send this schema along with your prompt** to the Gemini API via the `StructuredContentClient`.
+4.  The API attempts to generate content that adheres to the provided schema.
+5.  **Deserialize the API's response** into a strongly-typed C# object for easy consumption.
 
 ---
 
 ## **📌 Generating a JSON Schema**
-You can generate a **JSON schema** from any C# model using `JsonSchemaHelper`:
+
+The `JsonSchemaHelper` utility simplifies the process of creating a JSON schema from your C# models. This schema is then sent to the Gemini API to guide its output.
 
 ```csharp
-var schema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
-```
+using GeminiSharp.Helpers;
 
-This will automatically create a JSON schema based on the **`PlayerStats`** class, ensuring that the Gemini API returns responses in the correct structure.
+// Define your C# model (example below)
+public class MyStructuredData
+{
+    public string? Field1 { get; set; }
+    public int Field2 { get; set; }
+}
+
+// Generate the JSON schema
+var schema = JsonSchemaHelper.GenerateSchema<MyStructuredData>();
+
+// The 'schema' object can now be passed to the Gemini API
+```
 
 ---
 
-## **🔹 Example Usage in C# Console Application**
-### **Step 1: Define the C# Model**
+## **🔹 Example Usage in a C# Console Application**
+
+This example demonstrates how to define a C# model, generate its JSON schema, and then use the `StructuredContentClient` (accessed via `GeminiClient`) to get a structured response from the Gemini API.
+
+### **Step 1: Define the C# Model(s)**
+
+Create C# classes that represent the structure you expect from the Gemini API. This example uses `PlayerStats` and `MatchStats`.
+
 ```csharp
 public class PlayerStats
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public int Age { get; set; }
-    public MatchStats ODI { get; set; }
-    public MatchStats Test { get; set; }
-    public MatchStats T20 { get; set; }
-    public MatchStats Domestic { get; set; }
+    public MatchStats? ODI { get; set; }
+    public MatchStats? Test { get; set; }
+    public MatchStats? T20 { get; set; }
+    public MatchStats? Domestic { get; set; }
 }
 
 public class MatchStats
@@ -44,217 +64,106 @@ public class MatchStats
 }
 ```
 
-### **Step 2: Convert C# Model to JSON Schema**
-```csharp
-var schema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
-```
-This will generate a **JSON schema** like this:
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": { "type": "string" },
-    "age": { "type": "integer" },
-    "oDI": {
-      "type": "object",
-      "properties": {
-        "matches": { "type": "integer" },
-        "runs": { "type": "integer" },
-        "hundreds": { "type": "integer" },
-        "fifties": { "type": "integer" }
-      },
-      "required": ["matches", "runs", "hundreds", "fifties"]
-    }
-  },
-  "required": ["name", "age", "oDI", "test", "t20", "domestic"]
-}
-```
+### **Step 2: Send the Request and Process the Response**
 
-### **Step 3: Send the Request**
 ```csharp
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GeminiSharp.Client;
 using System.Text.Json;
+using GeminiSharp.Client;
+using GeminiSharp.Helpers;
+using GeminiSharp.Models.Request;
 
-class Program
+public class StructuredOutputExample
 {
-    static async Task Main()
+    public static async Task Run(string apiKey)
     {
+        // Initialize GeminiClient (which provides access to StructuredContentClient)
         using var httpClient = new HttpClient();
-        var apiKey = "your-gemini-api-key"; // Replace with actual API key
-        var geminiClient = new GeminiClient(httpClient, apiKey);
+        var geminiClient = new GeminiClient(apiKey, httpClient);
+
+        // 1. Generate the JSON schema from your C# model
+        var schema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
+
+        string prompt = "Provide cricket player stats for Virat Kohli";
+        Console.WriteLine($"Requesting structured data for: \"{prompt}\"");
 
         try
         {
-            string model = "gemini-2.0";
-            var schema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
-            
-            var response = await geminiClient.GenerateStructuredContentAsync<PlayerStats>(
-                model, "Provide cricket player stats for Virat Kohli", schema);
-            
-            Console.WriteLine($"Player Name: {response.Name}, Runs in ODI: {response.ODI.Runs}");
+            // 2. Call GenerateStructuredContentAsync using the GeminiClient facade
+            // You can pass null for the model to use the default (gemini-2.5-flash)
+            var response = await geminiClient.GenerateStructuredContentAsync(
+                null, // Use default model (gemini-2.5-flash)
+                prompt,
+                schema,
+                new GenerationConfig { response_mime_type = "application/json" } // Ensure JSON output
+            );
+
+            // 3. Extract the JSON string from the response
+            var jsonText = response?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+
+            if (string.IsNullOrWhiteSpace(jsonText))
+            {
+                Console.WriteLine("Error: No structured content received from the API.");
+                return;
+            }
+
+            // 4. Deserialize the JSON string back into your C# model
+            PlayerStats? structuredData = JsonSerializer.Deserialize<PlayerStats>(jsonText, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase, // Important for matching JSON to C# properties
+                WriteIndented = true
+            });
+
+            if (structuredData != null)
+            {
+                Console.WriteLine("\nSuccessfully received structured data:");
+                Console.WriteLine($"Player Name: {structuredData.Name}");
+                Console.WriteLine($"ODI Matches: {structuredData.ODI?.Matches}, Runs: {structuredData.ODI?.Runs}");
+                Console.WriteLine($"Test Matches: {structuredData.Test?.Matches}, Runs: {structuredData.Test?.Runs}");
+                // ... print other stats
+            }
+            else
+            {
+                Console.WriteLine("Failed to deserialize structured data.");
+            }
         }
         catch (GeminiApiException ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            Console.WriteLine($"API Error: {ex.Message} (Status Code: {ex.StatusCode})");
         }
-    }
-}
-```
-
----
-
-## **🛠️ ASP.NET Web API Implementation**
-This example shows how to use **structured output** in an **ASP.NET Core Web API**.
-
-### **📌 Controller Code**
-```csharp
-using GeminiSdkTest.Models;
-using GeminiSharp.API;
-using GeminiSharp.Client;
-using GeminiSharp.Helpers;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-
-namespace geminisdktest.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class GeminiSDKStructuredController : ControllerBase
-    {
-        public class GenerateStructuredRequest
+        catch (JsonException ex)
         {
-            public string Prompt { get; set; } = string.Empty;
+            Console.WriteLine($"JSON Deserialization Error: {ex.Message}");
         }
-
-        [HttpPost("generate-structured")]
-        public async Task<IActionResult> GenerateStructuredPlayerStats(
-            [FromBody] GenerateStructuredRequest request,
-            [FromHeader(Name = "GeminiApiKey")] string apiKey,
-            [FromHeader(Name = "Gemini-Model")] string? model)
+        catch (Exception ex)
         {
-            if (string.IsNullOrWhiteSpace(request.Prompt))
-                return BadRequest(new { error = "Prompt cannot be empty." });
-
-            if (string.IsNullOrWhiteSpace(apiKey))
-                return BadRequest(new { error = "API key is required." });
-
-            model ??= "gemini-1.5-flash"; // Default model
-
-            using var httpClient = new HttpClient();
-            var geminiClient = new GeminiStructuredClient(httpClient, apiKey);
-
-            try
-            {
-                // Generate JSON schema for structured output
-                object jsonSchema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
-
-                var response = await geminiClient.GenerateStructuredContentAsync(
-                    model: model,
-                    prompt: request.Prompt,
-                    jsonSchema: jsonSchema
-                );
-
-                var jsonText = response?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
-
-                if (string.IsNullOrWhiteSpace(jsonText))
-                {
-                    return BadRequest(new { error = "No valid structured content received from Gemini API." });
-                }
-
-                // Deserialize the structured data into PlayerStats
-                PlayerStats? structuredData;
-                try
-                {
-                    structuredData = JsonSerializer.Deserialize<PlayerStats>(jsonText, new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-                }
-                catch (JsonException jsonEx)
-                {
-                    return BadRequest(new { error = "Invalid structured response format.", details = jsonEx.Message });
-                }
-
-                return Ok(structuredData);
-            }
-            catch (GeminiApiException ex)
-            {
-                return StatusCode((int)ex.StatusCode, ex.ErrorResponse);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { error = "Internal Server Error", details = ex.Message });
-            }
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
         }
     }
 }
+
+// To run this example:
+// StructuredOutputExample.Run("YOUR_GEMINI_API_KEY").Wait();
 ```
 
 ---
 
-## **🎯 API Usage**
-### **📌 Request**
-```http
-POST /api/GeminiSDKStructured/generate-structured HTTP/1.1
-Host: your-api-url
-Content-Type: application/json
-GeminiApiKey: your-gemini-api-key
-Gemini-Model: gemini-1.5-flash
+## **🎯 Benefits of Structured Output**
 
-{
-    "prompt": "Provide cricket player stats for Virat Kohli"
-}
-```
-
-### **📌 Response**
-```json
-{
-    "name": "Virat Kohli",
-    "age": 35,
-    "oDI": {
-        "matches": 292,
-        "runs": 13848,
-        "hundreds": 50,
-        "fifties": 65
-    },
-    "test": {
-        "matches": 113,
-        "runs": 8848,
-        "hundreds": 29,
-        "fifties": 30
-    },
-    "t20": {
-        "matches": 115,
-        "runs": 4008,
-        "hundreds": 1,
-        "fifties": 37
-    },
-    "domestic": {
-        "matches": 272,
-        "runs": 12650,
-        "hundreds": 41,
-        "fifties": 92
-    }
-}
-```
-
----
-
-## **🎯 Benefits**
-✅ **Automated Schema Generation** — No need to manually write JSON schemas.  
-✅ **Predictable API Responses** — Ensures structured and well-formed responses.  
-✅ **Supports Nested Objects** — Works with complex objects and collections.  
-✅ **Seamless Integration** — Works with Gemini API and structured content requests.  
+✅ **Automated Schema Generation** — No need to manually write complex JSON schemas; `JsonSchemaHelper` does the heavy lifting.
+✅ **Predictable API Responses** — Guarantees that the API's output adheres to a predefined structure, simplifying parsing and integration.
+✅ **Strongly-Typed Data** — Directly deserialize API responses into C# objects, leveraging compile-time type checking and reducing runtime errors.
+✅ **Supports Complex Objects** — Works seamlessly with nested objects and collections within your C# models.
+✅ **Seamless Integration** — Designed to work effortlessly with the Gemini API's structured content capabilities.
 
 ---
 
 ## **📌 Next Steps**
-🔹 Add **unit tests** to validate schema generation.  
-🔹 Explore **support for additional serialization attributes**.  
-🔹 Extend support for **other structured data types**.  
+
+*   Explore more complex C# models with various data types and nesting levels.
+*   Implement validation logic for the deserialized structured data.
+*   Consider using `System.Text.Json.Serialization` attributes for more control over JSON serialization/deserialization.
 
 ---
-

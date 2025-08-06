@@ -1,154 +1,167 @@
 # Retry Configuration for GeminiSharp SDK
 
-## What is Retry Configuration?
-
-In the GeminiSharp SDK, the **retry configuration** determines how the SDK handles transient errors when making API requests. Transient errors are temporary problems, such as network interruptions or API server overload, that may resolve if you retry the request after some time. 
-
-The retry mechanism helps improve the reliability of your application by automatically retrying failed requests, which reduces the chances of your app failing due to temporary errors.
+In the GeminiSharp SDK, the **retry configuration** mechanism enhances your application's resilience by automatically handling transient API errors. These are temporary issues, such as network glitches or server overloads, that often resolve themselves upon retrying the request. By configuring retries, you can significantly improve the reliability of your Gemini API integrations.
 
 ---
 
-## RetryConfig Class
+## The `RetryConfig` Class
 
-The `RetryConfig` class in the SDK allows you to configure the retry behavior of API requests. This class contains several key properties that control the retry logic.
+To customize the retry behavior, you use the `RetryConfig` class. This class provides several properties to fine-tune how the SDK retries failed API requests.
 
 ### Key Properties of `RetryConfig`:
 
-- **MaxRetries** (int): 
-  - This property defines how many times the SDK should retry an API request after it fails. 
-  - Default value: **3 retries**.
-  - Example: If you set `MaxRetries = 5`, the SDK will attempt the request up to 5 times before failing.
+*   **`MaxRetries`** (int):
+    *   Defines the maximum number of times the SDK will re-attempt an API request after an initial failure.
+    *   **Default**: `3` retries.
+    *   *Example*: Setting `MaxRetries = 5` means the SDK will try the request up to 5 additional times.
 
-- **InitialDelayMs** (int): 
-  - This is the initial delay (in milliseconds) before retrying a request.
-  - Default value: **1000ms (1 second)**.
-  - Example: If you set `InitialDelayMs = 2000`, the SDK will wait for 2 seconds before retrying.
+*   **`InitialDelayMs`** (int):
+    *   The initial waiting period (in milliseconds) before the first retry attempt.
+    *   **Default**: `1000ms` (1 second).
+    *   *Example*: If `InitialDelayMs = 2000`, the SDK waits 2 seconds before the first retry.
 
-- **UseExponentialBackoff** (bool): 
-  - This determines whether the delay between retries should increase exponentially (doubling with each attempt) or remain constant.
-  - Default value: **true** (exponential backoff is used).
-  - Example: If `UseExponentialBackoff = true`, the delay between retries will increase like this: 1s -> 2s -> 4s, and so on.
+*   **`UseExponentialBackoff`** (bool):
+    *   Determines whether the delay between retries should increase exponentially (e.g., doubling with each attempt) or remain constant.
+    *   **Default**: `true` (exponential backoff is enabled).
+    *   *Example*: If `UseExponentialBackoff = true` and `InitialDelayMs = 1000`, subsequent delays might be 1s, 2s, 4s, etc.
 
-- **RetryStatusCodes** (HashSet<int>): 
-  - This property specifies which HTTP status codes should trigger a retry. Common retryable codes include 429 (Too Many Requests), 500 (Internal Server Error), and 503 (Service Unavailable).
-  - Default values: **429, 500, 503**.
-  - Example: If you add 408 (Request Timeout) to this list, the SDK will retry requests that return a 408 status code.
+*   **`RetryStatusCodes`** (HashSet<int>):
+    *   A collection of HTTP status codes that should trigger a retry. Common retryable codes include `429` (Too Many Requests), `500` (Internal Server Error), and `503` (Service Unavailable).
+    *   **Defaults**: `{ 429, 500, 503 }`.
+    *   *Example*: Adding `408` (Request Timeout) to this set will cause the SDK to retry requests returning that status.
 
 ---
 
 ## Default Retry Configuration
 
-If you don’t provide your own retry configuration, the SDK uses a default configuration that retries 3 times, waits 1 second between retries, and uses exponential backoff.
-
-Here is the **default retry configuration**:
+If you do not explicitly provide a `RetryConfig` instance, the SDK will use the following default settings:
 
 ```csharp
 new RetryConfig
 {
     MaxRetries = 3,                          // 3 retry attempts
-    InitialDelayMs = 1000,                    // 1-second delay between retries
+    InitialDelayMs = 1000,                    // 1-second initial delay
     UseExponentialBackoff = true,             // Enable exponential backoff
-    RetryStatusCodes = new HashSet<int> { 429, 500, 503 }  // Retry on 429, 500, and 503 status codes
+    RetryStatusCodes = new HashSet<int> { 429, 500, 503 }  // Retry on 429, 500, and 503
 }
 ```
 
 ---
 
-## Custom Retry Configuration
+## Customizing Retry Behavior
 
-You can customize the retry behavior by creating a `RetryConfig` object and passing it when initializing the `GeminiApiClient` or `GeminiClient`. 
+You can create a custom `RetryConfig` object and pass it to the `GeminiClient` constructor during initialization. The `GeminiClient` will then use this configuration for all its internal API calls.
 
-For example, if you want the SDK to retry up to 5 times with a 2-second initial delay and without exponential backoff, you can create a custom `RetryConfig` as follows:
+For instance, to configure 5 retries with a 2-second fixed initial delay and include `408` as a retryable status code:
 
 ```csharp
-var retryConfig = new RetryConfig
+using GeminiSharp.Client;
+using GeminiSharp.Models.Utilities;
+using System.Net.Http;
+using System.Collections.Generic;
+
+// 1. Define your custom RetryConfig
+var customRetryConfig = new RetryConfig
 {
     MaxRetries = 5,                          // Retry up to 5 times
     InitialDelayMs = 2000,                   // 2-second initial delay
     UseExponentialBackoff = false,           // Use fixed delay
-    RetryStatusCodes = new HashSet<int> { 429, 500, 503, 408 } // Retry on additional 408 status
+    RetryStatusCodes = new HashSet<int> { 429, 500, 503, 408 } // Add 408 to retryable codes
 };
 
-var client = new GeminiClient("YOUR_API_KEY", retryConfig: retryConfig);
+// 2. Initialize HttpClient (required for GeminiClient)
+using var httpClient = new HttpClient();
+
+// 3. Initialize GeminiClient with your custom RetryConfig
+// The API key and base URL are also passed here.
+var apiKey = "YOUR_GEMINI_API_KEY";
+var geminiClient = new GeminiClient(apiKey, httpClient, null, customRetryConfig);
+
+// Now, any API calls made through geminiClient will use customRetryConfig
+// Example: await geminiClient.GenerateTextAsync(null, "Hello");
 ```
 
-### Important Notes:
-- The `RetryConfig` can be passed to either the `GeminiApiClient` or the `GeminiClient` constructors.
-- If no `RetryConfig` is provided, the default configuration is used.
+---
+
+## How Retry Logic Works
+
+The retry mechanism is automatically engaged when the Gemini API returns a transient error (e.g., `500` or `503`). Here's the typical flow:
+
+1.  **Initial Request**: The SDK sends the API request.
+2.  **Error Detection**: If a retryable HTTP status code is received, the SDK pauses for the configured delay.
+3.  **Delay Calculation**: If `UseExponentialBackoff` is `true`, the delay increases with each subsequent retry attempt. Otherwise, it remains constant.
+4.  **Retry Attempt**: The request is re-sent.
+5.  **Max Retries**: This process repeats until a successful response is received or the `MaxRetries` limit is reached. If the request still fails after all retries, a `GeminiApiException` (or a general `Exception`) is thrown.
 
 ---
 
-## Retry Logic in Action
+## Example with an API Call
 
-The retry logic automatically kicks in when the API returns a transient error (such as 500 or 503). Here’s how the retry mechanism works:
-
-1. **Initial Request**: The SDK sends the API request.
-2. **Error Response**: If the response is a retryable status code (e.g., 503 Service Unavailable), the SDK waits for the configured delay and then retries the request.
-3. **Exponential Backoff**: If enabled, the SDK increases the delay between each retry (e.g., 1s -> 2s -> 4s).
-4. **Max Retries**: The SDK will keep retrying up to the configured maximum number of attempts (`MaxRetries`). If the request still fails after the maximum retries, an exception is thrown.
-
----
-
-## Example with API Call
-
-When you make an API call using the GeminiSharp SDK, the retry logic automatically handles transient errors. Here's an example of how it works:
+When you invoke any method on the `GeminiClient` (or its specialized clients), the configured retry logic transparently handles transient failures.
 
 ```csharp
-try
-{
-    var response = await client.GenerateContentAsync("gemini-2.0-flash-exp", "Example prompt.");
-}
-catch (GeminiApiException ex)
-{
-    // Handle API-specific errors
-}
-catch (Exception ex)
-{
-    // Handle other unexpected errors
-    Console.WriteLine("Request failed after retries: " + ex.Message);
-}
-```
+using GeminiSharp.Client;
+using GeminiSharp.API;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
-In this example:
-- If the API returns a transient error (such as 503), the retry logic will automatically retry the request.
-- If the request still fails after the maximum retries, an exception is thrown, which you can catch and handle.
+public class RetryExample
+{
+    public static async Task Run(string apiKey)
+    {
+        // Using default retry configuration
+        using var httpClient = new HttpClient();
+        var geminiClient = new GeminiClient(apiKey, httpClient);
+
+        try
+        {
+            Console.WriteLine("Attempting to generate content with retry logic...");
+            // This call will automatically retry if transient errors occur
+            var response = await geminiClient.GenerateTextAsync(null, "Explain the concept of quantum entanglement.");
+
+            Console.WriteLine("Successfully generated content:");
+            Console.WriteLine(response?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text);
+        }
+        catch (GeminiApiException ex)
+        {
+            Console.WriteLine($"API Error after retries: {ex.Message}");
+            Console.WriteLine($"Status Code: {ex.StatusCode}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An unexpected error occurred after retries: {ex.Message}");
+        }
+    }
+}
+
+// To run this example:
+// RetryExample.Run("YOUR_GEMINI_API_KEY").Wait();
+```
 
 ---
 
-## Logging Retries
+## Logging Retry Attempts
 
-The SDK uses **Serilog** to log retry attempts, which helps you monitor and debug retry behavior. Each retry is logged with the delay and the error status code.
+The SDK integrates with Serilog to provide detailed logs of retry attempts. This is invaluable for monitoring and debugging your application's resilience.
 
-Example log output:
+Example log output (assuming Serilog is configured):
 
+```text
+[WRN] API call failed with status code 503 Service Unavailable. Retrying in 1000ms (Attempt 1/3).
+[WRN] API call failed with status code 503 Service Unavailable. Retrying in 2000ms (Attempt 2/3).
+[ERR] API call failed after 3 retries. Last error: Service Unavailable.
 ```
-Retrying due to transient error (status 503) on attempt 2. Waiting 2000ms. Error: {"error":"Service Unavailable"}
-Retrying due to transient error (status 500) on attempt 3. Waiting 4000ms. Error: {"error":"Internal Server Error"}
-```
 
-This log shows that:
-- The SDK is retrying due to a **503 Service Unavailable** error.
-- The delay between retries is increasing (from 2 seconds to 4 seconds).
-- The retry mechanism tries again when the server is temporarily down.
+These logs indicate:
+*   The HTTP status code that triggered the retry.
+*   The current retry attempt number and the total `MaxRetries`.
+*   The delay before the next retry, demonstrating exponential backoff if enabled.
 
 ---
 
 ## Conclusion
 
-The **retry configuration** in GeminiSharp SDK is a powerful feature that helps your application handle transient errors like network issues or server overloads. It automatically retries failed requests based on configurable parameters like maximum retries, delay, and status codes to retry.
+The `RetryConfig` in the GeminiSharp SDK is a robust feature designed to make your applications more resilient to transient network and API issues. By understanding and customizing its parameters, you can ensure your integrations with the Gemini API are both reliable and performant.
 
-The retry logic is customizable, but by default, it retries 3 times, waits 1 second between retries, and uses exponential backoff for error handling. This feature improves the reliability and robustness of your application, especially when interacting with external APIs that may experience temporary issues.
-
-For more details, refer to the **GeminiApiClient** and **GeminiClient** class documentation.
-
---- 
-
-### Adjusting Retry Configuration for Your Needs
-
-If you find that the default configuration doesn’t suit your needs, you can easily customize it based on the specific requirements of your application, such as:
-- Adjusting the delay or number of retries based on your network reliability.
-- Adding more status codes to retry on, depending on the expected types of transient errors.
-
-The retry configuration gives you flexibility in handling errors while ensuring your application remains responsive and resilient.
-
----
+For more details on specific client methods, refer to the documentation for `GeminiClient` and its specialized clients (`TextClient`, `ImageClient`, etc.).
