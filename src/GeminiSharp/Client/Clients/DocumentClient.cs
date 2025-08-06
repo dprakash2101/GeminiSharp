@@ -168,4 +168,3 @@ namespace GeminiSharp.Client.Clients
             }
         }
     }
-}

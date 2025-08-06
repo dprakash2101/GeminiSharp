@@ -89,4 +89,3 @@ namespace GeminiSharp.Client.Clients
             }
         }
     }
-}
