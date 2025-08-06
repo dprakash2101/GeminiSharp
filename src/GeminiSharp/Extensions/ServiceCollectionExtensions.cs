@@ -1,11 +1,9 @@
-using GeminiSharp.Client;
 using GeminiSharp.API;
+using GeminiSharp.Client;
 using GeminiSharp.Models.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Extensions.Http;
-using System;
-using System.Net.Http;
 
 namespace GeminiSharp.Extensions
 {
@@ -15,20 +13,11 @@ namespace GeminiSharp.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds the Gemini API client and its dependencies to the specified <see cref="IServiceCollection"/>.
-        /// Configures HttpClient with Polly for transient fault handling (retries).
-        /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
-        /// <param name="apiKey">The API key for authentication with the Gemini API.</param>
-        /// <param name="configureRetry">Optional. An action to configure the retry policy settings.</param>
-        /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
-        /// <summary>
         /// Adds the GeminiSharp client and its dependencies to the specified <see cref="IServiceCollection"/>.
         /// Configures HttpClient with Polly for transient fault handling (retries).
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
-        /// <param name="apiKey">The API key for authentication with the Gemini API.</param>
-        /// <param name="configureOptions">Optional. An action to configure the <see cref="GeminiSharpOptions"/>.</param>
+        /// <param name="configureOptions">An action to configure the <see cref="GeminiSharpOptions"/>.</param>
         /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
         public static IServiceCollection AddGeminiSharp(this IServiceCollection services, Action<GeminiSharpOptions> configureOptions)
         {
@@ -52,8 +41,7 @@ namespace GeminiSharp.Extensions
             services.AddHttpClient<GeminiApiClient>(client =>
             {
                 client.DefaultRequestHeaders.Add("x-goog-api-key", options.ApiKey);
-            })
-                    .AddPolicyHandler(retryPolicy);
+            });
 
             services.AddScoped<GeminiApiClient>(provider =>
             {
@@ -67,3 +55,4 @@ namespace GeminiSharp.Extensions
         }
     }
 }
+

@@ -38,25 +38,25 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateContentFromAudioAsync(string? model, string prompt, string audioData, string mimeType)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-                if (string.IsNullOrWhiteSpace(prompt))
-                {
-                    Log.Error("Prompt is empty or null in GenerateContentFromAudioAsync.");
-                    throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
-                }
-                if (string.IsNullOrWhiteSpace(audioData))
-                {
-                    Log.Error("Audio data is empty or null in GenerateContentFromAudioAsync.");
-                    throw new ArgumentException("Audio data cannot be empty", nameof(audioData));
-                }
-                if (string.IsNullOrWhiteSpace(mimeType))
-                {
-                    Log.Error("MIME type is empty or null in GenerateContentFromAudioAsync.");
-                    throw new ArgumentException("MIME type cannot be empty", nameof(mimeType));
-                }
+            if (string.IsNullOrWhiteSpace(prompt))
+            {
+                Log.Error("Prompt is empty or null in GenerateContentFromAudioAsync.");
+                throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
+            }
+            if (string.IsNullOrWhiteSpace(audioData))
+            {
+                Log.Error("Audio data is empty or null in GenerateContentFromAudioAsync.");
+                throw new ArgumentException("Audio data cannot be empty", nameof(audioData));
+            }
+            if (string.IsNullOrWhiteSpace(mimeType))
+            {
+                Log.Error("MIME type is empty or null in GenerateContentFromAudioAsync.");
+                throw new ArgumentException("MIME type cannot be empty", nameof(mimeType));
+            }
 
-                var request = new GenerateContentRequest
-                {
-                    Contents = new List<RequestContent>
+            var request = new GenerateContentRequest
+            {
+                Contents = new List<RequestContent>
                 {
                     new RequestContent
                     {
@@ -74,25 +74,24 @@ namespace GeminiSharp.Client.Clients
                         }
                     }
                 }
-                };
+            };
 
-                try
-                {
-                    Log.Information("Generating content from audio for model {Model} with prompt: {Prompt}", model, prompt);
-                    var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
-                    Log.Information("Successfully generated content from audio for model {Model}.", model);
-                    return response;
-                }
-                catch (GeminiApiException ex)
-                {
-                    Log.Error(ex, "API error while generating content from audio for model {Model}.", model);
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Unexpected error while generating content from audio for model {Model}.", model);
-                    throw new Exception("An unexpected error occurred while generating content from audio.", ex);
-                }
+            try
+            {
+                Log.Information("Generating content from audio for model {Model} with prompt: {Prompt}", model, prompt);
+                var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
+                Log.Information("Successfully generated content from audio for model {Model}.", model);
+                return response;
+            }
+            catch (GeminiApiException ex)
+            {
+                Log.Error(ex, "API error while generating content from audio for model {Model}.", model);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unexpected error while generating content from audio for model {Model}.", model);
+                throw new Exception("An unexpected error occurred while generating content from audio.", ex);
             }
         }
 
@@ -110,25 +109,25 @@ namespace GeminiSharp.Client.Clients
         public async Task<GenerateContentResponse> GenerateContentFromAudioUriAsync(string? model, string prompt, string audioUri, string mimeType)
         {
             model = model ?? "gemini-2.5-flash"; // Set default model
-                if (string.IsNullOrWhiteSpace(prompt))
-                {
-                    Log.Error("Prompt is empty or null in GenerateContentFromAudioUriAsync.");
-                    throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
-                }
-                if (string.IsNullOrWhiteSpace(audioUri))
-                {
-                    Log.Error("Audio URI is empty or null in GenerateContentFromAudioUriAsync.");
-                    throw new ArgumentException("Audio URI cannot be empty", nameof(audioUri));
-                }
-                if (string.IsNullOrWhiteSpace(mimeType))
-                {
-                    Log.Error("MIME type is empty or null in GenerateContentFromAudioUriAsync.");
-                    throw new ArgumentException("MIME type cannot be empty", nameof(mimeType));
-                }
+            if (string.IsNullOrWhiteSpace(prompt))
+            {
+                Log.Error("Prompt is empty or null in GenerateContentFromAudioUriAsync.");
+                throw new ArgumentException("Prompt cannot be empty", nameof(prompt));
+            }
+            if (string.IsNullOrWhiteSpace(audioUri))
+            {
+                Log.Error("Audio URI is empty or null in GenerateContentFromAudioUriAsync.");
+                throw new ArgumentException("Audio URI cannot be empty", nameof(audioUri));
+            }
+            if (string.IsNullOrWhiteSpace(mimeType))
+            {
+                Log.Error("MIME type is empty or null in GenerateContentFromAudioUriAsync.");
+                throw new ArgumentException("MIME type cannot be empty", nameof(mimeType));
+            }
 
-                var request = new GenerateContentRequest
-                {
-                    Contents = new List<RequestContent>
+            var request = new GenerateContentRequest
+            {
+                Contents = new List<RequestContent>
                 {
                     new RequestContent
                     {
@@ -146,25 +145,25 @@ namespace GeminiSharp.Client.Clients
                         }
                     }
                 }
-                };
+            };
 
-                try
-                {
-                    Log.Information("Generating content from audio URI for model {Model} with prompt: {Prompt}", model, prompt);
-                    var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
-                    Log.Information("Successfully generated content from audio URI for model {Model}.", model);
-                    return response;
-                }
-                catch (GeminiApiException ex)
-                {
-                    Log.Error(ex, "API error while generating content from audio URI for model {Model}.", model);
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Unexpected error while generating content from audio URI for model {Model}.", model);
-                    throw new Exception("An unexpected error occurred while generating content from audio URI.", ex);
-                }
+            try
+            {
+                Log.Information("Generating content from audio URI for model {Model} with prompt: {Prompt}", model, prompt);
+                var response = await _apiClient.SendRequestAsync<GenerateContentRequest, GenerateContentResponse>(model, request, "generateContent");
+                Log.Information("Successfully generated content from audio URI for model {Model}.", model);
+                return response;
+            }
+            catch (GeminiApiException ex)
+            {
+                Log.Error(ex, "API error while generating content from audio URI for model {Model}.", model);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unexpected error while generating content from audio URI for model {Model}.", model);
+                throw new Exception("An unexpected error occurred while generating content from audio URI.", ex);
             }
         }
     }
+}

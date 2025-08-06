@@ -131,17 +131,6 @@ namespace GeminiSharp.Client
         Task<GenerateContentResponse> GenerateContentFromAudioUriAsync(string? model, string prompt, string audioUri, string mimeType);
 
         
-
-        /// <summary>
-        /// Generates content from a text prompt and an audio URI.
-        /// </summary>
-        /// <param name="model">The Gemini model to use (e.g., "gemini-1.5-flash").</param>
-        /// <param name="prompt">The text prompt for the model.</param>
-        /// <param name="audioUri">The URI of the audio.</param>
-        /// <param name="mimeType">The MIME type of the audio (e.g., "audio/mp3").</param>
-        /// <returns>A <see cref="GenerateContentResponse"/> containing the generated content.</returns>
-        Task<GenerateContentResponse> GenerateContentFromAudioUriAsync(string model, string prompt, string audioUri, string mimeType);
-
         /// <summary>
         /// Generates content with function calling.
         /// </summary>

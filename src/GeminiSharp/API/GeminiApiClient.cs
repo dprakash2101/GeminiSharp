@@ -12,7 +12,7 @@ namespace GeminiSharp.API
     /// A reusable client for interacting with the Google Gemini API.
     /// This class handles the low-level HTTP communication, authentication, and retry logic.
     /// </summary>
-    internal class GeminiApiClient
+    public class GeminiApiClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiKey;

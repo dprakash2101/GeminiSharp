@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using GeminiSharp.Models.Embeddings;
+using GeminiSharp.Client.Clients;
 
 namespace GeminiSharp.Client
 {
