@@ -50,45 +50,37 @@ new RetryConfig
 
 ## Customizing Retry Behavior
 
-You can create a custom `RetryConfig` object and pass it to the `GeminiClient` constructor during initialization. The `GeminiClient` will then use this configuration for all its internal API calls.
-
-For instance, to configure 5 retries with a 2-second fixed initial delay and include `408` as a retryable status code:
+You can customize the retry behavior by configuring the `RetryConfig` when you register the GeminiSharp services in your application's dependency injection container.
 
 ```csharp
-using GeminiSharp.Client;
+using GeminiSharp.Extensions;
 using GeminiSharp.Models.Utilities;
-using System.Net.Http;
-using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
-// 1. Define your custom RetryConfig
-var customRetryConfig = new RetryConfig
+public void ConfigureServices(IServiceCollection services)
 {
-    MaxRetries = 5,                          // Retry up to 5 times
-    InitialDelayMs = 2000,                   // 2-second initial delay
-    UseExponentialBackoff = false,           // Use fixed delay
-    RetryStatusCodes = new HashSet<int> { 429, 500, 503, 408 } // Add 408 to retryable codes
-};
-
-// 2. Initialize HttpClient (required for GeminiClient)
-using var httpClient = new HttpClient();
-
-// 3. Initialize GeminiClient with your custom RetryConfig
-// The API key and base URL are also passed here.
-var apiKey = "YOUR_GEMINI_API_KEY";
-var geminiClient = new GeminiClient(apiKey, httpClient, null, customRetryConfig);
-
-// Now, any API calls made through geminiClient will use customRetryConfig
-// Example: await geminiClient.GenerateTextAsync(null, "Hello");
+    services.AddGeminiSharp(options =>
+    {
+        options.ApiKey = "YOUR_GEMINI_API_KEY";
+        options.RetryConfig = new RetryConfig
+        {
+            MaxRetries = 5,                          // Retry up to 5 times
+            InitialDelayMs = 2000,                   // 2-second initial delay
+            UseExponentialBackoff = false,           // Use fixed delay
+            RetryStatusCodes = new HashSet<int> { 429, 500, 503, 408 } // Add 408 to retryable codes
+        };
+    });
+}
 ```
 
 ---
 
 ## How Retry Logic Works
 
-The retry mechanism is automatically engaged when the Gemini API returns a transient error (e.g., `500` or `503`). Here's the typical flow:
+The retry mechanism is integrated into the `HttpClient` pipeline using Polly. When you make an API call, the following happens:
 
 1.  **Initial Request**: The SDK sends the API request.
-2.  **Error Detection**: If a retryable HTTP status code is received, the SDK pauses for the configured delay.
+2.  **Error Detection**: If a retryable HTTP status code is received, the Polly policy engages.
 3.  **Delay Calculation**: If `UseExponentialBackoff` is `true`, the delay increases with each subsequent retry attempt. Otherwise, it remains constant.
 4.  **Retry Attempt**: The request is re-sent.
 5.  **Max Retries**: This process repeats until a successful response is received or the `MaxRetries` limit is reached. If the request still fails after all retries, a `GeminiApiException` (or a general `Exception`) is thrown.
@@ -97,28 +89,33 @@ The retry mechanism is automatically engaged when the Gemini API returns a trans
 
 ## Example with an API Call
 
-When you invoke any method on the `GeminiClient` (or its specialized clients), the configured retry logic transparently handles transient failures.
+Once you've configured the retry logic, it will be automatically applied to all API calls made through the `IGeminiClient`.
 
 ```csharp
 using GeminiSharp.Client;
 using GeminiSharp.API;
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 public class RetryExample
 {
     public static async Task Run(string apiKey)
     {
-        // Using default retry configuration
-        using var httpClient = new HttpClient();
-        var geminiClient = new GeminiClient(apiKey, httpClient);
+        var serviceProvider = new ServiceCollection()
+            .AddGeminiSharp(options =>
+            {
+                options.ApiKey = apiKey;
+                options.RetryConfig = new RetryConfig { MaxRetries = 5 };
+            })
+            .BuildServiceProvider();
+
+        var geminiClient = serviceProvider.GetRequiredService<IGeminiClient>();
 
         try
         {
             Console.WriteLine("Attempting to generate content with retry logic...");
-            // This call will automatically retry if transient errors occur
-            var response = await geminiClient.GenerateTextAsync(null, "Explain the concept of quantum entanglement.");
+            var response = await geminiClient.GenerateTextAsync("gemini-1.5-flash", "Explain the concept of quantum entanglement.");
 
             Console.WriteLine("Successfully generated content:");
             Console.WriteLine(response?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text);
@@ -134,9 +131,6 @@ public class RetryExample
         }
     }
 }
-
-// To run this example:
-// RetryExample.Run("YOUR_GEMINI_API_KEY").Wait();
 ```
 
 ---
@@ -163,5 +157,3 @@ These logs indicate:
 ## Conclusion
 
 The `RetryConfig` in the GeminiSharp SDK is a robust feature designed to make your applications more resilient to transient network and API issues. By understanding and customizing its parameters, you can ensure your integrations with the Gemini API are both reliable and performant.
-
-For more details on specific client methods, refer to the documentation for `GeminiClient` and its specialized clients (`TextClient`, `ImageClient`, etc.).

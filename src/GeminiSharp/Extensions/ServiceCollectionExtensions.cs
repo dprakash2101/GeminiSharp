@@ -22,33 +22,32 @@ namespace GeminiSharp.Extensions
         public static IServiceCollection AddGeminiSharp(this IServiceCollection services, Action<GeminiSharpOptions> configureOptions)
         {
             var options = new GeminiSharpOptions();
-            configureOptions.Invoke(options);
+            configureOptions(options);
 
             if (string.IsNullOrWhiteSpace(options.ApiKey))
             {
                 throw new ArgumentException("API Key must be provided in GeminiSharpOptions.", nameof(configureOptions));
             }
 
-            var retryPolicy = HttpPolicyExtensions
-                .HandleTransientHttpError()
-                .OrResult(msg => options.RetryConfig?.RetryStatusCodes.Contains((int)msg.StatusCode) ?? false)
-                .WaitAndRetryAsync(options.RetryConfig?.MaxRetries ?? 3, retryAttempt =>
-                    TimeSpan.FromMilliseconds(options.RetryConfig?.UseExponentialBackoff ?? true
-                        ? (options.RetryConfig?.InitialDelayMs ?? 1000) * Math.Pow(2, retryAttempt - 1)
-                        : (options.RetryConfig?.InitialDelayMs ?? 1000))
-                );
-
             services.AddHttpClient<GeminiApiClient>(client =>
             {
+                client.BaseAddress = new Uri(options.BaseUrl ?? "https://generativelanguage.googleapis.com/v1beta/models/");
                 client.DefaultRequestHeaders.Add("x-goog-api-key", options.ApiKey);
-            });
-
-            services.AddScoped<GeminiApiClient>(provider =>
+            })
+            .AddPolicyHandler((serviceProvider, request) =>
             {
-                var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-                return new GeminiApiClient(options.ApiKey, httpClientFactory, options.BaseUrl, options.RetryConfig);
+                var retryConfig = options.RetryConfig ?? new RetryConfig();
+                return HttpPolicyExtensions
+                    .HandleTransientHttpError()
+                    .OrResult(msg => retryConfig.RetryStatusCodes.Contains((int)msg.StatusCode))
+                    .WaitAndRetryAsync(retryConfig.MaxRetries, retryAttempt =>
+                        TimeSpan.FromMilliseconds(retryConfig.UseExponentialBackoff
+                            ? (retryConfig.InitialDelayMs) * Math.Pow(2, retryAttempt - 1)
+                            : (retryConfig.InitialDelayMs))
+                    );
             });
 
+            services.AddSingleton(options);
             services.AddScoped<IGeminiClient, GeminiClient>();
 
             return services;

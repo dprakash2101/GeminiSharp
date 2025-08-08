@@ -14,25 +14,18 @@ namespace GeminiSharp.API
     /// </summary>
     public class GeminiApiClient
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _apiKey;
-        private readonly string _baseUrl;
-        private readonly RetryConfig _retryConfig;
+        private readonly HttpClient _httpClient;
+        private readonly GeminiSharpOptions _options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GeminiApiClient"/> class.
         /// </summary>
-        /// <param name="apiKey">The API key for authentication.</param>
-        /// <param name="httpClientFactory">The HTTP client factory used to create <see cref="HttpClient"/> instances.</param>
-        /// <param name="baseUrl">The base URL of the Gemini API (optional, defaults to Google's endpoint).</param>
-        /// <param name="retryConfig">Retry configuration (optional, defaults to 3 retries for 429, 500, 503).</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="apiKey"/> is null or empty.</exception>
-        public GeminiApiClient(string apiKey, IHttpClientFactory httpClientFactory, string? baseUrl = null, RetryConfig? retryConfig = null)
+        /// <param name="httpClient">The HttpClient to use for requests.</param>
+        /// <param name="options">The configuration options for GeminiSharp.</param>
+        public GeminiApiClient(HttpClient httpClient, GeminiSharpOptions options)
         {
-            _apiKey = string.IsNullOrWhiteSpace(apiKey) ? throw new ArgumentNullException(nameof(apiKey)) : apiKey;
-            _httpClientFactory = httpClientFactory;
-            _baseUrl = baseUrl ?? "https://generativelanguage.googleapis.com/v1beta/models/";
-            _retryConfig = retryConfig ?? new RetryConfig();
+            _httpClient = httpClient;
+            _options = options;
         }
 
         /// <summary>
@@ -55,16 +48,14 @@ namespace GeminiSharp.API
                 throw new ArgumentException("Model cannot be empty", nameof(model));
             }
 
-            string url = $"{_baseUrl}{model}:{endpoint}";
+            string url = $"{_options.BaseUrl}{model}:{endpoint}";
             string requestContent = JsonSerializer.Serialize(request);
-
-            var httpClient = _httpClientFactory.CreateClient();
 
             try
             {
                 Log.Information("Sending request to {Url} with body: {RequestContent}", url, requestContent);
 
-                var response = await httpClient.PostAsJsonAsync(url, request);
+                var response = await _httpClient.PostAsJsonAsync(url, request);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -113,14 +104,13 @@ namespace GeminiSharp.API
                 throw new ArgumentException("Model cannot be empty", nameof(model));
             }
 
-            string url = $"{_baseUrl}{model}";
-            var httpClient = _httpClientFactory.CreateClient();
+            string url = $"{_options.BaseUrl}{model}";
 
             try
             {
                 Log.Information("Sending GET request to {Url}", url);
 
-                var response = await httpClient.GetAsync(url);
+                var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {

@@ -33,10 +33,11 @@ namespace GeminiSharp.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="GeminiClient"/> class.
         /// </summary>
-        /// <param name="apiClient">The Gemini API client instance.</param>
-        public GeminiClient(GeminiApiClient apiClient)
+        /// <param name="httpClient">The HttpClient to use for requests.</param>
+        /// <param name="options">The configuration options for GeminiSharp.</param>
+        public GeminiClient(HttpClient httpClient, GeminiSharpOptions options)
         {
-            _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+            _apiClient = new GeminiApiClient(httpClient, options);
             _textClient = new TextClient(_apiClient);
             _imageClient = new ImageClient(_apiClient);
             _structuredContentClient = new StructuredContentClient(_apiClient);
