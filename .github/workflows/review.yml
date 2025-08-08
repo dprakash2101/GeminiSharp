@@ -39,8 +39,10 @@ jobs:
             Validate that all public APIs are intuitive and align with the Gemini API's expected usage patterns.
         run: |
           npx falcon-linter \
-            --provider github \
-            --pr-id ${{ github.event.pull_request.number }} \
-            --owner ${{ github.repository_owner }} \
-            --repo ${{ github.event.repository.name }} \
-            --style-guide "$PR_STYLE_GUIDE"
+          --provider github \
+          --pr-id ${{ github.event.pull_request.number }} \
+          --owner ${{ github.repository_owner }} \
+          --repo ${{ github.event.repository.name }} \
+          --style-guide "$PR_STYLE_GUIDE" \
+          --review-level line \
+          --model gemini-2.5-flash
