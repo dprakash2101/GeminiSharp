@@ -40,9 +40,4 @@ jobs:
         run: |
           npx falcon-linter \
           --provider github \
-          --pr-id ${{ github.event.pull_request.number }} \
-          --owner ${{ github.repository_owner }} \
-          --repo ${{ github.event.repository.name }} \
-          --style-guide "$PR_STYLE_GUIDE" \
-          --review-level line \
           --model gemini-2.5-flash
