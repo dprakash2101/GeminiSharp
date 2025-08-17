@@ -1,43 +1,70 @@
-name: GeminiSharp PR Review
+name: Falcon Linter Self-Review
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   review:
+    name: Falcon Linter (Dogfooding)
     runs-on: ubuntu-latest
+
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && 
+      (contains(github.event.comment.body, '/falcon-linter --reviewChanges') || contains(github.event.comment.body, '/falcon-linter --generateSummary')))
+
     steps:
-      - name: Checkout code
+      - name: Checkout PR Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
 
-      - name: Run Falcon Linter PR Review
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PR_STYLE_GUIDE: |
-            Follow C# SDK best practices for the GeminiSharp library, ensuring compatibility with the Gemini API.
-            Adhere to SOLID principles strictly, emphasizing single responsibility and interface segregation for API client classes.
-            Use clear, descriptive naming conventions following C# standards (e.g., PascalCase for public members, camelCase for parameters).
-            Favor immutability in API models and DTOs to ensure thread-safety and predictability.
-            Ensure all public methods and classes are well-documented with XML comments for IntelliSense support.
-            Avoid side effects in API calls; ensure methods are stateless or explicitly document state changes.
-            Implement robust exception handling, propagating Gemini API errors with meaningful messages.
-            Minimize code duplication by leveraging helper methods and shared utilities in the GeminiSharp namespace.
-            Ensure thread-safety for HTTP client interactions and proper disposal of resources (e.g., HttpClient).
-            Follow REST client best practices, including proper HTTP status code handling and retry logic where applicable.
-            Write unit tests for all public API methods, covering edge cases and error conditions.
-            Optimize performance for API calls without compromising code clarity or maintainability.
-            Ensure compatibility with .NET 6.0 or later for broad usability.
-            Validate that all public APIs are intuitive and align with the Gemini API's expected usage patterns.
+      - name: Configure Git
         run: |
-          npx falcon-linter \
-          --provider github \
-          --model gemini-2.5-flash
+          git config --global user.name "${{ secrets.User_Name }}"
+          git config --global user.email "${{ secrets.User_Email }}"
+
+      - name: Determine Command
+        id: command
+        run: |
+          COMMAND_FROM_COMMENT=""
+          if [ "${{ github.event_name }}" == "issue_comment" ]; then
+            if [[ "${{ github.event.comment.body }}" == *"/falcon-linter --reviewChanges"* ]]; then
+              COMMAND_FROM_COMMENT="/falcon-linter --reviewChanges"
+            elif [[ "${{ github.event.comment.body }}" == *"/falcon-linter --generateSummary"* ]]; then
+              COMMAND_FROM_COMMENT="/falcon-linter --generateSummary"
+            fi
+          fi
+
+          if [ -n "$COMMAND_FROM_COMMENT" ]; then
+            echo "command_text=$COMMAND_FROM_COMMENT" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "command_text=review" >> $GITHUB_OUTPUT
+          else
+            # Fallback for other cases, though the 'if' condition on the job should prevent most of these
+            echo "command_text=review" >> $GITHUB_OUTPUT
+          fi
+
+  
+
+      - name: Fallback to Published Version
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm install -g github:dprakash2101/falcon-linter
+          # The CLI is now in the path, and it knows how to get context from the environment
+          npx falcon-linter --command "${{ steps.command.outputs.command_text }}"
