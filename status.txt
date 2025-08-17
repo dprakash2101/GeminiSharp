@@ -1,0 +1,48 @@
+# GeminiSharp Refactoring Status
+
+## Phase 1: Initial Setup and Planning (Done)
+
+- [x] Reviewed existing code.
+- [x] Defined refactoring plan.
+- [x] Created status.txt file.
+- [x] Removed all previous C# source files to start fresh.
+
+## Phase 2: Core SDK Structure (Done)
+
+- [x] Define core API client (`GeminiApiClient`) for HTTP communication, authentication, and retries.
+- [x] Define base request/response models (e.g., `RequestContent`, `ResponseContent`, `ApiErrorResponse`).
+- [x] Implement `IGeminiClient` interface for unified API access.
+- [x] Implement `GeminiClient` class, using `IHttpClientFactory` and DI.
+- [x] Add `JsonSchemaHelper` for converting C# classes to JSON schema.
+
+## Phase 3: Substantial SDK Re-architecture and Feature Implementation (Done)
+
+- [x] **Re-architected `GeminiClient` into specialized, modular clients** for improved maintainability and extensibility:
+    - `TextClient`
+    - `ImageClient`
+    - `StructuredContentClient`
+    - `UtilityClient` (for Embeddings, Token Counting, Model Info, Function Calling)
+    - `DocumentClient`
+    - `AudioClient`
+    - `VideoClient`
+- [x] Updated default model to "gemini-2.5-flash" where applicable across all relevant client methods.
+- [x] Implemented Text Generation (`GenerateContentAsync`).
+- [x] Implemented Image Generation (`GenerateContentAsync` with image-specific config).
+- [x] Implemented Structured Output (`GenerateContentAsync` with schema).
+- [x] Implemented Chat (`StartChat`, `SendMessageAsync`).
+- [x] Implemented Embeddings (`EmbedContentAsync`).
+- [x] Implemented Token Counting (`CountTokensAsync`).
+- [x] Implemented Document Processing (`GenerateContentFromDocumentAsync`, `GenerateContentFromDocumentUriAsync`).
+- [x] Implemented Video Processing (`GenerateContentFromVideoAsync`, `GenerateContentFromVideoUriAsync`).
+- [x] Implemented Audio Processing (`GenerateContentFromAudioAsync`, `GenerateContentFromAudioUriAsync`).
+- [x] Implemented Function Calling (`GenerateContentWithFunctionCallingAsync`).
+- [x] Removed Code Execution feature (for now, to be re-introduced later).
+- [x] **Implemented comprehensive Dependency Injection (DI) setup** using `AddGeminiSharp` extension method and `GeminiSharpOptions` for flexible configuration.
+
+## Phase 4: Finalization
+
+- [x] Add comprehensive documentation (XML comments and Markdown files).
+- [ ] Implement additional Gemini API functionalities and helper classes.
+- [ ] Write unit/integration tests.
+- [ ] Ensure adherence to .NET best practices and coding standards.
+- [ ] Prepare for NuGet package release.
