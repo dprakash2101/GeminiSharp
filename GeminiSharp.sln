@@ -1,27 +1,27 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{ECE26310-6442-42AB-886A-54B34F4ED823}"
+# Visual Studio 2012
+VisualStudioVersion = 12.0.0.0
+MinimumVisualStudioVersion = 10.0.0.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeminiSharp", "src/main/csharp\GeminiSharp\GeminiSharp.csproj", "{A04812E1-4835-4460-B831-04C42C304DFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeminiSharp", "src\GeminiSharp\GeminiSharp.csproj", "{4999964B-F918-45FE-86FD-DDD027EA0D52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeminiSharp.Test", "src/main/csharp\GeminiSharp.Test\GeminiSharp.Test.csproj", "{19F1DEBC-DE5E-4517-8062-F000CD499087}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A04812E1-4835-4460-B831-04C42C304DFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A04812E1-4835-4460-B831-04C42C304DFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A04812E1-4835-4460-B831-04C42C304DFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A04812E1-4835-4460-B831-04C42C304DFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4999964B-F918-45FE-86FD-DDD027EA0D52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4999964B-F918-45FE-86FD-DDD027EA0D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4999964B-F918-45FE-86FD-DDD027EA0D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4999964B-F918-45FE-86FD-DDD027EA0D52}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{4999964B-F918-45FE-86FD-DDD027EA0D52} = {ECE26310-6442-42AB-886A-54B34F4ED823}
 	EndGlobalSection
 EndGlobal

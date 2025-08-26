@@ -1,0 +1,4734 @@
+openapi: 3.0.0
+info:
+  contact:
+    name: Google AI for Developers
+    url: https://ai.google.dev/gemini-api
+  description: "Comprehensive API for interacting with Google's Gemini models supporting\
+    \ text, chat, image generation, file uploads, grounding, code execution, model\
+    \ tuning, and more."
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  title: Google Gemini API
+  version: v1
+servers:
+- description: Gemini API production server
+  url: https://generativelanguage.googleapis.com
+security:
+- ApiKeyHeader: []
+- ApiKeyQuery: []
+paths:
+  /v1/models:
+    get:
+      description: Lists all available Gemini models including base models and tuned
+        models.
+      operationId: ListModels
+      parameters:
+      - description: Maximum number of models to return
+        explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          maximum: 50
+          type: integer
+        style: form
+      - description: Token for pagination
+        explode: true
+        in: query
+        name: pageToken
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListModels_200_response"
+          description: A list of models
+      summary: List Models
+  /v1/models/{model}:
+    get:
+      description: Gets detailed information about a specific model.
+      operationId: GetModel
+      parameters:
+      - example: models/gemini-2.0-flash
+        explode: false
+        in: path
+        name: model
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiModel"
+          description: Model information
+      summary: Get Model
+  /v1/models/{model}:generateContent:
+    post:
+      description: Generates content from the model given an input GenerateContentRequest.
+      operationId: GenerateContent
+      parameters:
+      - explode: false
+        in: path
+        name: model
+        required: true
+        schema:
+          default: gemini-2.0-flash
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateContentRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateContentResponse"
+          description: Successful response
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+          description: Error response
+      summary: Generate Content
+  /v1/models/{model}:streamGenerateContent:
+    post:
+      description: Generates streaming content from the model.
+      operationId: StreamGenerateContent
+      parameters:
+      - example: models/gemini-2.0-flash
+        explode: false
+        in: path
+        name: model
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateContentRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                description: Server-sent events stream
+                type: string
+          description: Streaming response
+      summary: Stream Generate Content
+  /v1/models/{model}:countTokens:
+    post:
+      description: Counts the number of tokens in the given prompt.
+      operationId: CountTokens
+      parameters:
+      - explode: false
+        in: path
+        name: model
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateContentRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CountTokens_200_response"
+          description: Token count response
+      summary: Count Tokens
+  /v1/models/{model}:embedContent:
+    post:
+      description: Generates an embedding representation of the given content.
+      operationId: EmbedContent
+      parameters:
+      - example: models/text-embedding-004
+        explode: false
+        in: path
+        name: model
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmbedContent_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentEmbedding"
+          description: Embedding response
+      summary: Embed Content
+  /v1/models/{model}:batchEmbedContents:
+    post:
+      description: Generates embeddings for multiple pieces of content in a single
+        request.
+      operationId: BatchEmbedContents
+      parameters:
+      - explode: false
+        in: path
+        name: model
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchEmbedContents_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchEmbedContents_200_response"
+          description: Batch embedding response
+      summary: Batch Embed Contents
+  /v1/models/{model}:generateImage:
+    post:
+      description: Generates images based on text prompts using Gemini image generation
+        models.
+      operationId: GenerateImage
+      parameters:
+      - example: models/gemini-2.0-flash-image
+        explode: false
+        in: path
+        name: model
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateImageRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateImageResponse"
+          description: Generated image response
+      summary: Generate Image
+  /v1/files:
+    get:
+      description: Lists uploaded files.
+      operationId: ListFiles
+      parameters:
+      - explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          maximum: 100
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: pageToken
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListFiles_200_response"
+          description: List of files
+      summary: List Files
+    post:
+      description: Creates a File by uploading to the API.
+      operationId: UploadFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadFile_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/File"
+          description: Uploaded file information
+      summary: Upload File
+  /v1/files/{name}:
+    delete:
+      description: Deletes an uploaded file.
+      operationId: DeleteFile
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: File deleted successfully
+      summary: Delete File
+    get:
+      description: Gets the metadata for a specific uploaded file.
+      operationId: GetFile
+      parameters:
+      - example: files/sample-file-id
+        explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/File"
+          description: File information
+      summary: Get File
+  /v1/tunedModels:
+    get:
+      description: Lists tuned models owned by the user.
+      operationId: ListTunedModels
+      parameters:
+      - explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: pageToken
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Filter expression to list tuned models
+        explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListTunedModels_200_response"
+          description: List of tuned models
+      summary: List Tuned Models
+    post:
+      description: Creates a tuned model.
+      operationId: CreateTunedModel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTunedModelRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Operation"
+          description: Long-running operation for model tuning
+      summary: Create Tuned Model
+  /v1/tunedModels/{name}:
+    delete:
+      description: Deletes a tuned model.
+      operationId: DeleteTunedModel
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Tuned model deleted successfully
+      summary: Delete Tuned Model
+    get:
+      description: Gets information about a specific tuned model.
+      operationId: GetTunedModel
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TunedModel"
+          description: Tuned model information
+      summary: Get Tuned Model
+    patch:
+      description: Updates a tuned model.
+      operationId: UpdateTunedModel
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: Field mask to specify which fields to update
+        explode: true
+        in: query
+        name: updateMask
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TunedModel"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TunedModel"
+          description: Updated tuned model
+      summary: Update Tuned Model
+  /v1/cachedContents:
+    get:
+      description: Lists cached contents for efficient context reuse.
+      operationId: ListCachedContents
+      parameters:
+      - explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: pageToken
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListCachedContents_200_response"
+          description: List of cached contents
+      summary: List Cached Contents
+    post:
+      description: Creates cached content for efficient context reuse in subsequent
+        requests.
+      operationId: CreateCachedContent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CachedContent"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CachedContent"
+          description: Created cached content
+      summary: Create Cached Content
+  /v1/cachedContents/{name}:
+    delete:
+      description: Deletes cached content.
+      operationId: DeleteCachedContent
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Cached content deleted successfully
+      summary: Delete Cached Content
+    get:
+      description: Gets a cached content by name.
+      operationId: GetCachedContent
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CachedContent"
+          description: Cached content details
+      summary: Get Cached Content
+    patch:
+      description: Updates a cached content.
+      operationId: UpdateCachedContent
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: updateMask
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CachedContent"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CachedContent"
+          description: Updated cached content
+      summary: Update Cached Content
+  /v1/media:
+    post:
+      description: Uploads media files for processing with Gemini models.
+      operationId: UploadMedia
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadMedia_request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/File"
+          description: Media uploaded successfully
+      summary: Upload Media
+  /v1/corpora:
+    get:
+      description: Lists corpora for semantic retrieval.
+      operationId: ListCorpora
+      parameters:
+      - explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: pageToken
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListCorpora_200_response"
+          description: List of corpora
+      summary: List Corpora
+    post:
+      description: Creates a corpus for semantic retrieval.
+      operationId: CreateCorpus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Corpus"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Corpus"
+          description: Created corpus
+      summary: Create Corpus
+  /v1/corpora/{name}:
+    delete:
+      description: Deletes a corpus.
+      operationId: DeleteCorpus
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Corpus deleted successfully
+      summary: Delete Corpus
+    get:
+      description: Gets a corpus by name.
+      operationId: GetCorpus
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Corpus"
+          description: Corpus details
+      summary: Get Corpus
+    patch:
+      description: Updates a corpus.
+      operationId: UpdateCorpus
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: updateMask
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Corpus"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Corpus"
+          description: Updated corpus
+      summary: Update Corpus
+  /v1/corpora/{corpus}/documents:
+    get:
+      description: Lists documents in a corpus.
+      operationId: ListDocuments
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: pageToken
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListDocuments_200_response"
+          description: List of documents
+      summary: List Documents
+    post:
+      description: Creates a document in a corpus.
+      operationId: CreateDocument
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Document"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+          description: Created document
+      summary: Create Document
+  /v1/corpora/{corpus}/documents/{document}:
+    delete:
+      description: Deletes a document from a corpus.
+      operationId: DeleteDocument
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Document deleted successfully
+      summary: Delete Document
+    get:
+      description: Gets a document from a corpus.
+      operationId: GetDocument
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+          description: Document details
+      summary: Get Document
+    patch:
+      description: Updates a document in a corpus.
+      operationId: UpdateDocument
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: updateMask
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Document"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+          description: Updated document
+      summary: Update Document
+  /v1/corpora/{corpus}/documents/{document}/chunks:
+    get:
+      description: Lists chunks in a document.
+      operationId: ListChunks
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: pageToken
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListChunks_200_response"
+          description: List of chunks
+      summary: List Chunks
+    post:
+      description: Creates a chunk in a document.
+      operationId: CreateChunk
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Chunk"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chunk"
+          description: Created chunk
+      summary: Create Chunk
+  /v1/corpora/{corpus}/documents/{document}/chunks/{chunk}:
+    delete:
+      description: Deletes a chunk from a document.
+      operationId: DeleteChunk
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: chunk
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Chunk deleted successfully
+      summary: Delete Chunk
+    get:
+      description: Gets a chunk from a document.
+      operationId: GetChunk
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: chunk
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chunk"
+          description: Chunk details
+      summary: Get Chunk
+    patch:
+      description: Updates a chunk in a document.
+      operationId: UpdateChunk
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: chunk
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: updateMask
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Chunk"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chunk"
+          description: Updated chunk
+      summary: Update Chunk
+  /v1/corpora/{corpus}:query:
+    post:
+      description: Performs a semantic search query against a corpus.
+      operationId: QueryCorpus
+      parameters:
+      - explode: false
+        in: path
+        name: corpus
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryCorpusRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryCorpusResponse"
+          description: Query results
+      summary: Query Corpus
+  /v1/operations/{name}:
+    delete:
+      description: Cancels a long-running operation.
+      operationId: CancelOperation
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Operation cancelled
+      summary: Cancel Operation
+    get:
+      description: Gets the status of a long-running operation.
+      operationId: GetOperation
+      parameters:
+      - explode: false
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Operation"
+          description: Operation status
+      summary: Get Operation
+  /v1/operations:
+    get:
+      description: Lists operations that match the specified filter.
+      operationId: ListOperations
+      parameters:
+      - description: The name of the operation's parent resource
+        explode: true
+        in: query
+        name: name
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: pageToken
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOperations_200_response"
+          description: List of operations
+      summary: List Operations
+components:
+  schemas:
+    GeminiModel:
+      example:
+        supportedGenerationMethods:
+        - generateContent
+        - generateContent
+        maxTemperature: 5.962134
+        topK: 2
+        inputTokenLimit: 0
+        displayName: displayName
+        name: name
+        temperature: 1.4658129
+        description: description
+        outputTokenLimit: 6
+        baseModelId: baseModelId
+        version: version
+        topP: 5.637377
+      properties:
+        name:
+          description: The resource name of the Model
+          type: string
+        baseModelId:
+          description: The base model ID if this is a tuned model
+          type: string
+        version:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+        inputTokenLimit:
+          type: integer
+        outputTokenLimit:
+          type: integer
+        supportedGenerationMethods:
+          items:
+            enum:
+            - generateContent
+            - embedContent
+            - countTokens
+            type: string
+          type: array
+        temperature:
+          format: float
+          type: number
+        maxTemperature:
+          format: float
+          type: number
+        topP:
+          format: float
+          type: number
+        topK:
+          type: integer
+      type: object
+    GenerateContentRequest:
+      example:
+        cachedContent: cachedContent
+        toolConfig:
+          functionCallingConfig:
+            mode: MODE_UNSPECIFIED
+            allowedFunctionNames:
+            - allowedFunctionNames
+            - allowedFunctionNames
+        safetySettings:
+        - threshold: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+          category: HARM_CATEGORY_UNSPECIFIED
+        - threshold: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+          category: HARM_CATEGORY_UNSPECIFIED
+        contents:
+        - role: user
+          parts:
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+        - role: user
+          parts:
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+        generationConfig:
+          topK: 2
+          responseSchema: "{}"
+          presencePenalty: 7.0614014
+          stopSequences:
+          - stopSequences
+          - stopSequences
+          temperature: 5.962134
+          responseLogprobs: true
+          responseMimeType: responseMimeType
+          maxOutputTokens: 1
+          topP: 5.637377
+          frequencyPenalty: 9.301444
+          candidateCount: 6
+          logprobs: 3
+        systemInstruction:
+          role: user
+          parts:
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+        tools:
+        - googleSearchRetrieval:
+            dynamicRetrievalConfig:
+              mode: MODE_UNSPECIFIED
+              dynamicThreshold: 0.8008282
+          codeExecution: "{}"
+          functionDeclarations:
+          - response: "{}"
+            name: name
+            description: description
+            parameters: "{}"
+          - response: "{}"
+            name: name
+            description: description
+            parameters: "{}"
+        - googleSearchRetrieval:
+            dynamicRetrievalConfig:
+              mode: MODE_UNSPECIFIED
+              dynamicThreshold: 0.8008282
+          codeExecution: "{}"
+          functionDeclarations:
+          - response: "{}"
+            name: name
+            description: description
+            parameters: "{}"
+          - response: "{}"
+            name: name
+            description: description
+            parameters: "{}"
+      properties:
+        contents:
+          description: Required. The content of the current conversation with the
+            model
+          items:
+            $ref: "#/components/schemas/RequestContent"
+          type: array
+        tools:
+          description: Optional. A list of Tools the Model may use to generate the
+            next response
+          items:
+            $ref: "#/components/schemas/Tool"
+          type: array
+        toolConfig:
+          $ref: "#/components/schemas/ToolConfig"
+        safetySettings:
+          description: Optional. A list of unique SafetySetting instances for blocking
+            unsafe content
+          items:
+            $ref: "#/components/schemas/SafetySetting"
+          type: array
+        systemInstruction:
+          $ref: "#/components/schemas/RequestContent"
+        generationConfig:
+          $ref: "#/components/schemas/GenerationConfig"
+        cachedContent:
+          description: Optional. The name of the cached content to use as context
+          type: string
+      type: object
+    GenerateContentResponse:
+      example:
+        candidates:
+        - groundingMetadata:
+            webSearchQueries:
+            - webSearchQueries
+            - webSearchQueries
+            groundingSupports:
+            - segment:
+                startIndex: 7
+                endIndex: 9
+                text: text
+                partIndex: 2
+              groundingChunkIndices:
+              - 3
+              - 3
+              confidenceScores:
+              - 2.027123
+              - 2.027123
+            - segment:
+                startIndex: 7
+                endIndex: 9
+                text: text
+                partIndex: 2
+              groundingChunkIndices:
+              - 3
+              - 3
+              confidenceScores:
+              - 2.027123
+              - 2.027123
+            retrievalMetadata:
+              googleSearchDynamicRetrievalScore: 4.145608
+            groundingChunks:
+            - web:
+                title: title
+                uri: uri
+            - web:
+                title: title
+                uri: uri
+            searchEntryPoint:
+              renderedContent: renderedContent
+          citationMetadata:
+            citationSources:
+            - license: license
+              startIndex: 6
+              endIndex: 1
+              uri: uri
+            - license: license
+              startIndex: 6
+              endIndex: 1
+              uri: uri
+          groundingAttributions:
+          - sourceId:
+              semanticRetrieverChunk:
+                chunk: chunk
+                source: source
+              groundingPassage:
+                passageId: passageId
+                partIndex: 5
+            content:
+              role: role
+              parts:
+              - executableCode:
+                  code: code
+                  language: PYTHON
+                codeExecutionResult:
+                  output: output
+                  outcome: OUTCOME_UNSPECIFIED
+                functionCall:
+                  args: "{}"
+                  name: name
+                text: text
+              - executableCode:
+                  code: code
+                  language: PYTHON
+                codeExecutionResult:
+                  output: output
+                  outcome: OUTCOME_UNSPECIFIED
+                functionCall:
+                  args: "{}"
+                  name: name
+                text: text
+          - sourceId:
+              semanticRetrieverChunk:
+                chunk: chunk
+                source: source
+              groundingPassage:
+                passageId: passageId
+                partIndex: 5
+            content:
+              role: role
+              parts:
+              - executableCode:
+                  code: code
+                  language: PYTHON
+                codeExecutionResult:
+                  output: output
+                  outcome: OUTCOME_UNSPECIFIED
+                functionCall:
+                  args: "{}"
+                  name: name
+                text: text
+              - executableCode:
+                  code: code
+                  language: PYTHON
+                codeExecutionResult:
+                  output: output
+                  outcome: OUTCOME_UNSPECIFIED
+                functionCall:
+                  args: "{}"
+                  name: name
+                text: text
+          avgLogprobs: 7.386281948385884
+          finishReason: FINISH_REASON_UNSPECIFIED
+          index: 0
+          tokenCount: 5
+          safetyRatings:
+          - blocked: true
+            probability: HARM_PROBABILITY_UNSPECIFIED
+            category: HARM_CATEGORY_UNSPECIFIED
+          - blocked: true
+            probability: HARM_PROBABILITY_UNSPECIFIED
+            category: HARM_CATEGORY_UNSPECIFIED
+          logprobsResult:
+            chosenCandidates:
+            - null
+            - null
+            topCandidates:
+            - candidates:
+              - tokenId: 1
+                logProbability: 1.0246457
+                token: token
+              - tokenId: 1
+                logProbability: 1.0246457
+                token: token
+            - candidates:
+              - tokenId: 1
+                logProbability: 1.0246457
+                token: token
+              - tokenId: 1
+                logProbability: 1.0246457
+                token: token
+          content:
+            role: role
+            parts:
+            - executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              functionCall:
+                args: "{}"
+                name: name
+              text: text
+            - executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              functionCall:
+                args: "{}"
+                name: name
+              text: text
+        - groundingMetadata:
+            webSearchQueries:
+            - webSearchQueries
+            - webSearchQueries
+            groundingSupports:
+            - segment:
+                startIndex: 7
+                endIndex: 9
+                text: text
+                partIndex: 2
+              groundingChunkIndices:
+              - 3
+              - 3
+              confidenceScores:
+              - 2.027123
+              - 2.027123
+            - segment:
+                startIndex: 7
+                endIndex: 9
+                text: text
+                partIndex: 2
+              groundingChunkIndices:
+              - 3
+              - 3
+              confidenceScores:
+              - 2.027123
+              - 2.027123
+            retrievalMetadata:
+              googleSearchDynamicRetrievalScore: 4.145608
+            groundingChunks:
+            - web:
+                title: title
+                uri: uri
+            - web:
+                title: title
+                uri: uri
+            searchEntryPoint:
+              renderedContent: renderedContent
+          citationMetadata:
+            citationSources:
+            - license: license
+              startIndex: 6
+              endIndex: 1
+              uri: uri
+            - license: license
+              startIndex: 6
+              endIndex: 1
+              uri: uri
+          groundingAttributions:
+          - sourceId:
+              semanticRetrieverChunk:
+                chunk: chunk
+                source: source
+              groundingPassage:
+                passageId: passageId
+                partIndex: 5
+            content:
+              role: role
+              parts:
+              - executableCode:
+                  code: code
+                  language: PYTHON
+                codeExecutionResult:
+                  output: output
+                  outcome: OUTCOME_UNSPECIFIED
+                functionCall:
+                  args: "{}"
+                  name: name
+                text: text
+              - executableCode:
+                  code: code
+                  language: PYTHON
+                codeExecutionResult:
+                  output: output
+                  outcome: OUTCOME_UNSPECIFIED
+                functionCall:
+                  args: "{}"
+                  name: name
+                text: text
+          - sourceId:
+              semanticRetrieverChunk:
+                chunk: chunk
+                source: source
+              groundingPassage:
+                passageId: passageId
+                partIndex: 5
+            content:
+              role: role
+              parts:
+              - executableCode:
+                  code: code
+                  language: PYTHON
+                codeExecutionResult:
+                  output: output
+                  outcome: OUTCOME_UNSPECIFIED
+                functionCall:
+                  args: "{}"
+                  name: name
+                text: text
+              - executableCode:
+                  code: code
+                  language: PYTHON
+                codeExecutionResult:
+                  output: output
+                  outcome: OUTCOME_UNSPECIFIED
+                functionCall:
+                  args: "{}"
+                  name: name
+                text: text
+          avgLogprobs: 7.386281948385884
+          finishReason: FINISH_REASON_UNSPECIFIED
+          index: 0
+          tokenCount: 5
+          safetyRatings:
+          - blocked: true
+            probability: HARM_PROBABILITY_UNSPECIFIED
+            category: HARM_CATEGORY_UNSPECIFIED
+          - blocked: true
+            probability: HARM_PROBABILITY_UNSPECIFIED
+            category: HARM_CATEGORY_UNSPECIFIED
+          logprobsResult:
+            chosenCandidates:
+            - null
+            - null
+            topCandidates:
+            - candidates:
+              - tokenId: 1
+                logProbability: 1.0246457
+                token: token
+              - tokenId: 1
+                logProbability: 1.0246457
+                token: token
+            - candidates:
+              - tokenId: 1
+                logProbability: 1.0246457
+                token: token
+              - tokenId: 1
+                logProbability: 1.0246457
+                token: token
+          content:
+            role: role
+            parts:
+            - executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              functionCall:
+                args: "{}"
+                name: name
+              text: text
+            - executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              functionCall:
+                args: "{}"
+                name: name
+              text: text
+        promptFeedback:
+          safetyRatings:
+          - blocked: true
+            probability: HARM_PROBABILITY_UNSPECIFIED
+            category: HARM_CATEGORY_UNSPECIFIED
+          - blocked: true
+            probability: HARM_PROBABILITY_UNSPECIFIED
+            category: HARM_CATEGORY_UNSPECIFIED
+          blockReason: BLOCK_REASON_UNSPECIFIED
+        usageMetadata:
+          candidatesTokenCount: 6
+          cachedContentTokenCount: 1
+          totalTokenCount: 7
+          promptTokenCount: 1
+      properties:
+        candidates:
+          items:
+            $ref: "#/components/schemas/Candidate"
+          type: array
+        promptFeedback:
+          $ref: "#/components/schemas/PromptFeedback"
+        usageMetadata:
+          $ref: "#/components/schemas/UsageMetadata"
+      type: object
+    RequestContent:
+      example:
+        role: user
+        parts:
+        - functionResponse:
+            response: "{}"
+            name: name
+          executableCode:
+            code: code
+            language: PYTHON
+          codeExecutionResult:
+            output: output
+            outcome: OUTCOME_UNSPECIFIED
+          fileData:
+            fileUri: fileUri
+            mimeType: mimeType
+          functionCall:
+            args: "{}"
+            name: name
+          inlineData:
+            data: data
+            mimeType: mimeType
+          text: text
+          videoMetadata:
+            endOffset: endOffset
+            startOffset: startOffset
+        - functionResponse:
+            response: "{}"
+            name: name
+          executableCode:
+            code: code
+            language: PYTHON
+          codeExecutionResult:
+            output: output
+            outcome: OUTCOME_UNSPECIFIED
+          fileData:
+            fileUri: fileUri
+            mimeType: mimeType
+          functionCall:
+            args: "{}"
+            name: name
+          inlineData:
+            data: data
+            mimeType: mimeType
+          text: text
+          videoMetadata:
+            endOffset: endOffset
+            startOffset: startOffset
+      properties:
+        role:
+          description: The producer of the content
+          enum:
+          - user
+          - model
+          - system
+          type: string
+        parts:
+          description: Ordered Parts that constitute a single message
+          items:
+            $ref: "#/components/schemas/RequestContentPart"
+          type: array
+      type: object
+    RequestContentPart:
+      example:
+        functionResponse:
+          response: "{}"
+          name: name
+        executableCode:
+          code: code
+          language: PYTHON
+        codeExecutionResult:
+          output: output
+          outcome: OUTCOME_UNSPECIFIED
+        fileData:
+          fileUri: fileUri
+          mimeType: mimeType
+        functionCall:
+          args: "{}"
+          name: name
+        inlineData:
+          data: data
+          mimeType: mimeType
+        text: text
+        videoMetadata:
+          endOffset: endOffset
+          startOffset: startOffset
+      properties:
+        text:
+          description: Inline text
+          type: string
+        inlineData:
+          $ref: "#/components/schemas/InlineData"
+        fileData:
+          $ref: "#/components/schemas/FileData"
+        functionCall:
+          $ref: "#/components/schemas/FunctionCall"
+        functionResponse:
+          $ref: "#/components/schemas/FunctionResponse"
+        executableCode:
+          $ref: "#/components/schemas/ExecutableCode"
+        codeExecutionResult:
+          $ref: "#/components/schemas/CodeExecutionResult"
+        videoMetadata:
+          $ref: "#/components/schemas/VideoMetadata"
+      type: object
+    InlineData:
+      example:
+        data: data
+        mimeType: mimeType
+      properties:
+        mimeType:
+          description: The IANA standard MIME type of the source data
+          type: string
+        data:
+          description: Raw bytes for media (base64 encoded)
+          format: byte
+          type: string
+      type: object
+    FileData:
+      example:
+        fileUri: fileUri
+        mimeType: mimeType
+      properties:
+        mimeType:
+          description: The IANA standard MIME type of the source data
+          type: string
+        fileUri:
+          description: URI of the file
+          type: string
+      type: object
+    VideoMetadata:
+      example:
+        endOffset: endOffset
+        startOffset: startOffset
+      properties:
+        startOffset:
+          description: Start offset of the video segment
+          type: string
+        endOffset:
+          description: End offset of the video segment
+          type: string
+      type: object
+    Tool:
+      example:
+        googleSearchRetrieval:
+          dynamicRetrievalConfig:
+            mode: MODE_UNSPECIFIED
+            dynamicThreshold: 0.8008282
+        codeExecution: "{}"
+        functionDeclarations:
+        - response: "{}"
+          name: name
+          description: description
+          parameters: "{}"
+        - response: "{}"
+          name: name
+          description: description
+          parameters: "{}"
+      properties:
+        functionDeclarations:
+          description: Optional. Function declarations available to the model
+          items:
+            $ref: "#/components/schemas/FunctionDeclaration"
+          type: array
+        codeExecution:
+          description: "Tool that executes code generated by the model, and automatically\
+            \ returns the result to the model"
+          type: object
+        googleSearchRetrieval:
+          $ref: "#/components/schemas/GoogleSearchRetrieval"
+      type: object
+    ToolConfig:
+      example:
+        functionCallingConfig:
+          mode: MODE_UNSPECIFIED
+          allowedFunctionNames:
+          - allowedFunctionNames
+          - allowedFunctionNames
+      properties:
+        functionCallingConfig:
+          $ref: "#/components/schemas/FunctionCallingConfig"
+      type: object
+    FunctionCallingConfig:
+      example:
+        mode: MODE_UNSPECIFIED
+        allowedFunctionNames:
+        - allowedFunctionNames
+        - allowedFunctionNames
+      properties:
+        mode:
+          description: Specifies the mode in which function calling should execute
+          enum:
+          - MODE_UNSPECIFIED
+          - AUTO
+          - ANY
+          - NONE
+          type: string
+        allowedFunctionNames:
+          description: "A set of function names that, when provided, limits the functions\
+            \ the model will call"
+          items:
+            type: string
+          type: array
+      type: object
+    FunctionDeclaration:
+      example:
+        response: "{}"
+        name: name
+        description: description
+        parameters: "{}"
+      properties:
+        name:
+          description: The name of the function
+          type: string
+        description:
+          description: A brief description of the function
+          type: string
+        parameters:
+          description: JSON Schema object to describe a function's parameters
+          type: object
+        response:
+          description: JSON Schema object to describe a function's response
+          type: object
+      type: object
+    FunctionCall:
+      example:
+        args: "{}"
+        name: name
+      properties:
+        name:
+          description: The name of the function to call
+          type: string
+        args:
+          description: The function parameters as key-value pairs
+          type: object
+      type: object
+    FunctionResponse:
+      example:
+        response: "{}"
+        name: name
+      properties:
+        name:
+          description: The name of the function to call
+          type: string
+        response:
+          description: The function response as key-value pairs
+          type: object
+      type: object
+    CodeExecution:
+      description: "Tool that executes code generated by the model, and automatically\
+        \ returns the result to the model"
+      type: object
+    ExecutableCode:
+      example:
+        code: code
+        language: PYTHON
+      properties:
+        language:
+          description: Programming language of the code
+          enum:
+          - PYTHON
+          - LANGUAGE_UNSPECIFIED
+          type: string
+        code:
+          description: The code to execute
+          type: string
+      type: object
+    CodeExecutionResult:
+      example:
+        output: output
+        outcome: OUTCOME_UNSPECIFIED
+      properties:
+        outcome:
+          description: Outcome of the code execution
+          enum:
+          - OUTCOME_UNSPECIFIED
+          - OUTCOME_OK
+          - OUTCOME_FAILED
+          - OUTCOME_DEADLINE_EXCEEDED
+          type: string
+        output:
+          description: "Contains stdout when code execution is successful, stderr\
+            \ or other description when code execution fails"
+          type: string
+      type: object
+    GoogleSearchRetrieval:
+      example:
+        dynamicRetrievalConfig:
+          mode: MODE_UNSPECIFIED
+          dynamicThreshold: 0.8008282
+      properties:
+        dynamicRetrievalConfig:
+          $ref: "#/components/schemas/DynamicRetrievalConfig"
+      type: object
+    DynamicRetrievalConfig:
+      example:
+        mode: MODE_UNSPECIFIED
+        dynamicThreshold: 0.8008282
+      properties:
+        mode:
+          description: The mode of the predictor to be used in dynamic retrieval
+          enum:
+          - MODE_UNSPECIFIED
+          - MODE_DYNAMIC
+          type: string
+        dynamicThreshold:
+          description: The threshold to be used in dynamic retrieval
+          format: float
+          type: number
+      type: object
+    SafetySetting:
+      example:
+        threshold: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+        category: HARM_CATEGORY_UNSPECIFIED
+      properties:
+        category:
+          description: The category for this setting
+          enum:
+          - HARM_CATEGORY_UNSPECIFIED
+          - HARM_CATEGORY_DEROGATORY
+          - HARM_CATEGORY_TOXICITY
+          - HARM_CATEGORY_VIOLENCE
+          - HARM_CATEGORY_SEXUAL
+          - HARM_CATEGORY_MEDICAL
+          - HARM_CATEGORY_DANGEROUS
+          - HARM_CATEGORY_HARASSMENT
+          - HARM_CATEGORY_HATE_SPEECH
+          - HARM_CATEGORY_SEXUALLY_EXPLICIT
+          - HARM_CATEGORY_DANGEROUS_CONTENT
+          - HARM_CATEGORY_CIVIC_INTEGRITY
+          type: string
+        threshold:
+          description: Controls the probability threshold at which harm is blocked
+          enum:
+          - HARM_BLOCK_THRESHOLD_UNSPECIFIED
+          - BLOCK_LOW_AND_ABOVE
+          - BLOCK_MEDIUM_AND_ABOVE
+          - BLOCK_ONLY_HIGH
+          - BLOCK_NONE
+          type: string
+      type: object
+    GenerationConfig:
+      example:
+        topK: 2
+        responseSchema: "{}"
+        presencePenalty: 7.0614014
+        stopSequences:
+        - stopSequences
+        - stopSequences
+        temperature: 5.962134
+        responseLogprobs: true
+        responseMimeType: responseMimeType
+        maxOutputTokens: 1
+        topP: 5.637377
+        frequencyPenalty: 9.301444
+        candidateCount: 6
+        logprobs: 3
+      properties:
+        stopSequences:
+          description: The set of character sequences that will stop output generation
+          items:
+            type: string
+          type: array
+        responseMimeType:
+          description: Output format of the generated candidate text
+          type: string
+        responseSchema:
+          description: Output schema of the generated candidate text when response_mime_type
+            is application/json
+          type: object
+        candidateCount:
+          description: Number of generated responses to return
+          type: integer
+        maxOutputTokens:
+          description: The maximum number of tokens to include in a response candidate
+          type: integer
+        temperature:
+          description: Controls the randomness of the output
+          format: float
+          type: number
+        topP:
+          description: The maximum cumulative probability of tokens to consider when
+            sampling
+          format: float
+          type: number
+        topK:
+          description: The maximum number of tokens to consider when sampling
+          type: integer
+        presencePenalty:
+          description: Presence penalty applied to the next token's logprobs
+          format: float
+          type: number
+        frequencyPenalty:
+          description: Frequency penalty applied to the next token's logprobs
+          format: float
+          type: number
+        responseLogprobs:
+          description: "If true, export the logprobs results in response"
+          type: boolean
+        logprobs:
+          description: Only valid if responseLogprobs is True
+          type: integer
+      type: object
+    Candidate:
+      example:
+        groundingMetadata:
+          webSearchQueries:
+          - webSearchQueries
+          - webSearchQueries
+          groundingSupports:
+          - segment:
+              startIndex: 7
+              endIndex: 9
+              text: text
+              partIndex: 2
+            groundingChunkIndices:
+            - 3
+            - 3
+            confidenceScores:
+            - 2.027123
+            - 2.027123
+          - segment:
+              startIndex: 7
+              endIndex: 9
+              text: text
+              partIndex: 2
+            groundingChunkIndices:
+            - 3
+            - 3
+            confidenceScores:
+            - 2.027123
+            - 2.027123
+          retrievalMetadata:
+            googleSearchDynamicRetrievalScore: 4.145608
+          groundingChunks:
+          - web:
+              title: title
+              uri: uri
+          - web:
+              title: title
+              uri: uri
+          searchEntryPoint:
+            renderedContent: renderedContent
+        citationMetadata:
+          citationSources:
+          - license: license
+            startIndex: 6
+            endIndex: 1
+            uri: uri
+          - license: license
+            startIndex: 6
+            endIndex: 1
+            uri: uri
+        groundingAttributions:
+        - sourceId:
+            semanticRetrieverChunk:
+              chunk: chunk
+              source: source
+            groundingPassage:
+              passageId: passageId
+              partIndex: 5
+          content:
+            role: role
+            parts:
+            - executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              functionCall:
+                args: "{}"
+                name: name
+              text: text
+            - executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              functionCall:
+                args: "{}"
+                name: name
+              text: text
+        - sourceId:
+            semanticRetrieverChunk:
+              chunk: chunk
+              source: source
+            groundingPassage:
+              passageId: passageId
+              partIndex: 5
+          content:
+            role: role
+            parts:
+            - executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              functionCall:
+                args: "{}"
+                name: name
+              text: text
+            - executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              functionCall:
+                args: "{}"
+                name: name
+              text: text
+        avgLogprobs: 7.386281948385884
+        finishReason: FINISH_REASON_UNSPECIFIED
+        index: 0
+        tokenCount: 5
+        safetyRatings:
+        - blocked: true
+          probability: HARM_PROBABILITY_UNSPECIFIED
+          category: HARM_CATEGORY_UNSPECIFIED
+        - blocked: true
+          probability: HARM_PROBABILITY_UNSPECIFIED
+          category: HARM_CATEGORY_UNSPECIFIED
+        logprobsResult:
+          chosenCandidates:
+          - null
+          - null
+          topCandidates:
+          - candidates:
+            - tokenId: 1
+              logProbability: 1.0246457
+              token: token
+            - tokenId: 1
+              logProbability: 1.0246457
+              token: token
+          - candidates:
+            - tokenId: 1
+              logProbability: 1.0246457
+              token: token
+            - tokenId: 1
+              logProbability: 1.0246457
+              token: token
+        content:
+          role: role
+          parts:
+          - executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            functionCall:
+              args: "{}"
+              name: name
+            text: text
+          - executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            functionCall:
+              args: "{}"
+              name: name
+            text: text
+      properties:
+        content:
+          $ref: "#/components/schemas/ResponseContent"
+        finishReason:
+          description: Output only. The reason why the model stopped generating tokens
+          enum:
+          - FINISH_REASON_UNSPECIFIED
+          - STOP
+          - MAX_TOKENS
+          - SAFETY
+          - RECITATION
+          - LANGUAGE
+          - OTHER
+          - BLOCKLIST
+          - PROHIBITED_CONTENT
+          - SPII
+          - MALFORMED_FUNCTION_CALL
+          type: string
+        index:
+          description: Output only. Index of the candidate in the list of response
+            candidates
+          type: integer
+        safetyRatings:
+          description: List of ratings for the safety of a response candidate
+          items:
+            $ref: "#/components/schemas/SafetyRating"
+          type: array
+        citationMetadata:
+          $ref: "#/components/schemas/CitationMetadata"
+        tokenCount:
+          description: Output only. Token count for this candidate
+          type: integer
+        groundingAttributions:
+          description: Output only. Attribution information for sources that contributed
+            to a grounded answer
+          items:
+            $ref: "#/components/schemas/GroundingAttribution"
+          type: array
+        groundingMetadata:
+          $ref: "#/components/schemas/GroundingMetadata"
+        avgLogprobs:
+          description: Output only. Average log probability of the candidate
+          format: double
+          type: number
+        logprobsResult:
+          $ref: "#/components/schemas/LogprobsResult"
+      type: object
+    ResponseContent:
+      example:
+        role: role
+        parts:
+        - executableCode:
+            code: code
+            language: PYTHON
+          codeExecutionResult:
+            output: output
+            outcome: OUTCOME_UNSPECIFIED
+          functionCall:
+            args: "{}"
+            name: name
+          text: text
+        - executableCode:
+            code: code
+            language: PYTHON
+          codeExecutionResult:
+            output: output
+            outcome: OUTCOME_UNSPECIFIED
+          functionCall:
+            args: "{}"
+            name: name
+          text: text
+      properties:
+        parts:
+          description: Ordered Parts that constitute a single message
+          items:
+            $ref: "#/components/schemas/ResponseContentPart"
+          type: array
+        role:
+          description: The producer of the content
+          type: string
+      type: object
+    ResponseContentPart:
+      example:
+        executableCode:
+          code: code
+          language: PYTHON
+        codeExecutionResult:
+          output: output
+          outcome: OUTCOME_UNSPECIFIED
+        functionCall:
+          args: "{}"
+          name: name
+        text: text
+      properties:
+        text:
+          description: Inline text
+          type: string
+        functionCall:
+          $ref: "#/components/schemas/FunctionCall"
+        executableCode:
+          $ref: "#/components/schemas/ExecutableCode"
+        codeExecutionResult:
+          $ref: "#/components/schemas/CodeExecutionResult"
+      type: object
+    SafetyRating:
+      example:
+        blocked: true
+        probability: HARM_PROBABILITY_UNSPECIFIED
+        category: HARM_CATEGORY_UNSPECIFIED
+      properties:
+        category:
+          description: The category for this rating
+          enum:
+          - HARM_CATEGORY_UNSPECIFIED
+          - HARM_CATEGORY_DEROGATORY
+          - HARM_CATEGORY_TOXICITY
+          - HARM_CATEGORY_VIOLENCE
+          - HARM_CATEGORY_SEXUAL
+          - HARM_CATEGORY_MEDICAL
+          - HARM_CATEGORY_DANGEROUS
+          - HARM_CATEGORY_HARASSMENT
+          - HARM_CATEGORY_HATE_SPEECH
+          - HARM_CATEGORY_SEXUALLY_EXPLICIT
+          - HARM_CATEGORY_DANGEROUS_CONTENT
+          - HARM_CATEGORY_CIVIC_INTEGRITY
+          type: string
+        probability:
+          description: The probability of harm for this content
+          enum:
+          - HARM_PROBABILITY_UNSPECIFIED
+          - NEGLIGIBLE
+          - LOW
+          - MEDIUM
+          - HIGH
+          type: string
+        blocked:
+          description: Was this content blocked due to this rating
+          type: boolean
+      type: object
+    CitationMetadata:
+      example:
+        citationSources:
+        - license: license
+          startIndex: 6
+          endIndex: 1
+          uri: uri
+        - license: license
+          startIndex: 6
+          endIndex: 1
+          uri: uri
+      properties:
+        citationSources:
+          description: Citations to sources for a specific response
+          items:
+            $ref: "#/components/schemas/CitationSource"
+          type: array
+      type: object
+    CitationSource:
+      example:
+        license: license
+        startIndex: 6
+        endIndex: 1
+        uri: uri
+      properties:
+        startIndex:
+          description: Start of segment of the response that is attributed to this
+            source
+          type: integer
+        endIndex:
+          description: End of the segment of the response that is attributed to this
+            source
+          type: integer
+        uri:
+          description: URI that is attributed as a source for a portion of the text
+          type: string
+        license:
+          description: License for the GitHub project that is attributed as a source
+            for segment
+          type: string
+      type: object
+    GroundingAttribution:
+      example:
+        sourceId:
+          semanticRetrieverChunk:
+            chunk: chunk
+            source: source
+          groundingPassage:
+            passageId: passageId
+            partIndex: 5
+        content:
+          role: role
+          parts:
+          - executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            functionCall:
+              args: "{}"
+              name: name
+            text: text
+          - executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            functionCall:
+              args: "{}"
+              name: name
+            text: text
+      properties:
+        sourceId:
+          $ref: "#/components/schemas/AttributionSourceId"
+        content:
+          $ref: "#/components/schemas/ResponseContent"
+      type: object
+    AttributionSourceId:
+      example:
+        semanticRetrieverChunk:
+          chunk: chunk
+          source: source
+        groundingPassage:
+          passageId: passageId
+          partIndex: 5
+      properties:
+        groundingPassage:
+          $ref: "#/components/schemas/GroundingPassageId"
+        semanticRetrieverChunk:
+          $ref: "#/components/schemas/SemanticRetrieverChunk"
+      type: object
+    GroundingPassageId:
+      example:
+        passageId: passageId
+        partIndex: 5
+      properties:
+        passageId:
+          description: ID of the passage matching the GenerateAnswerRequest's GroundingPassage.id
+          type: string
+        partIndex:
+          description: Index of the part within the GenerateAnswerRequest's GroundingPassage.content
+            parts list
+          type: integer
+      type: object
+    SemanticRetrieverChunk:
+      example:
+        chunk: chunk
+        source: source
+      properties:
+        source:
+          description: Name of the source matching the request's SemanticRetrieverConfig.source
+          type: string
+        chunk:
+          description: Name of the Chunk containing the attributed text
+          type: string
+      type: object
+    GroundingMetadata:
+      example:
+        webSearchQueries:
+        - webSearchQueries
+        - webSearchQueries
+        groundingSupports:
+        - segment:
+            startIndex: 7
+            endIndex: 9
+            text: text
+            partIndex: 2
+          groundingChunkIndices:
+          - 3
+          - 3
+          confidenceScores:
+          - 2.027123
+          - 2.027123
+        - segment:
+            startIndex: 7
+            endIndex: 9
+            text: text
+            partIndex: 2
+          groundingChunkIndices:
+          - 3
+          - 3
+          confidenceScores:
+          - 2.027123
+          - 2.027123
+        retrievalMetadata:
+          googleSearchDynamicRetrievalScore: 4.145608
+        groundingChunks:
+        - web:
+            title: title
+            uri: uri
+        - web:
+            title: title
+            uri: uri
+        searchEntryPoint:
+          renderedContent: renderedContent
+      properties:
+        groundingChunks:
+          description: List of supporting references retrieved from the specified
+            grounding source
+          items:
+            $ref: "#/components/schemas/GroundingChunk"
+          type: array
+        groundingSupports:
+          description: List of grounding support
+          items:
+            $ref: "#/components/schemas/GroundingSupport"
+          type: array
+        webSearchQueries:
+          description: Web search queries for the following-up web search
+          items:
+            type: string
+          type: array
+        searchEntryPoint:
+          $ref: "#/components/schemas/SearchEntryPoint"
+        retrievalMetadata:
+          $ref: "#/components/schemas/RetrievalMetadata"
+      type: object
+    GroundingChunk:
+      example:
+        web:
+          title: title
+          uri: uri
+      properties:
+        web:
+          $ref: "#/components/schemas/GroundingChunkWeb"
+      type: object
+    GroundingChunkWeb:
+      example:
+        title: title
+        uri: uri
+      properties:
+        uri:
+          description: URI reference of the chunk
+          type: string
+        title:
+          description: Title of the chunk
+          type: string
+      type: object
+    GroundingSupport:
+      example:
+        segment:
+          startIndex: 7
+          endIndex: 9
+          text: text
+          partIndex: 2
+        groundingChunkIndices:
+        - 3
+        - 3
+        confidenceScores:
+        - 2.027123
+        - 2.027123
+      properties:
+        segment:
+          $ref: "#/components/schemas/Segment"
+        groundingChunkIndices:
+          description: A list of indices (into 'grounding_chunk') specifying the citations
+            associated with the claim
+          items:
+            type: integer
+          type: array
+        confidenceScores:
+          description: Confidence score of the support references
+          items:
+            format: float
+            type: number
+          type: array
+      type: object
+    Segment:
+      example:
+        startIndex: 7
+        endIndex: 9
+        text: text
+        partIndex: 2
+      properties:
+        partIndex:
+          description: The index of a Part object within its parent Content object
+          type: integer
+        startIndex:
+          description: "Start index in the given Part, measured in bytes"
+          type: integer
+        endIndex:
+          description: "End index in the given Part, measured in bytes"
+          type: integer
+        text:
+          description: The text corresponding to the segment from the response
+          type: string
+      type: object
+    SearchEntryPoint:
+      example:
+        renderedContent: renderedContent
+      properties:
+        renderedContent:
+          description: Web content snippet that can be embedded in a web page or an
+            app webview
+          type: string
+      type: object
+    RetrievalMetadata:
+      example:
+        googleSearchDynamicRetrievalScore: 4.145608
+      properties:
+        googleSearchDynamicRetrievalScore:
+          description: Score indicating how likely information from Google Search
+            could help answer the prompt
+          format: float
+          type: number
+      type: object
+    LogprobsResult:
+      example:
+        chosenCandidates:
+        - null
+        - null
+        topCandidates:
+        - candidates:
+          - tokenId: 1
+            logProbability: 1.0246457
+            token: token
+          - tokenId: 1
+            logProbability: 1.0246457
+            token: token
+        - candidates:
+          - tokenId: 1
+            logProbability: 1.0246457
+            token: token
+          - tokenId: 1
+            logProbability: 1.0246457
+            token: token
+      properties:
+        topCandidates:
+          description: Length = total number of decoding steps
+          items:
+            $ref: "#/components/schemas/TopCandidates"
+          type: array
+        chosenCandidates:
+          description: Length = total number of decoding steps
+          items:
+            $ref: "#/components/schemas/Candidate"
+          type: array
+      type: object
+    TopCandidates:
+      example:
+        candidates:
+        - tokenId: 1
+          logProbability: 1.0246457
+          token: token
+        - tokenId: 1
+          logProbability: 1.0246457
+          token: token
+      properties:
+        candidates:
+          description: Sorted by log probability in descending order
+          items:
+            $ref: "#/components/schemas/CandidateLogprobs"
+          type: array
+      type: object
+    CandidateLogprobs:
+      example:
+        tokenId: 1
+        logProbability: 1.0246457
+        token: token
+      properties:
+        token:
+          description: The candidate's token string value
+          type: string
+        tokenId:
+          description: The candidate's token id value
+          type: integer
+        logProbability:
+          description: The candidate's log probability
+          format: float
+          type: number
+      type: object
+    PromptFeedback:
+      example:
+        safetyRatings:
+        - blocked: true
+          probability: HARM_PROBABILITY_UNSPECIFIED
+          category: HARM_CATEGORY_UNSPECIFIED
+        - blocked: true
+          probability: HARM_PROBABILITY_UNSPECIFIED
+          category: HARM_CATEGORY_UNSPECIFIED
+        blockReason: BLOCK_REASON_UNSPECIFIED
+      properties:
+        blockReason:
+          description: "If set, the prompt was blocked and no candidates are returned"
+          enum:
+          - BLOCK_REASON_UNSPECIFIED
+          - SAFETY
+          - OTHER
+          - BLOCKLIST
+          - PROHIBITED_CONTENT
+          type: string
+        safetyRatings:
+          description: Ratings for safety of the prompt
+          items:
+            $ref: "#/components/schemas/SafetyRating"
+          type: array
+      type: object
+    UsageMetadata:
+      example:
+        candidatesTokenCount: 6
+        cachedContentTokenCount: 1
+        totalTokenCount: 7
+        promptTokenCount: 1
+      properties:
+        promptTokenCount:
+          description: Number of tokens in the prompt
+          type: integer
+        candidatesTokenCount:
+          description: Total number of tokens across all the generated response candidates
+          type: integer
+        totalTokenCount:
+          description: Total token count for the generation request (prompt + response
+            candidates)
+          type: integer
+        cachedContentTokenCount:
+          description: Number of tokens in the cached part of the prompt
+          type: integer
+      type: object
+    ContentEmbedding:
+      example:
+        values:
+        - 0.8008282
+        - 0.8008282
+      properties:
+        values:
+          description: The embedding values
+          items:
+            format: float
+            type: number
+          type: array
+      type: object
+    GenerateImageRequest:
+      example:
+        numberOfImages: 1
+        safetyFilterLevel: SAFETY_FILTER_LEVEL_UNSPECIFIED
+        aspectRatio: ASPECT_RATIO_UNSPECIFIED
+        personGeneration: PERSON_GENERATION_UNSPECIFIED
+        prompt: prompt
+        negativePrompt: negativePrompt
+      properties:
+        prompt:
+          description: Required. A text description of the desired image
+          type: string
+        numberOfImages:
+          default: 1
+          description: Optional. Number of images to generate
+          maximum: 8
+          minimum: 1
+          type: integer
+        aspectRatio:
+          description: Optional. Controls the aspect ratio of the generated image
+          enum:
+          - ASPECT_RATIO_UNSPECIFIED
+          - ASPECT_RATIO_SQUARE
+          - ASPECT_RATIO_LANDSCAPE
+          - ASPECT_RATIO_PORTRAIT
+          type: string
+        negativePrompt:
+          description: Optional. A description of what you want to omit from the generated
+            image
+          type: string
+        safetyFilterLevel:
+          description: Optional. Level of the safety filter applied to detect problematic
+            content
+          enum:
+          - SAFETY_FILTER_LEVEL_UNSPECIFIED
+          - SAFETY_FILTER_LEVEL_LOW
+          - SAFETY_FILTER_LEVEL_MEDIUM
+          - SAFETY_FILTER_LEVEL_HIGH
+          type: string
+        personGeneration:
+          description: Optional. Allow generation of people in the image
+          enum:
+          - PERSON_GENERATION_UNSPECIFIED
+          - DONT_ALLOW
+          - ALLOW_ADULT
+          - ALLOW_ALL
+          type: string
+      required:
+      - prompt
+      type: object
+    GenerateImageResponse:
+      example:
+        generatedImages:
+        - bytesBase64Encoded: bytesBase64Encoded
+          imageMimeType: imageMimeType
+          gcsUri: gcsUri
+        - bytesBase64Encoded: bytesBase64Encoded
+          imageMimeType: imageMimeType
+          gcsUri: gcsUri
+      properties:
+        generatedImages:
+          description: Images generated by the model
+          items:
+            $ref: "#/components/schemas/GeneratedImage"
+          type: array
+      type: object
+    GeneratedImage:
+      example:
+        bytesBase64Encoded: bytesBase64Encoded
+        imageMimeType: imageMimeType
+        gcsUri: gcsUri
+      properties:
+        bytesBase64Encoded:
+          description: Image bytes encoded in base64
+          format: byte
+          type: string
+        imageMimeType:
+          description: "MIME type of the image (e.g., image/jpeg, image/png)"
+          type: string
+        gcsUri:
+          description: Google Cloud Storage URI where the image is stored
+          type: string
+      type: object
+    File:
+      example:
+        createTime: 2000-01-23T04:56:07.000+00:00
+        sha256Hash: sha256Hash
+        displayName: displayName
+        expirationTime: 2000-01-23T04:56:07.000+00:00
+        name: name
+        updateTime: 2000-01-23T04:56:07.000+00:00
+        mimeType: mimeType
+        state: STATE_UNSPECIFIED
+        error:
+          code: 0
+          details:
+          - "{}"
+          - "{}"
+          message: message
+        uri: uri
+        sizeBytes: sizeBytes
+        videoMetadata:
+          endOffset: endOffset
+          startOffset: startOffset
+      properties:
+        name:
+          description: Immutable. Identifier. The File resource name
+          type: string
+        displayName:
+          description: Optional. The human-readable display name for the File
+          type: string
+        mimeType:
+          description: Output only. MIME type of the file
+          type: string
+        sizeBytes:
+          description: Output only. Size of the file in bytes
+          format: int64
+          type: string
+        createTime:
+          description: Output only. The timestamp of when the File was created
+          format: date-time
+          type: string
+        updateTime:
+          description: Output only. The timestamp of when the File was last updated
+          format: date-time
+          type: string
+        expirationTime:
+          description: Output only. The timestamp of when the File will be deleted
+          format: date-time
+          type: string
+        sha256Hash:
+          description: Output only. SHA256 hash of the uploaded bytes
+          format: byte
+          type: string
+        uri:
+          description: Output only. The uri of the File
+          type: string
+        state:
+          description: Output only. Processing state of the File
+          enum:
+          - STATE_UNSPECIFIED
+          - PROCESSING
+          - ACTIVE
+          - FAILED
+          type: string
+        error:
+          $ref: "#/components/schemas/Status"
+        videoMetadata:
+          $ref: "#/components/schemas/VideoMetadata"
+      type: object
+    Status:
+      example:
+        code: 0
+        details:
+        - "{}"
+        - "{}"
+        message: message
+      properties:
+        code:
+          description: The status code
+          type: integer
+        message:
+          description: A developer-facing error message
+          type: string
+        details:
+          description: A list of messages that carry the error details
+          items:
+            type: object
+          type: array
+      type: object
+    TunedModel:
+      example:
+        topK: 2
+        baseModel: baseModel
+        createTime: 2000-01-23T04:56:07.000+00:00
+        tunedModelSource:
+          baseModel: baseModel
+          tunedModel: tunedModel
+        displayName: displayName
+        name: name
+        temperature: 9.301444
+        description: description
+        updateTime: 2000-01-23T04:56:07.000+00:00
+        state: STATE_UNSPECIFIED
+        topP: 3.6160767
+        tuningTask:
+          snapshots:
+          - meanLoss: 1.4658129
+            computeTime: 2000-01-23T04:56:07.000+00:00
+            step: 0
+            epoch: 6
+          - meanLoss: 1.4658129
+            computeTime: 2000-01-23T04:56:07.000+00:00
+            step: 0
+            epoch: 6
+          trainingData:
+            examples:
+              examples:
+              - output: output
+                textInput: textInput
+              - output: output
+                textInput: textInput
+          completeTime: 2000-01-23T04:56:07.000+00:00
+          hyperparameters:
+            epochCount: 5
+            learningRateMultiplier: 7.0614014
+            batchSize: 5
+            learningRate: 2.302136
+          startTime: 2000-01-23T04:56:07.000+00:00
+      properties:
+        name:
+          description: Output only. The tuned model name
+          type: string
+        displayName:
+          description: Optional. The name to display for this model in user interfaces
+          type: string
+        description:
+          description: Optional. A short description of this model
+          type: string
+        state:
+          description: Output only. The state of the tuned model
+          enum:
+          - STATE_UNSPECIFIED
+          - CREATING
+          - ACTIVE
+          - FAILED
+          type: string
+        createTime:
+          description: Output only. The timestamp when this model was created
+          format: date-time
+          type: string
+        updateTime:
+          description: Output only. The timestamp when this model was updated
+          format: date-time
+          type: string
+        tunedModelSource:
+          $ref: "#/components/schemas/TunedModelSource"
+        baseModel:
+          description: Immutable. The name of the base Model this TunedModel is based
+            on
+          type: string
+        tuningTask:
+          $ref: "#/components/schemas/TuningTask"
+        temperature:
+          description: Optional. Controls the randomness of the output
+          format: float
+          type: number
+        topP:
+          description: Optional. For Nucleus sampling
+          format: float
+          type: number
+        topK:
+          description: Optional. For Top-k sampling
+          type: integer
+      type: object
+    TunedModelSource:
+      example:
+        baseModel: baseModel
+        tunedModel: tunedModel
+      properties:
+        tunedModel:
+          description: Immutable. The name of the TunedModel to use as the starting
+            point for training the new model
+          type: string
+        baseModel:
+          description: Output only. The name of the base Model this TunedModel is
+            based on
+          type: string
+      type: object
+    TuningTask:
+      example:
+        snapshots:
+        - meanLoss: 1.4658129
+          computeTime: 2000-01-23T04:56:07.000+00:00
+          step: 0
+          epoch: 6
+        - meanLoss: 1.4658129
+          computeTime: 2000-01-23T04:56:07.000+00:00
+          step: 0
+          epoch: 6
+        trainingData:
+          examples:
+            examples:
+            - output: output
+              textInput: textInput
+            - output: output
+              textInput: textInput
+        completeTime: 2000-01-23T04:56:07.000+00:00
+        hyperparameters:
+          epochCount: 5
+          learningRateMultiplier: 7.0614014
+          batchSize: 5
+          learningRate: 2.302136
+        startTime: 2000-01-23T04:56:07.000+00:00
+      properties:
+        startTime:
+          description: Output only. The timestamp when tuning this model started
+          format: date-time
+          type: string
+        completeTime:
+          description: Output only. The timestamp when tuning this model completed
+          format: date-time
+          type: string
+        snapshots:
+          description: Output only. Metrics collected during tuning
+          items:
+            $ref: "#/components/schemas/TuningSnapshot"
+          type: array
+        trainingData:
+          $ref: "#/components/schemas/Dataset"
+        hyperparameters:
+          $ref: "#/components/schemas/Hyperparameters"
+      type: object
+    TuningSnapshot:
+      example:
+        meanLoss: 1.4658129
+        computeTime: 2000-01-23T04:56:07.000+00:00
+        step: 0
+        epoch: 6
+      properties:
+        step:
+          description: Output only. The tuning step
+          type: integer
+        epoch:
+          description: Output only. The epoch this step was part of
+          type: integer
+        meanLoss:
+          description: Output only. The mean loss of the training examples for this
+            step
+          format: float
+          type: number
+        computeTime:
+          description: Output only. The timestamp when this metric was computed
+          format: date-time
+          type: string
+      type: object
+    Dataset:
+      example:
+        examples:
+          examples:
+          - output: output
+            textInput: textInput
+          - output: output
+            textInput: textInput
+      properties:
+        examples:
+          $ref: "#/components/schemas/TuningExamples"
+      type: object
+    TuningExamples:
+      example:
+        examples:
+        - output: output
+          textInput: textInput
+        - output: output
+          textInput: textInput
+      properties:
+        examples:
+          description: Required. The examples
+          items:
+            $ref: "#/components/schemas/TuningExample"
+          type: array
+      type: object
+    TuningExample:
+      example:
+        output: output
+        textInput: textInput
+      properties:
+        textInput:
+          description: Optional. Text model input
+          type: string
+        output:
+          description: Required. The expected model output
+          type: string
+      type: object
+    Hyperparameters:
+      example:
+        epochCount: 5
+        learningRateMultiplier: 7.0614014
+        batchSize: 5
+        learningRate: 2.302136
+      properties:
+        epochCount:
+          description: Optional. The number of training epochs
+          type: integer
+        batchSize:
+          description: Optional. The batch size hyperparameter for tuning
+          type: integer
+        learningRate:
+          description: Optional. The learning rate hyperparameter for tuning
+          format: float
+          type: number
+        learningRateMultiplier:
+          description: Optional. Multiplier for the learning rate
+          format: float
+          type: number
+      type: object
+    CreateTunedModelRequest:
+      example:
+        tunedModel:
+          topK: 2
+          baseModel: baseModel
+          createTime: 2000-01-23T04:56:07.000+00:00
+          tunedModelSource:
+            baseModel: baseModel
+            tunedModel: tunedModel
+          displayName: displayName
+          name: name
+          temperature: 9.301444
+          description: description
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          state: STATE_UNSPECIFIED
+          topP: 3.6160767
+          tuningTask:
+            snapshots:
+            - meanLoss: 1.4658129
+              computeTime: 2000-01-23T04:56:07.000+00:00
+              step: 0
+              epoch: 6
+            - meanLoss: 1.4658129
+              computeTime: 2000-01-23T04:56:07.000+00:00
+              step: 0
+              epoch: 6
+            trainingData:
+              examples:
+                examples:
+                - output: output
+                  textInput: textInput
+                - output: output
+                  textInput: textInput
+            completeTime: 2000-01-23T04:56:07.000+00:00
+            hyperparameters:
+              epochCount: 5
+              learningRateMultiplier: 7.0614014
+              batchSize: 5
+              learningRate: 2.302136
+            startTime: 2000-01-23T04:56:07.000+00:00
+        tunedModelId: tunedModelId
+      properties:
+        tunedModelId:
+          description: Optional. The unique id for the tuned model if specified
+          type: string
+        tunedModel:
+          $ref: "#/components/schemas/TunedModel"
+      type: object
+    Operation:
+      example:
+        metadata: "{}"
+        response: "{}"
+        name: name
+        error:
+          code: 0
+          details:
+          - "{}"
+          - "{}"
+          message: message
+        done: true
+      properties:
+        name:
+          description: The server-assigned name for the operation
+          type: string
+        metadata:
+          description: Service-specific metadata associated with the operation
+          type: object
+        done:
+          description: "If the value is false, it means the operation is still in\
+            \ progress"
+          type: boolean
+        error:
+          $ref: "#/components/schemas/Status"
+        response:
+          description: The normal response of the operation in case of success
+          type: object
+      type: object
+    ApiErrorResponse:
+      example:
+        error:
+          code: 4
+          details:
+          - "{}"
+          - "{}"
+          message: message
+          status: status
+      properties:
+        error:
+          $ref: "#/components/schemas/ApiErrorResponse_error"
+      type: object
+    CachedContent:
+      example:
+        toolConfig:
+          functionCallingConfig:
+            mode: MODE_UNSPECIFIED
+            allowedFunctionNames:
+            - allowedFunctionNames
+            - allowedFunctionNames
+        expireTime: 2000-01-23T04:56:07.000+00:00
+        contents:
+        - role: user
+          parts:
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+        - role: user
+          parts:
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+        createTime: 2000-01-23T04:56:07.000+00:00
+        displayName: displayName
+        systemInstruction:
+          role: user
+          parts:
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+          - functionResponse:
+              response: "{}"
+              name: name
+            executableCode:
+              code: code
+              language: PYTHON
+            codeExecutionResult:
+              output: output
+              outcome: OUTCOME_UNSPECIFIED
+            fileData:
+              fileUri: fileUri
+              mimeType: mimeType
+            functionCall:
+              args: "{}"
+              name: name
+            inlineData:
+              data: data
+              mimeType: mimeType
+            text: text
+            videoMetadata:
+              endOffset: endOffset
+              startOffset: startOffset
+        name: name
+        model: model
+        updateTime: 2000-01-23T04:56:07.000+00:00
+        usageMetadata:
+          totalTokenCount: 0
+        tools:
+        - googleSearchRetrieval:
+            dynamicRetrievalConfig:
+              mode: MODE_UNSPECIFIED
+              dynamicThreshold: 0.8008282
+          codeExecution: "{}"
+          functionDeclarations:
+          - response: "{}"
+            name: name
+            description: description
+            parameters: "{}"
+          - response: "{}"
+            name: name
+            description: description
+            parameters: "{}"
+        - googleSearchRetrieval:
+            dynamicRetrievalConfig:
+              mode: MODE_UNSPECIFIED
+              dynamicThreshold: 0.8008282
+          codeExecution: "{}"
+          functionDeclarations:
+          - response: "{}"
+            name: name
+            description: description
+            parameters: "{}"
+          - response: "{}"
+            name: name
+            description: description
+            parameters: "{}"
+        ttl: ttl
+      properties:
+        name:
+          description: Optional. Identifier. The resource name of the CachedContent
+          type: string
+        model:
+          description: Immutable. The name of the Model to use for cached content
+          type: string
+        systemInstruction:
+          $ref: "#/components/schemas/RequestContent"
+        contents:
+          description: Optional. Input only. Immutable. The content to cache
+          items:
+            $ref: "#/components/schemas/RequestContent"
+          type: array
+        tools:
+          description: Optional. Input only. Immutable. A list of Tools the Model
+            may use to generate the next response
+          items:
+            $ref: "#/components/schemas/Tool"
+          type: array
+        toolConfig:
+          $ref: "#/components/schemas/ToolConfig"
+        createTime:
+          description: Output only. Creation time of the cache entry
+          format: date-time
+          type: string
+        updateTime:
+          description: Output only. When the cache entry was last updated
+          format: date-time
+          type: string
+        usageMetadata:
+          $ref: "#/components/schemas/CachedContentUsageMetadata"
+        expireTime:
+          description: Timestamp in UTC of when this resource is considered expired
+          format: date-time
+          type: string
+        ttl:
+          description: "Input only. New TTL for this resource, input only"
+          type: string
+        displayName:
+          description: Optional. Immutable. The user-generated meaningful display
+            name of the cached content
+          type: string
+      type: object
+    CachedContentUsageMetadata:
+      example:
+        totalTokenCount: 0
+      properties:
+        totalTokenCount:
+          description: Total number of tokens that the cached content consumes
+          type: integer
+      type: object
+    Corpus:
+      example:
+        createTime: 2000-01-23T04:56:07.000+00:00
+        displayName: displayName
+        name: name
+        updateTime: 2000-01-23T04:56:07.000+00:00
+      properties:
+        name:
+          description: Immutable. Identifier. The Corpus resource name
+          type: string
+        displayName:
+          description: Optional. The human-readable display name for the Corpus
+          type: string
+        createTime:
+          description: Output only. The Timestamp of when the Corpus was created
+          format: date-time
+          type: string
+        updateTime:
+          description: Output only. The Timestamp of when the Corpus was last updated
+          format: date-time
+          type: string
+      type: object
+    Document:
+      example:
+        createTime: 2000-01-23T04:56:07.000+00:00
+        displayName: displayName
+        name: name
+        customMetadata:
+        - stringValue: stringValue
+          stringListValue:
+            values:
+            - values
+            - values
+          numericValue: 0.8008282
+          key: key
+        - stringValue: stringValue
+          stringListValue:
+            values:
+            - values
+            - values
+          numericValue: 0.8008282
+          key: key
+        updateTime: 2000-01-23T04:56:07.000+00:00
+      properties:
+        name:
+          description: Immutable. Identifier. The Document resource name
+          type: string
+        displayName:
+          description: Optional. The human-readable display name for the Document
+          type: string
+        customMetadata:
+          description: Optional. User provided custom metadata stored as key-value
+            pairs
+          items:
+            $ref: "#/components/schemas/CustomMetadata"
+          type: array
+        updateTime:
+          description: Output only. The Timestamp of when the Document was last updated
+          format: date-time
+          type: string
+        createTime:
+          description: Output only. The Timestamp of when the Document was created
+          format: date-time
+          type: string
+      type: object
+    CustomMetadata:
+      example:
+        stringValue: stringValue
+        stringListValue:
+          values:
+          - values
+          - values
+        numericValue: 0.8008282
+        key: key
+      properties:
+        key:
+          description: Required. The key of the metadata to store
+          type: string
+        stringValue:
+          description: The string value of the metadata to store
+          type: string
+        stringListValue:
+          $ref: "#/components/schemas/StringList"
+        numericValue:
+          description: The numeric value of the metadata to store
+          format: float
+          type: number
+      type: object
+    StringList:
+      example:
+        values:
+        - values
+        - values
+      properties:
+        values:
+          description: The string values of the metadata to store
+          items:
+            type: string
+          type: array
+      type: object
+    Chunk:
+      example:
+        data:
+          stringValue: stringValue
+        createTime: 2000-01-23T04:56:07.000+00:00
+        name: name
+        customMetadata:
+        - stringValue: stringValue
+          stringListValue:
+            values:
+            - values
+            - values
+          numericValue: 0.8008282
+          key: key
+        - stringValue: stringValue
+          stringListValue:
+            values:
+            - values
+            - values
+          numericValue: 0.8008282
+          key: key
+        updateTime: 2000-01-23T04:56:07.000+00:00
+        state: STATE_UNSPECIFIED
+      properties:
+        name:
+          description: Immutable. Identifier. The Chunk resource name
+          type: string
+        data:
+          $ref: "#/components/schemas/ChunkData"
+        customMetadata:
+          description: Optional. User provided custom metadata stored as key-value
+            pairs
+          items:
+            $ref: "#/components/schemas/CustomMetadata"
+          type: array
+        updateTime:
+          description: Output only. The Timestamp of when the Chunk was last updated
+          format: date-time
+          type: string
+        createTime:
+          description: Output only. The Timestamp of when the Chunk was created
+          format: date-time
+          type: string
+        state:
+          description: Output only. Current state of the Chunk
+          enum:
+          - STATE_UNSPECIFIED
+          - STATE_PENDING_PROCESSING
+          - STATE_ACTIVE
+          - STATE_FAILED
+          type: string
+      type: object
+    ChunkData:
+      example:
+        stringValue: stringValue
+      properties:
+        stringValue:
+          description: The Chunk content as a string
+          type: string
+      type: object
+    QueryCorpusRequest:
+      example:
+        query: query
+        resultsCount: 6
+        metadataFilters:
+        - conditions:
+          - stringValue: stringValue
+            numericValue: 0.8008282
+            operation: OPERATOR_UNSPECIFIED
+          - stringValue: stringValue
+            numericValue: 0.8008282
+            operation: OPERATOR_UNSPECIFIED
+          key: key
+        - conditions:
+          - stringValue: stringValue
+            numericValue: 0.8008282
+            operation: OPERATOR_UNSPECIFIED
+          - stringValue: stringValue
+            numericValue: 0.8008282
+            operation: OPERATOR_UNSPECIFIED
+          key: key
+      properties:
+        query:
+          description: Required. Query string to perform semantic search
+          type: string
+        metadataFilters:
+          description: Optional. Filter for Chunk and Document custom metadata
+          items:
+            $ref: "#/components/schemas/MetadataFilter"
+          type: array
+        resultsCount:
+          description: Optional. The maximum number of Chunks to return
+          type: integer
+      type: object
+    MetadataFilter:
+      example:
+        conditions:
+        - stringValue: stringValue
+          numericValue: 0.8008282
+          operation: OPERATOR_UNSPECIFIED
+        - stringValue: stringValue
+          numericValue: 0.8008282
+          operation: OPERATOR_UNSPECIFIED
+        key: key
+      properties:
+        key:
+          description: Required. The key of the metadata to filter on
+          type: string
+        conditions:
+          description: Required. The Conditions for the given key that will trigger
+            this filter
+          items:
+            $ref: "#/components/schemas/Condition"
+          type: array
+      type: object
+    Condition:
+      example:
+        stringValue: stringValue
+        numericValue: 0.8008282
+        operation: OPERATOR_UNSPECIFIED
+      properties:
+        operation:
+          description: Required. Operator applied to the given key-value pair to trigger
+            the condition
+          enum:
+          - OPERATOR_UNSPECIFIED
+          - LESS
+          - LESS_EQUAL
+          - EQUAL
+          - GREATER_EQUAL
+          - GREATER
+          - NOT_EQUAL
+          - INCLUDES
+          - EXCLUDES
+          type: string
+        stringValue:
+          description: The string value to filter with
+          type: string
+        numericValue:
+          description: The numeric value to filter with
+          format: float
+          type: number
+      type: object
+    QueryCorpusResponse:
+      example:
+        relevantChunks:
+        - chunkRelevanceScore: 0.8008282
+          chunk:
+            data:
+              stringValue: stringValue
+            createTime: 2000-01-23T04:56:07.000+00:00
+            name: name
+            customMetadata:
+            - stringValue: stringValue
+              stringListValue:
+                values:
+                - values
+                - values
+              numericValue: 0.8008282
+              key: key
+            - stringValue: stringValue
+              stringListValue:
+                values:
+                - values
+                - values
+              numericValue: 0.8008282
+              key: key
+            updateTime: 2000-01-23T04:56:07.000+00:00
+            state: STATE_UNSPECIFIED
+        - chunkRelevanceScore: 0.8008282
+          chunk:
+            data:
+              stringValue: stringValue
+            createTime: 2000-01-23T04:56:07.000+00:00
+            name: name
+            customMetadata:
+            - stringValue: stringValue
+              stringListValue:
+                values:
+                - values
+                - values
+              numericValue: 0.8008282
+              key: key
+            - stringValue: stringValue
+              stringListValue:
+                values:
+                - values
+                - values
+              numericValue: 0.8008282
+              key: key
+            updateTime: 2000-01-23T04:56:07.000+00:00
+            state: STATE_UNSPECIFIED
+      properties:
+        relevantChunks:
+          description: The relevant chunks
+          items:
+            $ref: "#/components/schemas/RelevantChunk"
+          type: array
+      type: object
+    RelevantChunk:
+      example:
+        chunkRelevanceScore: 0.8008282
+        chunk:
+          data:
+            stringValue: stringValue
+          createTime: 2000-01-23T04:56:07.000+00:00
+          name: name
+          customMetadata:
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          state: STATE_UNSPECIFIED
+      properties:
+        chunkRelevanceScore:
+          description: Chunk relevance to the query
+          format: float
+          type: number
+        chunk:
+          $ref: "#/components/schemas/Chunk"
+      type: object
+    ListModels_200_response:
+      example:
+        models:
+        - supportedGenerationMethods:
+          - generateContent
+          - generateContent
+          maxTemperature: 5.962134
+          topK: 2
+          inputTokenLimit: 0
+          displayName: displayName
+          name: name
+          temperature: 1.4658129
+          description: description
+          outputTokenLimit: 6
+          baseModelId: baseModelId
+          version: version
+          topP: 5.637377
+        - supportedGenerationMethods:
+          - generateContent
+          - generateContent
+          maxTemperature: 5.962134
+          topK: 2
+          inputTokenLimit: 0
+          displayName: displayName
+          name: name
+          temperature: 1.4658129
+          description: description
+          outputTokenLimit: 6
+          baseModelId: baseModelId
+          version: version
+          topP: 5.637377
+        nextPageToken: nextPageToken
+      properties:
+        models:
+          items:
+            $ref: "#/components/schemas/GeminiModel"
+          type: array
+        nextPageToken:
+          type: string
+      type: object
+    CountTokens_200_response:
+      example:
+        totalTokens: 0
+      properties:
+        totalTokens:
+          type: integer
+      type: object
+    EmbedContent_request:
+      properties:
+        content:
+          $ref: "#/components/schemas/RequestContent"
+        taskType:
+          enum:
+          - TASK_TYPE_UNSPECIFIED
+          - RETRIEVAL_QUERY
+          - RETRIEVAL_DOCUMENT
+          - SEMANTIC_SIMILARITY
+          - CLASSIFICATION
+          - CLUSTERING
+          type: string
+        title:
+          description: Optional title for the content
+          type: string
+      type: object
+    BatchEmbedContents_request_requests_inner:
+      properties:
+        content:
+          $ref: "#/components/schemas/RequestContent"
+        taskType:
+          enum:
+          - TASK_TYPE_UNSPECIFIED
+          - RETRIEVAL_QUERY
+          - RETRIEVAL_DOCUMENT
+          - SEMANTIC_SIMILARITY
+          - CLASSIFICATION
+          - CLUSTERING
+          type: string
+        title:
+          type: string
+      type: object
+    BatchEmbedContents_request:
+      properties:
+        requests:
+          items:
+            $ref: "#/components/schemas/BatchEmbedContents_request_requests_inner"
+          type: array
+      type: object
+    BatchEmbedContents_200_response:
+      example:
+        embeddings:
+        - values:
+          - 0.8008282
+          - 0.8008282
+        - values:
+          - 0.8008282
+          - 0.8008282
+      properties:
+        embeddings:
+          items:
+            $ref: "#/components/schemas/ContentEmbedding"
+          type: array
+      type: object
+    ListFiles_200_response:
+      example:
+        nextPageToken: nextPageToken
+        files:
+        - createTime: 2000-01-23T04:56:07.000+00:00
+          sha256Hash: sha256Hash
+          displayName: displayName
+          expirationTime: 2000-01-23T04:56:07.000+00:00
+          name: name
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          mimeType: mimeType
+          state: STATE_UNSPECIFIED
+          error:
+            code: 0
+            details:
+            - "{}"
+            - "{}"
+            message: message
+          uri: uri
+          sizeBytes: sizeBytes
+          videoMetadata:
+            endOffset: endOffset
+            startOffset: startOffset
+        - createTime: 2000-01-23T04:56:07.000+00:00
+          sha256Hash: sha256Hash
+          displayName: displayName
+          expirationTime: 2000-01-23T04:56:07.000+00:00
+          name: name
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          mimeType: mimeType
+          state: STATE_UNSPECIFIED
+          error:
+            code: 0
+            details:
+            - "{}"
+            - "{}"
+            message: message
+          uri: uri
+          sizeBytes: sizeBytes
+          videoMetadata:
+            endOffset: endOffset
+            startOffset: startOffset
+      properties:
+        files:
+          items:
+            $ref: "#/components/schemas/File"
+          type: array
+        nextPageToken:
+          type: string
+      type: object
+    UploadFile_request_metadata:
+      properties:
+        displayName:
+          type: string
+        mimeType:
+          type: string
+      type: object
+    UploadFile_request:
+      properties:
+        file:
+          format: binary
+          type: string
+        metadata:
+          $ref: "#/components/schemas/UploadFile_request_metadata"
+      type: object
+    ListTunedModels_200_response:
+      example:
+        nextPageToken: nextPageToken
+        tunedModels:
+        - topK: 2
+          baseModel: baseModel
+          createTime: 2000-01-23T04:56:07.000+00:00
+          tunedModelSource:
+            baseModel: baseModel
+            tunedModel: tunedModel
+          displayName: displayName
+          name: name
+          temperature: 9.301444
+          description: description
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          state: STATE_UNSPECIFIED
+          topP: 3.6160767
+          tuningTask:
+            snapshots:
+            - meanLoss: 1.4658129
+              computeTime: 2000-01-23T04:56:07.000+00:00
+              step: 0
+              epoch: 6
+            - meanLoss: 1.4658129
+              computeTime: 2000-01-23T04:56:07.000+00:00
+              step: 0
+              epoch: 6
+            trainingData:
+              examples:
+                examples:
+                - output: output
+                  textInput: textInput
+                - output: output
+                  textInput: textInput
+            completeTime: 2000-01-23T04:56:07.000+00:00
+            hyperparameters:
+              epochCount: 5
+              learningRateMultiplier: 7.0614014
+              batchSize: 5
+              learningRate: 2.302136
+            startTime: 2000-01-23T04:56:07.000+00:00
+        - topK: 2
+          baseModel: baseModel
+          createTime: 2000-01-23T04:56:07.000+00:00
+          tunedModelSource:
+            baseModel: baseModel
+            tunedModel: tunedModel
+          displayName: displayName
+          name: name
+          temperature: 9.301444
+          description: description
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          state: STATE_UNSPECIFIED
+          topP: 3.6160767
+          tuningTask:
+            snapshots:
+            - meanLoss: 1.4658129
+              computeTime: 2000-01-23T04:56:07.000+00:00
+              step: 0
+              epoch: 6
+            - meanLoss: 1.4658129
+              computeTime: 2000-01-23T04:56:07.000+00:00
+              step: 0
+              epoch: 6
+            trainingData:
+              examples:
+                examples:
+                - output: output
+                  textInput: textInput
+                - output: output
+                  textInput: textInput
+            completeTime: 2000-01-23T04:56:07.000+00:00
+            hyperparameters:
+              epochCount: 5
+              learningRateMultiplier: 7.0614014
+              batchSize: 5
+              learningRate: 2.302136
+            startTime: 2000-01-23T04:56:07.000+00:00
+      properties:
+        tunedModels:
+          items:
+            $ref: "#/components/schemas/TunedModel"
+          type: array
+        nextPageToken:
+          type: string
+      type: object
+    ListCachedContents_200_response:
+      example:
+        nextPageToken: nextPageToken
+        cachedContents:
+        - toolConfig:
+            functionCallingConfig:
+              mode: MODE_UNSPECIFIED
+              allowedFunctionNames:
+              - allowedFunctionNames
+              - allowedFunctionNames
+          expireTime: 2000-01-23T04:56:07.000+00:00
+          contents:
+          - role: user
+            parts:
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+          - role: user
+            parts:
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+          createTime: 2000-01-23T04:56:07.000+00:00
+          displayName: displayName
+          systemInstruction:
+            role: user
+            parts:
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+          name: name
+          model: model
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          usageMetadata:
+            totalTokenCount: 0
+          tools:
+          - googleSearchRetrieval:
+              dynamicRetrievalConfig:
+                mode: MODE_UNSPECIFIED
+                dynamicThreshold: 0.8008282
+            codeExecution: "{}"
+            functionDeclarations:
+            - response: "{}"
+              name: name
+              description: description
+              parameters: "{}"
+            - response: "{}"
+              name: name
+              description: description
+              parameters: "{}"
+          - googleSearchRetrieval:
+              dynamicRetrievalConfig:
+                mode: MODE_UNSPECIFIED
+                dynamicThreshold: 0.8008282
+            codeExecution: "{}"
+            functionDeclarations:
+            - response: "{}"
+              name: name
+              description: description
+              parameters: "{}"
+            - response: "{}"
+              name: name
+              description: description
+              parameters: "{}"
+          ttl: ttl
+        - toolConfig:
+            functionCallingConfig:
+              mode: MODE_UNSPECIFIED
+              allowedFunctionNames:
+              - allowedFunctionNames
+              - allowedFunctionNames
+          expireTime: 2000-01-23T04:56:07.000+00:00
+          contents:
+          - role: user
+            parts:
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+          - role: user
+            parts:
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+          createTime: 2000-01-23T04:56:07.000+00:00
+          displayName: displayName
+          systemInstruction:
+            role: user
+            parts:
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+            - functionResponse:
+                response: "{}"
+                name: name
+              executableCode:
+                code: code
+                language: PYTHON
+              codeExecutionResult:
+                output: output
+                outcome: OUTCOME_UNSPECIFIED
+              fileData:
+                fileUri: fileUri
+                mimeType: mimeType
+              functionCall:
+                args: "{}"
+                name: name
+              inlineData:
+                data: data
+                mimeType: mimeType
+              text: text
+              videoMetadata:
+                endOffset: endOffset
+                startOffset: startOffset
+          name: name
+          model: model
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          usageMetadata:
+            totalTokenCount: 0
+          tools:
+          - googleSearchRetrieval:
+              dynamicRetrievalConfig:
+                mode: MODE_UNSPECIFIED
+                dynamicThreshold: 0.8008282
+            codeExecution: "{}"
+            functionDeclarations:
+            - response: "{}"
+              name: name
+              description: description
+              parameters: "{}"
+            - response: "{}"
+              name: name
+              description: description
+              parameters: "{}"
+          - googleSearchRetrieval:
+              dynamicRetrievalConfig:
+                mode: MODE_UNSPECIFIED
+                dynamicThreshold: 0.8008282
+            codeExecution: "{}"
+            functionDeclarations:
+            - response: "{}"
+              name: name
+              description: description
+              parameters: "{}"
+            - response: "{}"
+              name: name
+              description: description
+              parameters: "{}"
+          ttl: ttl
+      properties:
+        cachedContents:
+          items:
+            $ref: "#/components/schemas/CachedContent"
+          type: array
+        nextPageToken:
+          type: string
+      type: object
+    UploadMedia_request:
+      properties:
+        file:
+          format: binary
+          type: string
+      type: object
+    ListCorpora_200_response:
+      example:
+        nextPageToken: nextPageToken
+        corpora:
+        - createTime: 2000-01-23T04:56:07.000+00:00
+          displayName: displayName
+          name: name
+          updateTime: 2000-01-23T04:56:07.000+00:00
+        - createTime: 2000-01-23T04:56:07.000+00:00
+          displayName: displayName
+          name: name
+          updateTime: 2000-01-23T04:56:07.000+00:00
+      properties:
+        corpora:
+          items:
+            $ref: "#/components/schemas/Corpus"
+          type: array
+        nextPageToken:
+          type: string
+      type: object
+    ListDocuments_200_response:
+      example:
+        documents:
+        - createTime: 2000-01-23T04:56:07.000+00:00
+          displayName: displayName
+          name: name
+          customMetadata:
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          updateTime: 2000-01-23T04:56:07.000+00:00
+        - createTime: 2000-01-23T04:56:07.000+00:00
+          displayName: displayName
+          name: name
+          customMetadata:
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          updateTime: 2000-01-23T04:56:07.000+00:00
+        nextPageToken: nextPageToken
+      properties:
+        documents:
+          items:
+            $ref: "#/components/schemas/Document"
+          type: array
+        nextPageToken:
+          type: string
+      type: object
+    ListChunks_200_response:
+      example:
+        chunks:
+        - data:
+            stringValue: stringValue
+          createTime: 2000-01-23T04:56:07.000+00:00
+          name: name
+          customMetadata:
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          state: STATE_UNSPECIFIED
+        - data:
+            stringValue: stringValue
+          createTime: 2000-01-23T04:56:07.000+00:00
+          name: name
+          customMetadata:
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          - stringValue: stringValue
+            stringListValue:
+              values:
+              - values
+              - values
+            numericValue: 0.8008282
+            key: key
+          updateTime: 2000-01-23T04:56:07.000+00:00
+          state: STATE_UNSPECIFIED
+        nextPageToken: nextPageToken
+      properties:
+        chunks:
+          items:
+            $ref: "#/components/schemas/Chunk"
+          type: array
+        nextPageToken:
+          type: string
+      type: object
+    ListOperations_200_response:
+      example:
+        operations:
+        - metadata: "{}"
+          response: "{}"
+          name: name
+          error:
+            code: 0
+            details:
+            - "{}"
+            - "{}"
+            message: message
+          done: true
+        - metadata: "{}"
+          response: "{}"
+          name: name
+          error:
+            code: 0
+            details:
+            - "{}"
+            - "{}"
+            message: message
+          done: true
+        nextPageToken: nextPageToken
+      properties:
+        operations:
+          items:
+            $ref: "#/components/schemas/Operation"
+          type: array
+        nextPageToken:
+          type: string
+      type: object
+    ApiErrorResponse_error:
+      example:
+        code: 4
+        details:
+        - "{}"
+        - "{}"
+        message: message
+        status: status
+      properties:
+        code:
+          description: The HTTP status code
+          type: integer
+        message:
+          description: A human-readable error message
+          type: string
+        status:
+          description: The status of the error
+          type: string
+        details:
+          description: Additional error details
+          items:
+            type: object
+          type: array
+      type: object
+  securitySchemes:
+    ApiKeyHeader:
+      description: API key passed as header (recommended for security)
+      in: header
+      name: x-goog-api-key
+      type: apiKey
+    ApiKeyQuery:
+      description: API key passed as query parameter (legacy support)
+      in: query
+      name: key
+      type: apiKey
+
