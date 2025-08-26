@@ -22,6 +22,8 @@ Install-Package System.ComponentModel.Annotations
 dotnet add package GeminiSharp
 ```
 
+## Usage
+
 ### Connections
 Each ApiClass (properly the ApiClient inside it) will create an instance of HttpClient. It will use that for the entire lifecycle and dispose it when called the Dispose method.
 
