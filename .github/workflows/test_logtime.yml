@@ -1,0 +1,27 @@
+name: Test Log Time and Date
+
+on:
+  workflow_dispatch:
+
+jobs:
+  log_date_and_time:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Update last deploy time
+        run: |
+          echo "Last deploy (IST): $(TZ=Asia/Kolkata date)" >> last_deploy.txt
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name "${{ secrets.USERNAME }}"
+          git config --global user.email "${{ secrets.USER_EMAIL }}"
+
+      - name: Commit and push changes
+        run: |
+          git pull origin master --rebase=false
+          git add last_deploy.txt
+          git commit -m "Update last deploy time [skip ci]"
+          git push origin master

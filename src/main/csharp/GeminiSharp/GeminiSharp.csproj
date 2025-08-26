@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net7.0;net8.0;</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>GeminiSharp</PackageId>
+        <Version>0.0.1.7</Version>
+        <Authors>Devi Prakash</Authors>
+        <Description>A C# client SDK for Google Gemini API</Description>
+        <Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>
+        <PackageTags>Google Gemini AI SDK MachineLearning</PackageTags>
+        <PackageReleaseNotes>https://github.com/dprakash2101/GeminiSharp/releases</PackageReleaseNotes>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/dprakash2101/GeminiSharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageIcon>icon.jpg</PackageIcon>
+
+        <!-- Generate XML documentation for IntelliSense -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <!-- Add a link to your online documentation -->
+        <PackageDocumentationUrl>https://github.com/dprakash2101/GeminiSharp/tree/main/docs</PackageDocumentationUrl>
+    </PropertyGroup>
+
+    <!-- Items for including README and Icon in the package -->
+    <ItemGroup>
+        <None Include="../../../../README.md" Pack="true" PackagePath="" />
+        <None Include="../../../../icon.jpg" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Serilog" Version="4.0.0" />
+    </ItemGroup>
+
+</Project>
