@@ -30,9 +30,5 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="Util\FileConverter.cs" />
-    <Compile Include="Util\JsonSchemaGenerator.cs" />
-    <Compile Include="Util\PartHelper.cs" />
-  </ItemGroup>
+  
 </Project>

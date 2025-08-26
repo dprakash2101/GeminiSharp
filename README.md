@@ -18,38 +18,8 @@ Install-Package System.ComponentModel.Annotations
 ```
 
 ## Installation
-Run the following command to generate the DLL
-- [Mac/Linux] `/bin/sh build.sh`
-- [Windows] `build.bat`
-
-Then include the DLL (under the `bin` folder) in the C# project, and use the namespaces:
-```csharp
-using GeminiSharp.Api;
-using GeminiSharp.Client;
-using GeminiSharp.Model;
-```
-
-## Packaging
-
-A `.nuspec` is included with the project. You can follow the Nuget quickstart to [create](https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package#create-the-package) and [publish](https://docs.microsoft.com/en-us/nuget/quickstart/create-and-publish-a-package#publish-the-package) packages.
-
-This `.nuspec` uses placeholders from the `.csproj`, so build the `.csproj` directly:
-
-```
-nuget pack -Build -OutputDirectory out GeminiSharp.csproj
-```
-
-Then, publish to a [local feed](https://docs.microsoft.com/en-us/nuget/hosting-packages/local-feeds) or [other host](https://docs.microsoft.com/en-us/nuget/hosting-packages/overview) and consume the new package via Nuget as usual.
-
-
-## Usage
-
-To use the API client with a HTTP proxy, setup a `System.Net.WebProxy`
-```csharp
-Configuration c = new Configuration();
-System.Net.WebProxy webProxy = new System.Net.WebProxy("http://myProxyUrl:80/");
-webProxy.Credentials = System.Net.CredentialCache.DefaultCredentials;
-c.Proxy = webProxy;
+```sh
+dotnet add package GeminiSharp
 ```
 
 ### Connections
