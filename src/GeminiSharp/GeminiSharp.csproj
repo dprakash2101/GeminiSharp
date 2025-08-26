@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageId>GeminiSharp</PackageId>
-        <Version>0.0.1.7</Version>
+        <Version>0.0.1.8</Version>
         <Authors>Devi Prakash</Authors>
         <Description>A C# client SDK for Google Gemini API</Description>
         <Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>
