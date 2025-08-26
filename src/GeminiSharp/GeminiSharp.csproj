@@ -1,37 +1,35 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>net7.0;net8.0;</TargetFrameworks>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageId>GeminiSharp</PackageId>
-        <Version>0.0.1.7</Version>
-        <Authors>Devi Prakash</Authors>
-        <Description>A C# client SDK for Google Gemini API</Description>
-        <Summary>A lightweight, easy-to-use C# SDK for interacting with Google Gemini API</Summary>
-        <PackageTags>Google Gemini AI SDK MachineLearning</PackageTags>
-        <PackageReleaseNotes>https://github.com/dprakash2101/GeminiSharp/releases</PackageReleaseNotes>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <RepositoryUrl>https://github.com/dprakash2101/GeminiSharp</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <!-- Specify the NuGet package icon -->
-        <PackageIcon>icon.jpg</PackageIcon>
-    </PropertyGroup>
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo><!-- setting GenerateAssemblyInfo to false causes this bug https://github.com/dotnet/project-system/issues/3934 -->
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>GeminiSharp</AssemblyName>
+    <PackageId>GeminiSharp</PackageId>
+    <OutputType>Library</OutputType>
+    <Authors>OpenAPI</Authors>
+    <Company>OpenAPI</Company>
+    <AssemblyTitle>OpenAPI Library</AssemblyTitle>
+    <Description>A library generated from a OpenAPI doc</Description>
+    <Copyright>No Copyright</Copyright>
+    <RootNamespace>GeminiSharp</RootNamespace>
+    <Version>1.0.0</Version>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\GeminiSharp.xml</DocumentationFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/GIT_USER_ID/GIT_REPO_ID.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>Minor update</PackageReleaseNotes>
+    <Nullable>annotations</Nullable>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
 
-    <!-- Include README and Icon in the NuGet package -->
-    <ItemGroup>
-        <None Include="..\..\README.md" Pack="true" PackagePath="" />
-        <!-- Include the icon file from the root icon folder -->
-        <None Include="..\..\icon\icon.jpg" Pack="true" PackagePath="" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="JsonSubTypes" Version="2.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
+    <PackageReference Include="Polly" Version="8.1.0" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Serilog" Version="4.2.0" />
-    </ItemGroup>
-
+  
 </Project>

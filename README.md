@@ -1,235 +1,322 @@
-# GeminiSharp
+# GeminiSharp - the C# library for the Google Gemini API
 
-GeminiSharp is a C# client SDK for seamlessly interacting with Google's Gemini API, enabling integration of Gemini's powerful text generation, image generation, and future capabilities into your .NET applications. With a simple, flexible, and robust interface, you can effortlessly generate content using the Gemini models.
+Comprehensive API for interacting with Google's Gemini models supporting text, chat, image generation, file uploads, grounding, code execution, model tuning, and more.
 
----
+## Frameworks supported
 
-## Features
+## Dependencies
 
-- **Easy-to-use C# Client:** A straightforward API for interacting with the Gemini API in your .NET applications.
-- **Text Generation & Structured Output:** Supports both free-form text generation and structured output based on user-defined JSON schema.
-- **Image Generation Support:** Generate images from text prompts using the Gemini API.
-- **Logging Support:** Integrated with Serilog (or other logging frameworks) for capturing internal SDK logs.
-- **Retry Configuration:** Built-in support for retry policies to handle transient failures.
-- **API Key Authentication:** Secure authentication using your Gemini API key.
-- **Configurable Model Selection:** Easily specify which Gemini model to use for content generation.
-- **Customizable Base URL:** Allows you to change the base URL, ideal for future flexibility and alternative endpoint support.
-- **Error Handling:** Robust error handling with detailed messages and exceptions.
-- **NuGet Package Support:** Install via NuGet for simple integration into your project.
+- [Json.NET](https://www.nuget.org/packages/Newtonsoft.Json/) - 13.0.2 or later
+- [JsonSubTypes](https://www.nuget.org/packages/JsonSubTypes/) - 1.8.0 or later
+- [System.ComponentModel.Annotations](https://www.nuget.org/packages/System.ComponentModel.Annotations) - 5.0.0 or later
 
----
-
-## Current Status
-
-GeminiSharp initially focused on text generation. Now, it supports:
-
-- **Structured Output** ✅
-- **Image Generation** ✅
-- **Logging Support** ✅
-- **Retry Configuration** ✅
-- **Vision Support** 📷 _(coming soon)_
-- **Audio Understanding** 🎧 _(coming soon)_
-- **Code Execution** 💻 _(coming soon)_
-- **Document Processing** 📄 _(coming soon)_
-
-Stay tuned for more features! 🚀
-
----
+The DLLs included in the package may not be the latest version. We recommend using [NuGet](https://docs.nuget.org/consume/installing-nuget) to obtain the latest version of the packages:
+```
+Install-Package Newtonsoft.Json
+Install-Package JsonSubTypes
+Install-Package System.ComponentModel.Annotations
+```
 
 ## Installation
-
-To install GeminiSharp via NuGet, run the following command in your project directory:
-
-```bash
+```sh
 dotnet add package GeminiSharp
 ```
 
----
-
-## Supported .NET Versions
-
-| .NET Version | Supported |
-|--------------|-----------|
-| .NET 6       | ✅ Yes    |
-| .NET 7       | ✅ Yes    |
-| .NET 8       | ✅ Yes    |
-
----
-
 ## Usage
 
-### Basic Example
+### Connections
+Each ApiClass (properly the ApiClient inside it) will create an instance of HttpClient. It will use that for the entire lifecycle and dispose it when called the Dispose method.
+
+To better manager the connections it's a common practice to reuse the HttpClient and HttpClientHandler (see [here](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests#issues-with-the-original-httpclient-class-available-in-net) for details). To use your own HttpClient instance just pass it to the ApiClass constructor.
 
 ```csharp
-using System;
-using GeminiSharp.Client;
+HttpClientHandler yourHandler = new HttpClientHandler();
+HttpClient yourHttpClient = new HttpClient(yourHandler);
+var api = new YourApiClass(yourHttpClient, yourHandler);
+```
+
+If you want to use an HttpClient and don't have access to the handler, for example in a DI context in Asp.net Core when using IHttpClientFactory.
+
+```csharp
+HttpClient yourHttpClient = new HttpClient();
+var api = new YourApiClass(yourHttpClient);
+```
+You'll loose some configuration settings, the features affected are: Setting and Retrieving Cookies, Client Certificates, Proxy settings. You need to either manually handle those in your setup of the HttpClient or they won't be available.
+
+Here an example of DI setup in a sample web project:
+
+```csharp
+services.AddHttpClient<YourApiClass>(httpClient =>
+   new PetApi(httpClient));
+```
+
+
+## Getting Started
+
+```csharp
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
-using System.Threading.Tasks;
-
-class Program
-{
-    static async Task Main()
-    {
-        var httpClient = new HttpClient();
-        var apiKey = "your-gemini-api-key"; // Replace with your actual API key
-        var geminiClient = new GeminiClient(httpClient, apiKey);
-
-        try
-        {
-            var response = await geminiClient.GenerateContentAsync("gemini-2.0", "Hello, Gemini! What's Falcon 9?");
-            Console.WriteLine(response?.Candidates?[0].Content);
-        }
-        catch (GeminiApiException ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-        }
-    }
-}
-```
-
-### Structured Output Example
-
-Generate structured responses using a custom schema:
-
-```csharp
+using GeminiSharp.Api;
 using GeminiSharp.Client;
-using GeminiSharp.Helpers;
-using System.Text.Json;
-
-var schema = JsonSchemaHelper.GenerateSchema<PlayerStats>();
-var response = await geminiClient.GenerateStructuredContentAsync<PlayerStats>(
-    "gemini-2.0", "Provide cricket player stats for Virat Kohli", schema);
-Console.WriteLine(JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true }));
-```
-
-### Image Generation Example
-
-To generate images from prompts, see [Image Generation Documentation](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/image-generation.md).
-
----
-
-## Logging
-
-GeminiSharp uses **Serilog** for logging. To configure logging, add this to your `Program.cs`:
-
-```csharp
+using GeminiSharp.Model;
 using Serilog;
+using Serilog.Sinks.Console;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
-
-Log.Information("Starting application");
-```
-
-For full logging setup details, refer to the [Logging Configuration Guide](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/logging.md).
-
----
-
-## Retry Configuration
-
-GeminiSharp includes a flexible retry configuration for handling transient errors. For detailed information on how to configure retries, check the [Retry Configuration Guide](https://github.com/dprakash2101/GeminiSharp/blob/master/docs/retry-configuration.md).
-
----
-
-## API Error Handling
-
-GeminiSharp throws `GeminiApiException` for API errors. Here's an example of how to catch and inspect errors:
-
-```csharp
-try
+namespace Example
 {
-    using var httpClient = new HttpClient();
-    var geminiClient = new GeminiClient(httpClient, "your-gemini-api-key");
-
-    var response = await geminiClient.GenerateContentAsync("invalid-model", "Test");
-}
-catch (GeminiApiException ex)
-{
-    Console.WriteLine($"API Error: {ex.Message}");
-    Console.WriteLine($"Status Code: {ex.StatusCode}");
-}
-```
-
----
-
-## ASP.NET Core Example
-
-```csharp
-using GeminiSharp.Client;
-using GeminiSharp.API;
-using Microsoft.AspNetCore.Mvc;
-
-namespace GeminiSDKExample.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class GeminiController : ControllerBase
+    public class Example
     {
-        public class GenerateTextRequest
+        public static void Main()
         {
-            public string Prompt { get; set; } = string.Empty;
-        }
+            // Configure Serilog
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug() // Set minimum logging level
+                .WriteTo.Console()    // Output logs to console
+                .CreateLogger();
 
-        [HttpPost("generate")]
-        public async Task<IActionResult> GenerateText(
-            [FromBody] GenerateTextRequest request,
-            [FromHeader(Name = "GeminiApiKey")] string apiKey,
-            [FromHeader(Name = "Gemini-Model")] string? model)
-        {
-            if (string.IsNullOrWhiteSpace(request.Prompt))
-                return BadRequest(new { error = "Prompt cannot be empty." });
+            Configuration config = new Configuration();
+            config.BasePath = "https://generativelanguage.googleapis.com";
+            // Assign the logger to the configuration
+            config.Logger = Log.Logger;
+            // Configure API key authorization: ApiKeyHeader
+            config.ApiKey.Add("x-goog-api-key", "YOUR_API_KEY");
+            // Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+            // config.ApiKeyPrefix.Add("x-goog-api-key", "Bearer");
+            // Configure API key authorization: ApiKeyQuery
+            config.ApiKey.Add("key", "YOUR_API_KEY");
+            // Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+            // config.ApiKeyPrefix.Add("key", "Bearer");
 
-            if (string.IsNullOrWhiteSpace(apiKey))
-                return BadRequest(new { error = "API key is required." });
-
-            model ??= "gemini-1.5-flash"; // Default model
-
-            using var httpClient = new HttpClient();
-            var geminiClient = new GeminiClient(httpClient, apiKey);
+            // create instances of HttpClient, HttpClientHandler to be reused later with different Api classes
+            HttpClient httpClient = new HttpClient();
+            HttpClientHandler httpClientHandler = new HttpClientHandler();
+            var apiInstance = new GeminiApi(httpClient, config, httpClientHandler);
+            var model = "model_example";  // string | 
+            var batchEmbedContentsRequest = new BatchEmbedContentsRequest(); // BatchEmbedContentsRequest | 
 
             try
             {
-                var result = await geminiClient.GenerateContentAsync(model, request.Prompt);
-                return Ok(new { Response = result });
+                // Batch Embed Contents
+                BatchEmbedContents200Response result = apiInstance.BatchEmbedContents(model, batchEmbedContentsRequest);
+                Debug.WriteLine(result);
             }
-            catch (GeminiApiException ex)
+            catch (ApiException e)
             {
-                return StatusCode((int)ex.StatusCode, ex.ErrorResponse);
+                Debug.Print("Exception when calling GeminiApi.BatchEmbedContents: " + e.Message );
+                Debug.Print("Status Code: "+ e.ErrorCode);
+                Debug.Print(e.StackTrace);
             }
-            catch (Exception ex)
+            finally
             {
-                return StatusCode(500, new { error = "Internal Server Error", details = ex.Message });
+                Log.CloseAndFlush();
             }
         }
     }
 }
 ```
 
----
+## Advanced Features
 
-## Configuring the Base URL
+This client includes several helpers to facilitate common tasks.
 
-You can easily configure the base URL for the Gemini API in your `GeminiClient`:
+### Retry Logic
 
+The API client supports custom retry logic using the [Polly](https://github.com/App-vNext/Polly) library. You can define your own retry policies for handling transient network errors or other temporary issues.
+
+For detailed instructions and examples, see the [Retry Logic Documentation](./docs/RetryLogic.md).
+
+### Logging
+
+The client is instrumented with `Serilog` to provide detailed logging of API requests and responses. This is useful for debugging and monitoring. Logging is opt-in and can be configured by providing a logger instance.
+
+For more details, see the [Logging Documentation](./docs/Logging.md).
+
+### JSON Schema Generation
+
+A utility is provided to generate JSON schemas from your C# model classes. This is especially useful for defining tools and functions for the Gemini API.
+
+For more information, see the [JSON Schema Generation Documentation](./docs/JsonSchemaGenerator.md).
+
+### File to Base64 Conversion
+
+The client includes a helper to easily convert files and streams to base64-encoded strings, which is useful for embedding file data in API requests.
+
+For usage examples, see the [File to Base64 Conversion Documentation](./docs/FileConverter.md).
+
+
+## Documentation for API Endpoints
+
+All URIs are relative to *https://generativelanguage.googleapis.com*
+
+Class | Method | HTTP request | Description
+------------ | ------------- | ------------- | -------------
+*GeminiApi* | [**BatchEmbedContents**](docs/GeminiApi.md#batchembedcontents) | **POST** /v1/models/{model}:batchEmbedContents | Batch Embed Contents
+*GeminiApi* | [**CancelOperation**](docs/GeminiApi.md#canceloperation) | **DELETE** /v1/operations/{name} | Cancel Operation
+*GeminiApi* | [**CountTokens**](docs/GeminiApi.md#counttokens) | **POST** /v1/models/{model}:countTokens | Count Tokens
+*GeminiApi* | [**CreateCachedContent**](docs/GeminiApi.md#createcachedcontent) | **POST** /v1/cachedContents | Create Cached Content
+*GeminiApi* | [**CreateChunk**](docs/GeminiApi.md#createchunk) | **POST** /v1/corpora/{corpus}/documents/{document}/chunks | Create Chunk
+*GeminiApi* | [**CreateCorpus**](docs/GeminiApi.md#createcorpus) | **POST** /v1/corpora | Create Corpus
+*GeminiApi* | [**CreateDocument**](docs/GeminiApi.md#createdocument) | **POST** /v1/corpora/{corpus}/documents | Create Document
+*GeminiApi* | [**CreateTunedModel**](docs/GeminiApi.md#createtunedmodel) | **POST** /v1/tunedModels | Create Tuned Model
+*GeminiApi* | [**DeleteCachedContent**](docs/GeminiApi.md#deletecachedcontent) | **DELETE** /v1/cachedContents/{name} | Delete Cached Content
+*GeminiApi* | [**DeleteChunk**](docs/GeminiApi.md#deletechunk) | **DELETE** /v1/corpora/{corpus}/documents/{document}/chunks/{chunk} | Delete Chunk
+*GeminiApi* | [**DeleteCorpus**](docs/GeminiApi.md#deletecorpus) | **DELETE** /v1/corpora/{name} | Delete Corpus
+*GeminiApi* | [**DeleteDocument**](docs/GeminiApi.md#deletedocument) | **DELETE** /v1/corpora/{corpus}/documents/{document} | Delete Document
+*GeminiApi* | [**DeleteFile**](docs/GeminiApi.md#deletefile) | **DELETE** /v1/files/{name} | Delete File
+*GeminiApi* | [**DeleteTunedModel**](docs/GeminiApi.md#deletetunedmodel) | **DELETE** /v1/tunedModels/{name} | Delete Tuned Model
+*GeminiApi* | [**EmbedContent**](docs/GeminiApi.md#embedcontent) | **POST** /v1/models/{model}:embedContent | Embed Content
+*GeminiApi* | [**GenerateContent**](docs/GeminiApi.md#generatecontent) | **POST** /v1/models/{model}:generateContent | Generate Content
+*GeminiApi* | [**GenerateImage**](docs/GeminiApi.md#generateimage) | **POST** /v1/models/{model}:generateImage | Generate Image
+*GeminiApi* | [**GetCachedContent**](docs/GeminiApi.md#getcachedcontent) | **GET** /v1/cachedContents/{name} | Get Cached Content
+*GeminiApi* | [**GetChunk**](docs/GeminiApi.md#getchunk) | **GET** /v1/corpora/{corpus}/documents/{document}/chunks/{chunk} | Get Chunk
+*GeminiApi* | [**GetCorpus**](docs/GeminiApi.md#getcorpus) | **GET** /v1/corpora/{name} | Get Corpus
+*GeminiApi* | [**GetDocument**](docs/GeminiApi.md#getdocument) | **GET** /v1/corpora/{corpus}/documents/{document} | Get Document
+*GeminiApi* | [**GetFile**](docs/GeminiApi.md#getfile) | **GET** /v1/files/{name} | Get File
+*GeminiApi* | [**GetModel**](docs/GeminiApi.md#getmodel) | **GET** /v1/models/{model} | Get Model
+*GeminiApi* | [**GetOperation**](docs/GeminiApi.md#getoperation) | **GET** /v1/operations/{name} | Get Operation
+*GeminiApi* | [**GetTunedModel**](docs/GeminiApi.md#gettunedmodel) | **GET** /v1/tunedModels/{name} | Get Tuned Model
+*GeminiApi* | [**ListCachedContents**](docs/GeminiApi.md#listcachedcontents) | **GET** /v1/cachedContents | List Cached Contents
+*GeminiApi* | [**ListChunks**](docs/GeminiApi.md#listchunks) | **GET** /v1/corpora/{corpus}/documents/{document}/chunks | List Chunks
+*GeminiApi* | [**ListCorpora**](docs/GeminiApi.md#listcorpora) | **GET** /v1/corpora | List Corpora
+*GeminiApi* | [**ListDocuments**](docs/GeminiApi.md#listdocuments) | **GET** /v1/corpora/{corpus}/documents | List Documents
+*GeminiApi* | [**ListFiles**](docs/GeminiApi.md#listfiles) | **GET** /v1/files | List Files
+*GeminiApi* | [**ListModels**](docs/GeminiApi.md#listmodels) | **GET** /v1/models | List Models
+*GeminiApi* | [**ListOperations**](docs/GeminiApi.md#listoperations) | **GET** /v1/operations | List Operations
+*GeminiApi* | [**ListTunedModels**](docs/GeminiApi.md#listtunedmodels) | **GET** /v1/tunedModels | List Tuned Models
+*GeminiApi* | [**QueryCorpus**](docs/GeminiApi.md#querycorpus) | **POST** /v1/corpora/{corpus}:query | Query Corpus
+*GeminiApi* | [**StreamGenerateContent**](docs/GeminiApi.md#streamgeneratecontent) | **POST** /v1/models/{model}:streamGenerateContent | Stream Generate Content
+*GeminiApi* | [**UpdateCachedContent**](docs/GeminiApi.md#updatecachedcontent) | **PATCH** /v1/cachedContents/{name} | Update Cached Content
+*GeminiApi* | [**UpdateChunk**](docs/GeminiApi.md#updatechunk) | **PATCH** /v1/corpora/{corpus}/documents/{document}/chunks/{chunk} | Update Chunk
+*GeminiApi* | [**UpdateCorpus**](docs/GeminiApi.md#updatecorpus) | **PATCH** /v1/corpora/{name} | Update Corpus
+*GeminiApi* | [**UpdateDocument**](docs/GeminiApi.md#updatedocument) | **PATCH** /v1/corpora/{corpus}/documents/{document} | Update Document
+*GeminiApi* | [**UpdateTunedModel**](docs/GeminiApi.md#updatetunedmodel) | **PATCH** /v1/tunedModels/{name} | Update Tuned Model
+*GeminiApi* | [**UploadFile**](docs/GeminiApi.md#uploadfile) | **POST** /v1/files | Upload File
+*GeminiApi* | [**UploadMedia**](docs/GeminiApi.md#uploadmedia) | **POST** /v1/media | Upload Media
+
+
+
+## Documentation for Models
+
+ - [Model.ApiErrorResponse](docs/ApiErrorResponse.md)
+ - [Model.ApiErrorResponseError](docs/ApiErrorResponseError.md)
+ - [Model.AttributionSourceId](docs/AttributionSourceId.md)
+ - [Model.BatchEmbedContents200Response](docs/BatchEmbedContents200Response.md)
+ - [Model.BatchEmbedContentsRequest](docs/BatchEmbedContentsRequest.md)
+ - [Model.BatchEmbedContentsRequestRequestsInner](docs/BatchEmbedContentsRequestRequestsInner.md)
+ - [Model.CachedContent](docs/CachedContent.md)
+ - [Model.CachedContentUsageMetadata](docs/CachedContentUsageMetadata.md)
+ - [Model.Candidate](docs/Candidate.md)
+ - [Model.CandidateLogprobs](docs/CandidateLogprobs.md)
+ - [Model.Chunk](docs/Chunk.md)
+ - [Model.ChunkData](docs/ChunkData.md)
+ - [Model.CitationMetadata](docs/CitationMetadata.md)
+ - [Model.CitationSource](docs/CitationSource.md)
+ - [Model.CodeExecutionResult](docs/CodeExecutionResult.md)
+ - [Model.Condition](docs/Condition.md)
+ - [Model.ContentEmbedding](docs/ContentEmbedding.md)
+ - [Model.Corpus](docs/Corpus.md)
+ - [Model.CountTokens200Response](docs/CountTokens200Response.md)
+ - [Model.CreateTunedModelRequest](docs/CreateTunedModelRequest.md)
+ - [Model.CustomMetadata](docs/CustomMetadata.md)
+ - [Model.Dataset](docs/Dataset.md)
+ - [Model.Document](docs/Document.md)
+ - [Model.DynamicRetrievalConfig](docs/DynamicRetrievalConfig.md)
+ - [Model.EmbedContentRequest](docs/EmbedContentRequest.md)
+ - [Model.ExecutableCode](docs/ExecutableCode.md)
+ - [Model.File](docs/File.md)
+ - [Model.FileData](docs/FileData.md)
+ - [Model.FunctionCall](docs/FunctionCall.md)
+ - [Model.FunctionCallingConfig](docs/FunctionCallingConfig.md)
+ - [Model.FunctionDeclaration](docs/FunctionDeclaration.md)
+ - [Model.FunctionResponse](docs/FunctionResponse.md)
+ - [Model.GeminiModel](docs/GeminiModel.md)
+ - [Model.GenerateContentRequest](docs/GenerateContentRequest.md)
+ - [Model.GenerateContentResponse](docs/GenerateContentResponse.md)
+ - [Model.GenerateImageRequest](docs/GenerateImageRequest.md)
+ - [Model.GenerateImageResponse](docs/GenerateImageResponse.md)
+ - [Model.GeneratedImage](docs/GeneratedImage.md)
+ - [Model.GenerationConfig](docs/GenerationConfig.md)
+ - [Model.GoogleSearchRetrieval](docs/GoogleSearchRetrieval.md)
+ - [Model.GroundingAttribution](docs/GroundingAttribution.md)
+ - [Model.GroundingChunk](docs/GroundingChunk.md)
+ - [Model.GroundingChunkWeb](docs/GroundingChunkWeb.md)
+ - [Model.GroundingMetadata](docs/GroundingMetadata.md)
+ - [Model.GroundingPassageId](docs/GroundingPassageId.md)
+ - [Model.GroundingSupport](docs/GroundingSupport.md)
+ - [Model.Hyperparameters](docs/Hyperparameters.md)
+ - [Model.InlineData](docs/InlineData.md)
+ - [Model.ListCachedContents200Response](docs/ListCachedContents200Response.md)
+ - [Model.ListChunks200Response](docs/ListChunks200Response.md)
+ - [Model.ListCorpora200Response](docs/ListCorpora200Response.md)
+ - [Model.ListDocuments200Response](docs/ListDocuments200Response.md)
+ - [Model.ListFiles200Response](docs/ListFiles200Response.md)
+ - [Model.ListModels200Response](docs/ListModels200Response.md)
+ - [Model.ListOperations200Response](docs/ListOperations200Response.md)
+ - [Model.ListTunedModels200Response](docs/ListTunedModels200Response.md)
+ - [Model.LogprobsResult](docs/LogprobsResult.md)
+ - [Model.MetadataFilter](docs/MetadataFilter.md)
+ - [Model.Operation](docs/Operation.md)
+ - [Model.PromptFeedback](docs/PromptFeedback.md)
+ - [Model.QueryCorpusRequest](docs/QueryCorpusRequest.md)
+ - [Model.QueryCorpusResponse](docs/QueryCorpusResponse.md)
+ - [Model.RelevantChunk](docs/RelevantChunk.md)
+ - [Model.RequestContent](docs/RequestContent.md)
+ - [Model.RequestContentPart](docs/RequestContentPart.md)
+ - [Model.ResponseContent](docs/ResponseContent.md)
+ - [Model.ResponseContentPart](docs/ResponseContentPart.md)
+ - [Model.RetrievalMetadata](docs/RetrievalMetadata.md)
+ - [Model.SafetyRating](docs/SafetyRating.md)
+ - [Model.SafetySetting](docs/SafetySetting.md)
+ - [Model.SearchEntryPoint](docs/SearchEntryPoint.md)
+ - [Model.Segment](docs/Segment.md)
+ - [Model.SemanticRetrieverChunk](docs/SemanticRetrieverChunk.md)
+ - [Model.Status](docs/Status.md)
+ - [Model.StringList](docs/StringList.md)
+ - [Model.Tool](docs/Tool.md)
+ - [Model.ToolConfig](docs/ToolConfig.md)
+ - [Model.TopCandidates](docs/TopCandidates.md)
+ - [Model.TunedModel](docs/TunedModel.md)
+ - [Model.TunedModelSource](docs/TunedModelSource.md)
+ - [Model.TuningExample](docs/TuningExample.md)
+ - [Model.TuningExamples](docs/TuningExamples.md)
+ - [Model.TuningSnapshot](docs/TuningSnapshot.md)
+ - [Model.TuningTask](docs/TuningTask.md)
+ - [Model.UploadFileRequestMetadata](docs/UploadFileRequestMetadata.md)
+ - [Model.UsageMetadata](docs/UsageMetadata.md)
+ - [Model.VideoMetadata](docs/VideoMetadata.md)
+
+
+
+## Documentation for Authorization
+
+The API key can be provided in two ways: as a header or as a query parameter. You only need to use one of these methods.
+
+### 1. As a Header (`ApiKeyHeader`)
+
+- **Type**: API key
+- **Header Name**: `x-goog-api-key`
+- **Location**: HTTP header
+
+Example configuration:
 ```csharp
-using GeminiSharp.Client;
-
-var customBaseUrl = "https://your-custom-gemini-api.com";
-using var httpClient = new HttpClient();
-var geminiClient = new GeminiClient(httpClient, "your-gemini-api-key", customBaseUrl);
+var config = new Configuration();
+config.ApiKey.Add("x-goog-api-key", "YOUR_API_KEY");
 ```
 
----
+### 2. As a Query Parameter (`ApiKeyQuery`)
 
-## 📝 Notes
+- **Type**: API key
+- **Parameter Name**: `key`
+- **Location**: URL query string
 
-- **API Key Security**: Use secure methods for storing API keys such as environment variables, Azure Key Vault, AWS Secrets Manager, or .NET's User Secrets. Avoid hardcoding them.
-- **Error Handling**: Inspect the response object for errors even if no exception is thrown, as the API might still return error details.
-- **Model Updates**: Check the official Gemini documentation for updates on models and new features.
-- **Resource Management**: Ensure you properly dispose of `MemoryStream` objects and other resources to avoid memory leaks, especially in high-traffic environments like web APIs.
+Example configuration:
+```csharp
+var config = new Configuration();
+config.ApiKey.Add("key", "YOUR_API_KEY");
+```
 
----
+
 
 ## Contributing
 
@@ -243,16 +330,13 @@ We welcome contributions! To get started:
 
 Visit the [issues section](https://github.com/dprakash2101/GeminiSharp/issues) to discuss ideas or report issues.
 
----
 
 ## License
 
 This project is licensed under the [MIT License](https://github.com/dprakash2101/GeminiSharp/blob/master/LICENSE).
 
----
+
 
 ## Author
 
 **[Devi Prakash](https://github.com/dprakash2101)**
-
----
