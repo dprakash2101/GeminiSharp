@@ -137,5 +137,11 @@ namespace GeminiSharp.Client
         /// overriding certificate errors in the scope of a request.
         /// </summary>
         RemoteCertificateValidationCallback RemoteCertificateValidationCallback { get; }
+
+        /// <summary>
+        /// Gets the logger.
+        /// </summary>
+        /// <value>A Serilog logger instance.</value>
+        Serilog.ILogger Logger { get; }
     }
 }

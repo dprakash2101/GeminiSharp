@@ -249,5 +249,27 @@ namespace GeminiSharp.Client
             }
             return null;
         }
+
+        /// <summary>
+        /// Get the JSON schema for a type
+        /// </summary>
+        /// <param name="type">The type to get the schema for</param>
+        /// <returns>The JSON schema as a string</returns>
+        public static string GetJsonSchema(Type type)
+        {
+            var generator = new Newtonsoft.Json.Schema.Generation.JSchemaGenerator();
+            var schema = generator.Generate(type);
+            return schema.ToString();
+        }
+
+        /// <summary>
+        /// Get the base64 representation of a file
+        /// </summary>
+        /// <param name="path">The path to the file</param>
+        /// <returns>The base64 representation of the file</returns>
+        public static string GetBase64String(string path)
+        {
+            return Convert.ToBase64String(File.ReadAllBytes(path));
+        }
     }
 }

@@ -88,6 +88,8 @@ using System.Net.Http;
 using GeminiSharp.Api;
 using GeminiSharp.Client;
 using GeminiSharp.Model;
+using Serilog;
+using Serilog.Sinks.Console;
 
 namespace Example
 {
@@ -95,9 +97,16 @@ namespace Example
     {
         public static void Main()
         {
+            // Configure Serilog
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug() // Set minimum logging level
+                .WriteTo.Console()    // Output logs to console
+                .CreateLogger();
 
             Configuration config = new Configuration();
             config.BasePath = "https://generativelanguage.googleapis.com";
+            // Assign the logger to the configuration
+            config.Logger = Log.Logger;
             // Configure API key authorization: ApiKeyHeader
             config.ApiKey.Add("x-goog-api-key", "YOUR_API_KEY");
             // Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
@@ -126,7 +135,10 @@ namespace Example
                 Debug.Print("Status Code: "+ e.ErrorCode);
                 Debug.Print(e.StackTrace);
             }
-
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
     }
 }

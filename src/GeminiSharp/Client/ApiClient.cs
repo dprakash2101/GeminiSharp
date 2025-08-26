@@ -29,6 +29,7 @@ using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Polly;
+using Serilog;
 
 namespace GeminiSharp.Client
 {
@@ -483,6 +484,13 @@ namespace GeminiSharp.Client
 
             try
             {
+                configuration.Logger?.Debug("Sending request: {Method} {Uri}", req.Method, req.RequestUri);
+                if (req.Content != null)
+                {
+                    var requestContent = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    configuration.Logger?.Debug("Request Content: {RequestContent}", requestContent);
+                }
+
                 if (configuration.Timeout > TimeSpan.Zero)
                 {
                     timeoutTokenSource = new CancellationTokenSource(configuration.Timeout);
@@ -534,6 +542,13 @@ namespace GeminiSharp.Client
                     response = await _httpClient.SendAsync(req, finalToken).ConfigureAwait(false);
                 }
 
+                configuration.Logger?.Debug("Received response: {StatusCode} {ReasonPhrase}", response.StatusCode, response.ReasonPhrase);
+                if (response.Content != null)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    configuration.Logger?.Debug("Response Content: {ResponseContent}", responseContent);
+                }
+
                 if (!response.IsSuccessStatusCode)
                 {
                     return await ToApiResponse<T>(response, default, req.RequestUri).ConfigureAwait(false);
@@ -557,11 +572,17 @@ namespace GeminiSharp.Client
             }
             catch (OperationCanceledException original)
             {
+                configuration.Logger?.Warning(original, "Request to {Uri} was canceled or timed out.", req.RequestUri);
                 if (timeoutTokenSource != null && timeoutTokenSource.IsCancellationRequested)
                 {
                     throw new TaskCanceledException($"[{req.Method}] {req.RequestUri} was timeout.",
                         new TimeoutException(original.Message, original));
                 }
+                throw;
+            }
+            catch (Exception ex)
+            {
+                configuration.Logger?.Error(ex, "An error occurred during request to {Uri}", req.RequestUri);
                 throw;
             }
             finally

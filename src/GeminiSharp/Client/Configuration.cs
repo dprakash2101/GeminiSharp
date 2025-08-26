@@ -30,6 +30,13 @@ namespace GeminiSharp.Client
         #region Constants
 
         /// <summary>
+        /// Gets or sets the logger.
+        /// </summary>
+        /// <value>A Serilog logger instance.</value>
+        public ILogger Logger { get; set; }
+
+        
+        /// <summary>
         /// Version of the package.
         /// </summary>
         /// <value>Version of the package.</value>
