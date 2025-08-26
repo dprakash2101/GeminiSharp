@@ -505,7 +505,7 @@ namespace GeminiSharp.Api
         /// <exception cref="GeminiSharp.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="name"></param>
         /// <returns>File</returns>
-        File GetFile(string name);
+        GeminiFile GetFile(string name);
 
         /// <summary>
         /// Get File
@@ -516,7 +516,7 @@ namespace GeminiSharp.Api
         /// <exception cref="GeminiSharp.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="name"></param>
         /// <returns>ApiResponse of File</returns>
-        ApiResponse<File> GetFileWithHttpInfo(string name);
+        ApiResponse<GeminiFile> GetFileWithHttpInfo(string name);
         /// <summary>
         /// Get Model
         /// </summary>
@@ -963,7 +963,7 @@ namespace GeminiSharp.Api
         /// <param name="file"> (optional)</param>
         /// <param name="metadata"> (optional)</param>
         /// <returns>File</returns>
-        File UploadFile(FileParameter? file = default, UploadFileRequestMetadata? metadata = default);
+        GeminiFile UploadFile(FileParameter? file = default, UploadFileRequestMetadata? metadata = default);
 
         /// <summary>
         /// Upload File
@@ -975,7 +975,7 @@ namespace GeminiSharp.Api
         /// <param name="file"> (optional)</param>
         /// <param name="metadata"> (optional)</param>
         /// <returns>ApiResponse of File</returns>
-        ApiResponse<File> UploadFileWithHttpInfo(FileParameter? file = default, UploadFileRequestMetadata? metadata = default);
+        ApiResponse<GeminiFile> UploadFileWithHttpInfo(FileParameter? file = default, UploadFileRequestMetadata? metadata = default);
         /// <summary>
         /// Upload Media
         /// </summary>
@@ -985,7 +985,7 @@ namespace GeminiSharp.Api
         /// <exception cref="GeminiSharp.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="file"> (optional)</param>
         /// <returns>File</returns>
-        File UploadMedia(FileParameter? file = default);
+        GeminiFile UploadMedia(FileParameter? file = default);
 
         /// <summary>
         /// Upload Media
@@ -996,7 +996,7 @@ namespace GeminiSharp.Api
         /// <exception cref="GeminiSharp.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="file"> (optional)</param>
         /// <returns>ApiResponse of File</returns>
-        ApiResponse<File> UploadMediaWithHttpInfo(FileParameter? file = default);
+        ApiResponse<GeminiFile> UploadMediaWithHttpInfo(FileParameter? file = default);
         #endregion Synchronous Operations
     }
 
@@ -1527,7 +1527,7 @@ namespace GeminiSharp.Api
         /// <param name="name"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of File</returns>
-        System.Threading.Tasks.Task<File> GetFileAsync(string name, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<GeminiFile> GetFileAsync(string name, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get File
@@ -1539,7 +1539,7 @@ namespace GeminiSharp.Api
         /// <param name="name"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of ApiResponse (File)</returns>
-        System.Threading.Tasks.Task<ApiResponse<File>> GetFileWithHttpInfoAsync(string name, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<ApiResponse<GeminiFile>> GetFileWithHttpInfoAsync(string name, System.Threading.CancellationToken cancellationToken = default);
         /// <summary>
         /// Get Model
         /// </summary>
@@ -2023,7 +2023,7 @@ namespace GeminiSharp.Api
         /// <param name="metadata"> (optional)</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of File</returns>
-        System.Threading.Tasks.Task<File> UploadFileAsync(FileParameter? file = default, UploadFileRequestMetadata? metadata = default, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<GeminiFile> UploadFileAsync(FileParameter? file = default, UploadFileRequestMetadata? metadata = default, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Upload File
@@ -2036,7 +2036,7 @@ namespace GeminiSharp.Api
         /// <param name="metadata"> (optional)</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of ApiResponse (File)</returns>
-        System.Threading.Tasks.Task<ApiResponse<File>> UploadFileWithHttpInfoAsync(FileParameter? file = default, UploadFileRequestMetadata? metadata = default, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<ApiResponse<GeminiFile>> UploadFileWithHttpInfoAsync(FileParameter? file = default, UploadFileRequestMetadata? metadata = default, System.Threading.CancellationToken cancellationToken = default);
         /// <summary>
         /// Upload Media
         /// </summary>
@@ -2047,7 +2047,7 @@ namespace GeminiSharp.Api
         /// <param name="file"> (optional)</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of File</returns>
-        System.Threading.Tasks.Task<File> UploadMediaAsync(FileParameter? file = default, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<GeminiFile> UploadMediaAsync(FileParameter? file = default, System.Threading.CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Upload Media
@@ -2059,7 +2059,7 @@ namespace GeminiSharp.Api
         /// <param name="file"> (optional)</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of ApiResponse (File)</returns>
-        System.Threading.Tasks.Task<ApiResponse<File>> UploadMediaWithHttpInfoAsync(FileParameter? file = default, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<ApiResponse<GeminiFile>> UploadMediaWithHttpInfoAsync(FileParameter? file = default, System.Threading.CancellationToken cancellationToken = default);
         #endregion Asynchronous Operations
     }
 
@@ -2297,11 +2297,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->BatchEmbedContents");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->BatchEmbedContents");
 
             // verify the required parameter 'batchEmbedContentsRequest' is set
             if (batchEmbedContentsRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'batchEmbedContentsRequest' when calling GeminiApi->BatchEmbedContents");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'batchEmbedContentsRequest' when calling DefaultApi->BatchEmbedContents");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -2372,11 +2372,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->BatchEmbedContents");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->BatchEmbedContents");
 
             // verify the required parameter 'batchEmbedContentsRequest' is set
             if (batchEmbedContentsRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'batchEmbedContentsRequest' when calling GeminiApi->BatchEmbedContents");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'batchEmbedContentsRequest' when calling DefaultApi->BatchEmbedContents");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -2445,7 +2445,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->CancelOperation");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->CancelOperation");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -2510,7 +2510,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->CancelOperation");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->CancelOperation");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -2579,11 +2579,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->CountTokens");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->CountTokens");
 
             // verify the required parameter 'generateContentRequest' is set
             if (generateContentRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling GeminiApi->CountTokens");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling DefaultApi->CountTokens");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -2654,11 +2654,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->CountTokens");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->CountTokens");
 
             // verify the required parameter 'generateContentRequest' is set
             if (generateContentRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling GeminiApi->CountTokens");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling DefaultApi->CountTokens");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -2728,7 +2728,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'cachedContent' is set
             if (cachedContent == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'cachedContent' when calling GeminiApi->CreateCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'cachedContent' when calling DefaultApi->CreateCachedContent");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -2796,7 +2796,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'cachedContent' is set
             if (cachedContent == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'cachedContent' when calling GeminiApi->CreateCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'cachedContent' when calling DefaultApi->CreateCachedContent");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -2869,15 +2869,15 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->CreateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->CreateChunk");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->CreateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->CreateChunk");
 
             // verify the required parameter 'chunk' is set
             if (chunk == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling GeminiApi->CreateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling DefaultApi->CreateChunk");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -2951,15 +2951,15 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->CreateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->CreateChunk");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->CreateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->CreateChunk");
 
             // verify the required parameter 'chunk' is set
             if (chunk == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling GeminiApi->CreateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling DefaultApi->CreateChunk");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -3030,7 +3030,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->CreateCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->CreateCorpus");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -3098,7 +3098,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->CreateCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->CreateCorpus");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -3169,11 +3169,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->CreateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->CreateDocument");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->CreateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->CreateDocument");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -3244,11 +3244,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->CreateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->CreateDocument");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->CreateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->CreateDocument");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -3318,7 +3318,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'createTunedModelRequest' is set
             if (createTunedModelRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'createTunedModelRequest' when calling GeminiApi->CreateTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'createTunedModelRequest' when calling DefaultApi->CreateTunedModel");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -3386,7 +3386,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'createTunedModelRequest' is set
             if (createTunedModelRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'createTunedModelRequest' when calling GeminiApi->CreateTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'createTunedModelRequest' when calling DefaultApi->CreateTunedModel");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -3454,7 +3454,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->DeleteCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->DeleteCachedContent");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -3519,7 +3519,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->DeleteCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->DeleteCachedContent");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -3589,15 +3589,15 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->DeleteChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->DeleteChunk");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->DeleteChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->DeleteChunk");
 
             // verify the required parameter 'chunk' is set
             if (chunk == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling GeminiApi->DeleteChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling DefaultApi->DeleteChunk");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -3668,15 +3668,15 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->DeleteChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->DeleteChunk");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->DeleteChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->DeleteChunk");
 
             // verify the required parameter 'chunk' is set
             if (chunk == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling GeminiApi->DeleteChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling DefaultApi->DeleteChunk");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -3744,7 +3744,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->DeleteCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->DeleteCorpus");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -3809,7 +3809,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->DeleteCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->DeleteCorpus");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -3877,11 +3877,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->DeleteDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->DeleteDocument");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->DeleteDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->DeleteDocument");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -3949,11 +3949,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->DeleteDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->DeleteDocument");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->DeleteDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->DeleteDocument");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -4020,7 +4020,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->DeleteFile");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->DeleteFile");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -4085,7 +4085,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->DeleteFile");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->DeleteFile");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -4151,7 +4151,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->DeleteTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->DeleteTunedModel");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -4216,7 +4216,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->DeleteTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->DeleteTunedModel");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -4285,11 +4285,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->EmbedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->EmbedContent");
 
             // verify the required parameter 'embedContentRequest' is set
             if (embedContentRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'embedContentRequest' when calling GeminiApi->EmbedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'embedContentRequest' when calling DefaultApi->EmbedContent");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -4360,11 +4360,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->EmbedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->EmbedContent");
 
             // verify the required parameter 'embedContentRequest' is set
             if (embedContentRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'embedContentRequest' when calling GeminiApi->EmbedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'embedContentRequest' when calling DefaultApi->EmbedContent");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -4436,11 +4436,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->GenerateContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->GenerateContent");
 
             // verify the required parameter 'generateContentRequest' is set
             if (generateContentRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling GeminiApi->GenerateContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling DefaultApi->GenerateContent");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -4511,11 +4511,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->GenerateContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->GenerateContent");
 
             // verify the required parameter 'generateContentRequest' is set
             if (generateContentRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling GeminiApi->GenerateContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling DefaultApi->GenerateContent");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -4587,11 +4587,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->GenerateImage");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->GenerateImage");
 
             // verify the required parameter 'generateImageRequest' is set
             if (generateImageRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateImageRequest' when calling GeminiApi->GenerateImage");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateImageRequest' when calling DefaultApi->GenerateImage");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -4662,11 +4662,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->GenerateImage");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->GenerateImage");
 
             // verify the required parameter 'generateImageRequest' is set
             if (generateImageRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateImageRequest' when calling GeminiApi->GenerateImage");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateImageRequest' when calling DefaultApi->GenerateImage");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -4736,7 +4736,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetCachedContent");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -4803,7 +4803,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetCachedContent");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -4875,15 +4875,15 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->GetChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->GetChunk");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->GetChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->GetChunk");
 
             // verify the required parameter 'chunk' is set
             if (chunk == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling GeminiApi->GetChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling DefaultApi->GetChunk");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -4956,15 +4956,15 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->GetChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->GetChunk");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->GetChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->GetChunk");
 
             // verify the required parameter 'chunk' is set
             if (chunk == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling GeminiApi->GetChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling DefaultApi->GetChunk");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -5034,7 +5034,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetCorpus");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -5101,7 +5101,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetCorpus");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -5171,11 +5171,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->GetDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->GetDocument");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->GetDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->GetDocument");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -5245,11 +5245,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->GetDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->GetDocument");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->GetDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->GetDocument");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -5302,9 +5302,9 @@ namespace GeminiSharp.Api
         /// <exception cref="GeminiSharp.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="name"></param>
         /// <returns>File</returns>
-        public File GetFile(string name)
+        public GeminiFile GetFile(string name)
         {
-            GeminiSharp.Client.ApiResponse<File> localVarResponse = GetFileWithHttpInfo(name);
+            GeminiSharp.Client.ApiResponse<GeminiFile> localVarResponse = GetFileWithHttpInfo(name);
             return localVarResponse.Data;
         }
 
@@ -5314,11 +5314,11 @@ namespace GeminiSharp.Api
         /// <exception cref="GeminiSharp.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="name"></param>
         /// <returns>ApiResponse of File</returns>
-        public GeminiSharp.Client.ApiResponse<File> GetFileWithHttpInfo(string name)
+        public GeminiSharp.Client.ApiResponse<GeminiFile> GetFileWithHttpInfo(string name)
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetFile");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetFile");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -5350,7 +5350,7 @@ namespace GeminiSharp.Api
             }
 
             // make the HTTP request
-            var localVarResponse = this.Client.Get<File>("/v1/files/{name}", localVarRequestOptions, this.Configuration);
+            var localVarResponse = this.Client.Get<GeminiFile>("/v1/files/{name}", localVarRequestOptions, this.Configuration);
 
             if (this.ExceptionFactory != null)
             {
@@ -5368,9 +5368,9 @@ namespace GeminiSharp.Api
         /// <param name="name"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of File</returns>
-        public async System.Threading.Tasks.Task<File> GetFileAsync(string name, System.Threading.CancellationToken cancellationToken = default)
+        public async System.Threading.Tasks.Task<GeminiFile> GetFileAsync(string name, System.Threading.CancellationToken cancellationToken = default)
         {
-            GeminiSharp.Client.ApiResponse<File> localVarResponse = await GetFileWithHttpInfoAsync(name, cancellationToken).ConfigureAwait(false);
+            GeminiSharp.Client.ApiResponse<GeminiFile> localVarResponse = await GetFileWithHttpInfoAsync(name, cancellationToken).ConfigureAwait(false);
             return localVarResponse.Data;
         }
 
@@ -5381,11 +5381,11 @@ namespace GeminiSharp.Api
         /// <param name="name"></param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of ApiResponse (File)</returns>
-        public async System.Threading.Tasks.Task<GeminiSharp.Client.ApiResponse<File>> GetFileWithHttpInfoAsync(string name, System.Threading.CancellationToken cancellationToken = default)
+        public async System.Threading.Tasks.Task<GeminiSharp.Client.ApiResponse<GeminiFile>> GetFileWithHttpInfoAsync(string name, System.Threading.CancellationToken cancellationToken = default)
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetFile");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetFile");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -5420,7 +5420,7 @@ namespace GeminiSharp.Api
 
             // make the HTTP request
 
-            var localVarResponse = await this.AsynchronousClient.GetAsync<File>("/v1/files/{name}", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+            var localVarResponse = await this.AsynchronousClient.GetAsync<GeminiFile>("/v1/files/{name}", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
 
             if (this.ExceptionFactory != null)
             {
@@ -5453,7 +5453,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->GetModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->GetModel");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -5520,7 +5520,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->GetModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->GetModel");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -5588,7 +5588,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetOperation");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetOperation");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -5655,7 +5655,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetOperation");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetOperation");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -5723,7 +5723,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetTunedModel");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -5790,7 +5790,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->GetTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->GetTunedModel");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -6009,11 +6009,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->ListChunks");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->ListChunks");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->ListChunks");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->ListChunks");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -6095,11 +6095,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->ListChunks");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->ListChunks");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->ListChunks");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->ListChunks");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -6325,7 +6325,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->ListDocuments");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->ListDocuments");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -6404,7 +6404,7 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->ListDocuments");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->ListDocuments");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -7098,11 +7098,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->QueryCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->QueryCorpus");
 
             // verify the required parameter 'queryCorpusRequest' is set
             if (queryCorpusRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'queryCorpusRequest' when calling GeminiApi->QueryCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'queryCorpusRequest' when calling DefaultApi->QueryCorpus");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -7173,11 +7173,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->QueryCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->QueryCorpus");
 
             // verify the required parameter 'queryCorpusRequest' is set
             if (queryCorpusRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'queryCorpusRequest' when calling GeminiApi->QueryCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'queryCorpusRequest' when calling DefaultApi->QueryCorpus");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -7249,11 +7249,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->StreamGenerateContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->StreamGenerateContent");
 
             // verify the required parameter 'generateContentRequest' is set
             if (generateContentRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling GeminiApi->StreamGenerateContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling DefaultApi->StreamGenerateContent");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -7324,11 +7324,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'model' is set
             if (model == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling GeminiApi->StreamGenerateContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'model' when calling DefaultApi->StreamGenerateContent");
 
             // verify the required parameter 'generateContentRequest' is set
             if (generateContentRequest == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling GeminiApi->StreamGenerateContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'generateContentRequest' when calling DefaultApi->StreamGenerateContent");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -7402,11 +7402,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->UpdateCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->UpdateCachedContent");
 
             // verify the required parameter 'cachedContent' is set
             if (cachedContent == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'cachedContent' when calling GeminiApi->UpdateCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'cachedContent' when calling DefaultApi->UpdateCachedContent");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -7483,11 +7483,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->UpdateCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->UpdateCachedContent");
 
             // verify the required parameter 'cachedContent' is set
             if (cachedContent == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'cachedContent' when calling GeminiApi->UpdateCachedContent");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'cachedContent' when calling DefaultApi->UpdateCachedContent");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -7569,19 +7569,19 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->UpdateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->UpdateChunk");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->UpdateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->UpdateChunk");
 
             // verify the required parameter 'chunk' is set
             if (chunk == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling GeminiApi->UpdateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling DefaultApi->UpdateChunk");
 
             // verify the required parameter 'chunk2' is set
             if (chunk2 == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk2' when calling GeminiApi->UpdateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk2' when calling DefaultApi->UpdateChunk");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -7664,19 +7664,19 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->UpdateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->UpdateChunk");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->UpdateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->UpdateChunk");
 
             // verify the required parameter 'chunk' is set
             if (chunk == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling GeminiApi->UpdateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk' when calling DefaultApi->UpdateChunk");
 
             // verify the required parameter 'chunk2' is set
             if (chunk2 == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk2' when calling GeminiApi->UpdateChunk");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'chunk2' when calling DefaultApi->UpdateChunk");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -7756,11 +7756,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->UpdateCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->UpdateCorpus");
 
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->UpdateCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->UpdateCorpus");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -7837,11 +7837,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->UpdateCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->UpdateCorpus");
 
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->UpdateCorpus");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->UpdateCorpus");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -7921,15 +7921,15 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->UpdateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->UpdateDocument");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->UpdateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->UpdateDocument");
 
             // verify the required parameter 'document2' is set
             if (document2 == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document2' when calling GeminiApi->UpdateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document2' when calling DefaultApi->UpdateDocument");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -8009,15 +8009,15 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'corpus' is set
             if (corpus == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling GeminiApi->UpdateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'corpus' when calling DefaultApi->UpdateDocument");
 
             // verify the required parameter 'document' is set
             if (document == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling GeminiApi->UpdateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document' when calling DefaultApi->UpdateDocument");
 
             // verify the required parameter 'document2' is set
             if (document2 == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document2' when calling GeminiApi->UpdateDocument");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'document2' when calling DefaultApi->UpdateDocument");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -8096,11 +8096,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->UpdateTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->UpdateTunedModel");
 
             // verify the required parameter 'tunedModel' is set
             if (tunedModel == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'tunedModel' when calling GeminiApi->UpdateTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'tunedModel' when calling DefaultApi->UpdateTunedModel");
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -8177,11 +8177,11 @@ namespace GeminiSharp.Api
         {
             // verify the required parameter 'name' is set
             if (name == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling GeminiApi->UpdateTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'name' when calling DefaultApi->UpdateTunedModel");
 
             // verify the required parameter 'tunedModel' is set
             if (tunedModel == null)
-                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'tunedModel' when calling GeminiApi->UpdateTunedModel");
+                throw new GeminiSharp.Client.ApiException(400, "Missing required parameter 'tunedModel' when calling DefaultApi->UpdateTunedModel");
 
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -8240,9 +8240,9 @@ namespace GeminiSharp.Api
         /// <param name="file"> (optional)</param>
         /// <param name="metadata"> (optional)</param>
         /// <returns>File</returns>
-        public File UploadFile(FileParameter? file = default, UploadFileRequestMetadata? metadata = default)
+        public GeminiFile UploadFile(FileParameter? file = default, UploadFileRequestMetadata? metadata = default)
         {
-            GeminiSharp.Client.ApiResponse<File> localVarResponse = UploadFileWithHttpInfo(file, metadata);
+            GeminiSharp.Client.ApiResponse<GeminiFile> localVarResponse = UploadFileWithHttpInfo(file, metadata);
             return localVarResponse.Data;
         }
 
@@ -8253,7 +8253,7 @@ namespace GeminiSharp.Api
         /// <param name="file"> (optional)</param>
         /// <param name="metadata"> (optional)</param>
         /// <returns>ApiResponse of File</returns>
-        public GeminiSharp.Client.ApiResponse<File> UploadFileWithHttpInfo(FileParameter? file = default, UploadFileRequestMetadata? metadata = default)
+        public GeminiSharp.Client.ApiResponse<GeminiFile> UploadFileWithHttpInfo(FileParameter? file = default, UploadFileRequestMetadata? metadata = default)
         {
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -8293,7 +8293,7 @@ namespace GeminiSharp.Api
             }
 
             // make the HTTP request
-            var localVarResponse = this.Client.Post<File>("/v1/files", localVarRequestOptions, this.Configuration);
+            var localVarResponse = this.Client.Post<GeminiFile>("/v1/files", localVarRequestOptions, this.Configuration);
 
             if (this.ExceptionFactory != null)
             {
@@ -8312,9 +8312,9 @@ namespace GeminiSharp.Api
         /// <param name="metadata"> (optional)</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of File</returns>
-        public async System.Threading.Tasks.Task<File> UploadFileAsync(FileParameter? file = default, UploadFileRequestMetadata? metadata = default, System.Threading.CancellationToken cancellationToken = default)
+        public async System.Threading.Tasks.Task<GeminiFile> UploadFileAsync(FileParameter? file = default, UploadFileRequestMetadata? metadata = default, System.Threading.CancellationToken cancellationToken = default)
         {
-            GeminiSharp.Client.ApiResponse<File> localVarResponse = await UploadFileWithHttpInfoAsync(file, metadata, cancellationToken).ConfigureAwait(false);
+            GeminiSharp.Client.ApiResponse<GeminiFile> localVarResponse = await UploadFileWithHttpInfoAsync(file, metadata, cancellationToken).ConfigureAwait(false);
             return localVarResponse.Data;
         }
 
@@ -8326,7 +8326,7 @@ namespace GeminiSharp.Api
         /// <param name="metadata"> (optional)</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of ApiResponse (File)</returns>
-        public async System.Threading.Tasks.Task<GeminiSharp.Client.ApiResponse<File>> UploadFileWithHttpInfoAsync(FileParameter? file = default, UploadFileRequestMetadata? metadata = default, System.Threading.CancellationToken cancellationToken = default)
+        public async System.Threading.Tasks.Task<GeminiSharp.Client.ApiResponse<GeminiFile>> UploadFileWithHttpInfoAsync(FileParameter? file = default, UploadFileRequestMetadata? metadata = default, System.Threading.CancellationToken cancellationToken = default)
         {
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -8369,7 +8369,7 @@ namespace GeminiSharp.Api
 
             // make the HTTP request
 
-            var localVarResponse = await this.AsynchronousClient.PostAsync<File>("/v1/files", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+            var localVarResponse = await this.AsynchronousClient.PostAsync<GeminiFile>("/v1/files", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
 
             if (this.ExceptionFactory != null)
             {
@@ -8386,9 +8386,9 @@ namespace GeminiSharp.Api
         /// <exception cref="GeminiSharp.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="file"> (optional)</param>
         /// <returns>File</returns>
-        public File UploadMedia(FileParameter? file = default)
+        public GeminiFile UploadMedia(FileParameter? file = default)
         {
-            GeminiSharp.Client.ApiResponse<File> localVarResponse = UploadMediaWithHttpInfo(file);
+            GeminiSharp.Client.ApiResponse<GeminiFile> localVarResponse = UploadMediaWithHttpInfo(file);
             return localVarResponse.Data;
         }
 
@@ -8398,7 +8398,7 @@ namespace GeminiSharp.Api
         /// <exception cref="GeminiSharp.Client.ApiException">Thrown when fails to make API call</exception>
         /// <param name="file"> (optional)</param>
         /// <returns>ApiResponse of File</returns>
-        public GeminiSharp.Client.ApiResponse<File> UploadMediaWithHttpInfo(FileParameter? file = default)
+        public GeminiSharp.Client.ApiResponse<GeminiFile> UploadMediaWithHttpInfo(FileParameter? file = default)
         {
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
 
@@ -8434,7 +8434,7 @@ namespace GeminiSharp.Api
             }
 
             // make the HTTP request
-            var localVarResponse = this.Client.Post<File>("/v1/media", localVarRequestOptions, this.Configuration);
+            var localVarResponse = this.Client.Post<GeminiFile>("/v1/media", localVarRequestOptions, this.Configuration);
 
             if (this.ExceptionFactory != null)
             {
@@ -8452,9 +8452,9 @@ namespace GeminiSharp.Api
         /// <param name="file"> (optional)</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of File</returns>
-        public async System.Threading.Tasks.Task<File> UploadMediaAsync(FileParameter? file = default, System.Threading.CancellationToken cancellationToken = default)
+        public async System.Threading.Tasks.Task<GeminiFile> UploadMediaAsync(FileParameter? file = default, System.Threading.CancellationToken cancellationToken = default)
         {
-            GeminiSharp.Client.ApiResponse<File> localVarResponse = await UploadMediaWithHttpInfoAsync(file, cancellationToken).ConfigureAwait(false);
+            GeminiSharp.Client.ApiResponse<GeminiFile> localVarResponse = await UploadMediaWithHttpInfoAsync(file, cancellationToken).ConfigureAwait(false);
             return localVarResponse.Data;
         }
 
@@ -8465,7 +8465,7 @@ namespace GeminiSharp.Api
         /// <param name="file"> (optional)</param>
         /// <param name="cancellationToken">Cancellation Token to cancel the request.</param>
         /// <returns>Task of ApiResponse (File)</returns>
-        public async System.Threading.Tasks.Task<GeminiSharp.Client.ApiResponse<File>> UploadMediaWithHttpInfoAsync(FileParameter? file = default, System.Threading.CancellationToken cancellationToken = default)
+        public async System.Threading.Tasks.Task<GeminiSharp.Client.ApiResponse<GeminiFile>> UploadMediaWithHttpInfoAsync(FileParameter? file = default, System.Threading.CancellationToken cancellationToken = default)
         {
 
             GeminiSharp.Client.RequestOptions localVarRequestOptions = new GeminiSharp.Client.RequestOptions();
@@ -8504,7 +8504,7 @@ namespace GeminiSharp.Api
 
             // make the HTTP request
 
-            var localVarResponse = await this.AsynchronousClient.PostAsync<File>("/v1/media", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
+            var localVarResponse = await this.AsynchronousClient.PostAsync<GeminiFile>("/v1/media", localVarRequestOptions, this.Configuration, cancellationToken).ConfigureAwait(false);
 
             if (this.ExceptionFactory != null)
             {

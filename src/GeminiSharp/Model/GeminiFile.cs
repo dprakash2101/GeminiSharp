@@ -30,7 +30,7 @@ namespace GeminiSharp.Model
     /// File
     /// </summary>
     [DataContract(Name = "File")]
-    public partial class File : IValidatableObject
+    public partial class GeminiFile : IValidatableObject
     {
         /// <summary>
         /// Output only. Processing state of the File
@@ -72,7 +72,7 @@ namespace GeminiSharp.Model
         [DataMember(Name = "state", EmitDefaultValue = false)]
         public StateEnum? State { get; set; }
         /// <summary>
-        /// Initializes a new instance of the <see cref="File" /> class.
+        /// Initializes a new instance of the <see cref="GeminiFile" /> class.
         /// </summary>
         /// <param name="name">Immutable. Identifier. The File resource name.</param>
         /// <param name="displayName">Optional. The human-readable display name for the File.</param>
@@ -86,7 +86,7 @@ namespace GeminiSharp.Model
         /// <param name="state">Output only. Processing state of the File.</param>
         /// <param name="error">error.</param>
         /// <param name="videoMetadata">videoMetadata.</param>
-        public File(string name = default, string displayName = default, string mimeType = default, string sizeBytes = default, DateTime createTime = default, DateTime updateTime = default, DateTime expirationTime = default, byte[] sha256Hash = default, string uri = default, StateEnum? state = default, Status error = default, VideoMetadata videoMetadata = default)
+        public GeminiFile(string name = default, string displayName = default, string mimeType = default, string sizeBytes = default, DateTime createTime = default, DateTime updateTime = default, DateTime expirationTime = default, byte[] sha256Hash = default, string uri = default, StateEnum? state = default, Status error = default, VideoMetadata videoMetadata = default)
         {
             this.Name = name;
             this.DisplayName = displayName;

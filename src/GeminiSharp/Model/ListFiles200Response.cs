@@ -37,7 +37,7 @@ namespace GeminiSharp.Model
         /// </summary>
         /// <param name="files">files.</param>
         /// <param name="nextPageToken">nextPageToken.</param>
-        public ListFiles200Response(Collection<File> files = default, string nextPageToken = default)
+        public ListFiles200Response(Collection<GeminiFile> files = default, string nextPageToken = default)
         {
             this.Files = files;
             this.NextPageToken = nextPageToken;
@@ -47,7 +47,7 @@ namespace GeminiSharp.Model
         /// Gets or Sets Files
         /// </summary>
         [DataMember(Name = "files", EmitDefaultValue = false)]
-        public Collection<File> Files { get; set; }
+        public Collection<GeminiFile> Files { get; set; }
 
         /// <summary>
         /// Gets or Sets NextPageToken

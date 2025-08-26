@@ -19,7 +19,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Net.Http;
 using System.Net.Security;
-using Serilog;
 
 namespace GeminiSharp.Client
 {
@@ -28,12 +27,6 @@ namespace GeminiSharp.Client
     /// </summary>
     public class Configuration : IReadableConfiguration
     {
-        /// <summary>
-        /// Gets or sets the logger.
-        /// </summary>
-        /// <value>A Serilog logger instance.</value>
-        public ILogger Logger { get; set; }
-
         #region Constants
 
         /// <summary>

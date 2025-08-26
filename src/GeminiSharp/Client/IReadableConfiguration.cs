@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using Serilog;
 
 namespace GeminiSharp.Client
 {
@@ -22,12 +21,6 @@ namespace GeminiSharp.Client
     /// </summary>
     public interface IReadableConfiguration
     {
-        /// <summary>
-        /// Gets the logger.
-        /// </summary>
-        /// <value>A Serilog logger instance.</value>
-        ILogger Logger { get; }
-
         /// <summary>
         /// Gets the access token.
         /// </summary>

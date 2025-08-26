@@ -29,7 +29,6 @@ using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Polly;
-using Serilog;
 
 namespace GeminiSharp.Client
 {
@@ -481,11 +480,9 @@ namespace GeminiSharp.Client
             CancellationTokenSource finalTokenSource = null;
             var deserializer = new CustomJsonCodec(SerializerSettings, configuration);
             var finalToken = cancellationToken;
-            var logger = configuration.Logger;
 
             try
             {
-                logger?.Debug("Sending {Method} request to {Uri}", req.Method, req.RequestUri);
                 if (configuration.Timeout > TimeSpan.Zero)
                 {
                     timeoutTokenSource = new CancellationTokenSource(configuration.Timeout);
@@ -539,11 +536,8 @@ namespace GeminiSharp.Client
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    logger?.Warning("Received non-success status code {StatusCode} from {Uri}. Reason: {ReasonPhrase}", response.StatusCode, req.RequestUri, response.ReasonPhrase);
                     return await ToApiResponse<T>(response, default, req.RequestUri).ConfigureAwait(false);
                 }
-
-                logger?.Information("Received successful {StatusCode} response from {Uri}", response.StatusCode, req.RequestUri);
 
                 object responseData = await deserializer.Deserialize<T>(response).ConfigureAwait(false);
 
@@ -565,16 +559,9 @@ namespace GeminiSharp.Client
             {
                 if (timeoutTokenSource != null && timeoutTokenSource.IsCancellationRequested)
                 {
-                    logger?.Error(original, "Request to {Uri} timed out", req.RequestUri);
                     throw new TaskCanceledException($"[{req.Method}] {req.RequestUri} was timeout.",
                         new TimeoutException(original.Message, original));
                 }
-                logger?.Warning(original, "Request to {Uri} was canceled", req.RequestUri);
-                throw;
-            }
-            catch (Exception e)
-            {
-                logger?.Error(e, "An unhandled exception occurred during the request to {Uri}", req.RequestUri);
                 throw;
             }
             finally
