@@ -1,4 +1,12 @@
 # GeminiSharp - the C# library for the Google Gemini API
+## 📦 Archival Notice
+
+> **Status: Archived**
+
+Google has officially released an **official Generative AI SDK for C#**, providing first-class support for the Gemini API directly from Google.
+
+As a result, **GeminiSharp is now archived** and will no longer receive active development, new features, or bug fixes.
+
 
 Comprehensive API for interacting with Google's Gemini models supporting text, chat, image generation, file uploads, grounding, code execution, model tuning, and more.
 
